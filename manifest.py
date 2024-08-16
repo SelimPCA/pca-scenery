@@ -302,6 +302,7 @@ class HttpDirective:
                 # TODO
                 pass
             case DirectiveCommand.COUNT_INSTANCES, {"model": str(s), "n": int(n)}:
+                print("ICI")
                 app_config = apps.get_app_config("app")
                 self.args["model"] = app_config.get_model(s)
             case DirectiveCommand.COUNT_INSTANCES, Substituable(field_repr, target):
