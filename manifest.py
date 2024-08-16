@@ -9,15 +9,13 @@ from typing import Any
 from urllib.parse import urlparse
 import re
 
-from common import read_yaml
+from common import read_yaml, SingleKeyDict
 
 from django.apps import apps
 from django.urls import reverse
 from django.utils.http import urlencode
 from django.urls.exceptions import NoReverseMatch
 from django.db.models.base import ModelBase
-
-from app.tests.utils import SingleKeyDict
 
 
 ####################################

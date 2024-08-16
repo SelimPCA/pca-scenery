@@ -1,1 +1,1 @@
-"""A versatile testing framework for packages and web app extending unittest."""
+"""A versatile testing framework for packages and django apps relying on unittest."""

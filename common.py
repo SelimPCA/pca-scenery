@@ -1,4 +1,4 @@
-"""General functions used by other modules"""
+"""General functions and classes used by other modules"""
 
 import dataclasses
 import re
@@ -9,6 +9,8 @@ import yaml
 ########################
 # SINGLE KEY DICTIONNARY
 ########################
+
+# TODO: should this move to dataclasses ?
 
 SingleKeyDictKey = typing.TypeVar("SingleKeyDictKey", bound=str)
 SingleKeyDictKeyValue = typing.TypeVar("SingleKeyDictKeyValue")
