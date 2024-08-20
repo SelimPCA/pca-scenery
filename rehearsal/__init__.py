@@ -211,6 +211,7 @@ class TestCaseOfDjangoTestCase(CustomTestCase):
         result = self.run_django_test(django_test)
         from pprint import pprint
         pprint(result.errors)
+        pprint(result.failures)
         self.assertTrue(result.wasSuccessful(), f"{django_test} was not succesfull")
 
     def assertTestFails(self, django_test):
