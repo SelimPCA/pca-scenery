@@ -1,9 +1,12 @@
+import http
 from typing import Any
 
 import manifest
 
-from django.test import TestCase
-from django.http import HttpResponse, HttpResponseRedirect
+import django.test
+import django.http
+# from django.test import TestCase
+# from django.http import HttpResponse, HttpResponseRedirect
 from django.apps import apps as django_apps
 from django.db.models.deletion import ProtectedError
 
@@ -12,8 +15,30 @@ from bs4 import BeautifulSoup
 
 class HttpChecker:
 
+
     @staticmethod
-    def exec_check(django_testcase: TestCase, response: HttpResponse, check: manifest.HttpCheck):
+    def get_http_client_response(client, take: manifest.HttpTake):
+
+        # print("###########", take)
+
+        match take.method:
+            case http.HTTPMethod.GET:
+                response = client.get(
+                    take.url,
+                    take.data,
+                )
+            case http.HTTPMethod.POST:
+                response = client.post(
+                    take.url,
+                    take.data,
+                )
+            case _:
+                raise NotImplementedError(take.method)
+        return response
+
+
+    @staticmethod
+    def exec_check(django_testcase: django.test.TestCase, response: django.http.HttpResponse, check: manifest.HttpCheck):
 
         ## SANITY CHECK SELIM
         ## TO CHECK IN THE DATABASE ON TEST ENVIRONMENT THAT SOMETHING HAS BEEN STORED
@@ -49,16 +74,16 @@ class HttpChecker:
                 raise NotImplementedError(check)
 
     @staticmethod
-    def check_status_code(django_testcase: TestCase, response: HttpResponse, args: int):
+    def check_status_code(django_testcase: django.test.TestCase, response: django.http.HttpResponse, args: int):
         django_testcase.assertEqual(response.status_code, args)
 
     @staticmethod
-    def check_redirect_url(self: TestCase, response: HttpResponseRedirect, args: str):
+    def check_redirect_url(self: django.test.TestCase, response: django.http.HttpResponseRedirect, args: str):
         self.assertEqual(response.url, args)
 
     @staticmethod
     def check_count_instances(
-        django_testcase: TestCase, response: HttpResponse, args: dict
+        django_testcase: django.test.TestCase, response: django.http.HttpResponse, args: dict
     ):
         # cls = apps.get_model("app", args["model"])
         # instances = list(cls.objects.all())
@@ -67,7 +92,7 @@ class HttpChecker:
 
     @staticmethod
     def check_dom_element(
-        django_testcase: TestCase, response: HttpResponse, args: dict[manifest.DomArgument, Any]
+        django_testcase: django.test.TestCase, response: django.http.HttpResponse, args: dict[manifest.DomArgument, Any]
     ):
         # NOTE: we do not support xpath as it is not supported by BeautifulSoup
         # this would require to use lxml

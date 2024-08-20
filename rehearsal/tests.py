@@ -7,8 +7,10 @@ import common
 from http_checker import HttpChecker
 import manifest
 from manifest_parser import ManifestParser
+from method_builder import MethodBuilder
 import rehearsal
 from rehearsal.project_django.some_app.models import SomeModel
+from set_up_handler import SetUpHandler
 
 import django.http
 
@@ -607,7 +609,8 @@ class TestHttpChecker(rehearsal.TestCaseOfDjangoTestCase):
         self.assertTestFails(self.django_testcase("test_fail"))
 
     def test_check_count_instances(self):
-        SetUpHandler.reset_db()  # As is it tested in TestSetUpInstructions we assume it is working
+        # SetUpHandler.reset_db()  # As is it tested in TestSetUpInstructions we assume it is working
+        SetUpHandler.exec_set_up_instruction(None, manifest.SetUpInstruction(manifest.SetUpCommand("reset_db"), {}))
         response = django.http.HttpResponse()
 
         def test_pass(django_testcase):
@@ -764,3 +767,137 @@ class TestHttpChecker(rehearsal.TestCaseOfDjangoTestCase):
         self.assertTestFails(self.django_testcase("test_fail_3"))
         self.assertTestRaises(self.django_testcase("test_error_1"), ValueError)
 
+################
+# METHOD BUILDER
+################
+
+
+class TestMethodBuilder(rehearsal.TestCaseOfDjangoTestCase):
+
+    exec_order = []
+
+    def test_execution_order(self):
+        """
+        We check the setUpTestData function is executed before the tests and only once
+        As opposed to setUp
+        Note that currently, there is only one single test by TestCase (ie by Take)
+        But we could therefore easily go beyond
+        """
+
+        ## Reset class attribute
+        TestMethodBuilder.exec_order = []
+
+        take = manifest.HttpTake(http.HTTPMethod.GET, "https://www.example.com", [], {}, {}, {})
+
+        def watch(func):
+
+            def wrapper(*args, **kwargs):
+
+                # print("beginning with exec_order")
+                # print(TestMethodBuilder.exec_order)
+                # print("trying this func.__name__")
+                # print(func.__name__)
+                # print(type(func))
+                if type(func) is classmethod:
+
+                    # print("is_class_method")
+                    # otherwise the call fails
+                    method = func.__get__(
+                        self.django_testcase, type(self.django_testcase)
+                    )
+                    x = method(*args, **kwargs)
+                else:
+                    # print("is_not_class_method")
+                    # print("args")
+                    # print(args)
+                    # print("kwargs")
+                    # print(kwargs)
+                    x = func(*args, **kwargs)
+                #     print("execution_succedded")
+
+                # print(x)
+                # print("exec order before append")
+                # print(TestMethodBuilder.exec_order)
+                TestMethodBuilder.exec_order.append(func.__name__)
+                # print("ending with exec_order")
+                # print(TestMethodBuilder.exec_order)
+
+                # print("\n\n")
+                return x
+
+            return wrapper
+
+        self.django_testcase.setUpTestData = watch(
+            MethodBuilder.build_setUpTestData([])
+        )
+        self.django_testcase.setUp = watch(MethodBuilder.build_setUp([]))
+
+        test_1 = MethodBuilder.build_test_from_take(take)
+        test_1.__name__ = "test_1"
+        test_2 = MethodBuilder.build_test_from_take(take)
+        test_2.__name__ = "test_2"
+
+        self.django_testcase.test_1 = watch(test_1)
+        self.django_testcase.test_2 = watch(test_2)
+
+        self.run_django_testcase()
+
+        # print("self.django_testcase.test_1", self.django_testcase.test_1)
+        # print("self.django_testcase.test_2", self.django_testcase.test_2)
+
+        self.assertListEqual(
+            # self.django_testcase.execution_order,
+            TestMethodBuilder.exec_order,
+            ["setUpTestData", "setUp", "test_1", "setUp", "test_2"],
+        )
+
+    def test_persistency_test_data(self):
+        # Check the persistency of data created during tests
+        self.django_testcase.setUpTestData = MethodBuilder.build_setUpTestData(
+            [
+                manifest.SetUpInstruction(manifest.SetUpCommand.RESET_DB),
+                manifest.SetUpInstruction(
+                    manifest.SetUpCommand.CREATE_TESTUSER,
+                    {
+                        "user_email": "email@mail.com",
+                        "first_name": "Harry",
+                        "last_name": "Potter",
+                        "password": "password",
+                        "is_active": True,
+                        "birth_date_year": 1980,
+                        "birth_date_month": 7,
+                        "birth_date_day": 31,
+                        "class_at_school": "premiere",
+                        "contract": 0,
+                    },
+                ),
+            ]
+        )
+
+        def test_1(django_testcase):
+            # NOTE: the assertion is done on the unittest.TestCase and not the django.TestCase
+            instances = SomeModel.objects.all()
+            self.assertEqual(len(instances), 1)
+
+        def test_2(django_testcase):
+            # NOTE: the assertion is done on the unittest.TestCase and not the django.TestCase
+            SetUpHandler.create_testuser(
+                user_email="another_email@mail.com",
+                first_name="Harry",
+                last_name="Potter",
+                password="password",
+                is_active=True,
+                birth_date_year=1980,
+                birth_date_month=7,
+                birth_date_day=31,
+                class_at_school="premiere",
+                contract=0,
+            )
+            instances = SomeModel.objects.all()
+            self.assertEqual(len(instances), 2)
+
+        self.django_testcase.test_1 = test_1
+        self.django_testcase.test_2 = test_2
+
+        self.assertTestPasses(self.django_testcase("test_1"))
+        self.assertTestPasses(self.django_testcase("test_2"))

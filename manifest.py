@@ -1,7 +1,7 @@
 """Represent all data conveied by the manifest"""
 
 from dataclasses import dataclass, field
-from enum import Enum
+import enum
 import os
 import http
 from typing import Any
@@ -27,7 +27,7 @@ from django.db.models.base import ModelBase
 ####################
 
 
-class ManifestFormattedDictKeys(Enum):
+class ManifestFormattedDictKeys(enum.Enum):
     """Used in formated dict, they are exactly contained when passed in Manifest.from_formatted_dict"""
 
     SET_UP_TEST_DATA = "set_up_test_data"
@@ -37,7 +37,7 @@ class ManifestFormattedDictKeys(Enum):
     MANIFEST_ORIGIN = "manifest_origin"
 
 
-class ManifestDictKeys(Enum):
+class ManifestDictKeys(enum.Enum):
     """Keys allowed for Manifest.from_dict (and .from_yaml)"""
 
     SET_UP_TEST_DATA = "set_up_test_data"
@@ -50,7 +50,7 @@ class ManifestDictKeys(Enum):
     SCENE = "scene"
 
 
-class ManifestYAMLKeys(Enum):
+class ManifestYAMLKeys(enum.Enum):
     """Keys allowed for Manifest.from_yaml compared to Manifest.from_dict"""
 
     SET_UP_TEST_DATA = "set_up_test_data"
@@ -70,7 +70,7 @@ class ManifestYAMLKeys(Enum):
 ########
 
 
-class SetUpCommand(Enum):
+class SetUpCommand(enum.Enum):
     """Values allowed in Manifest["set_up"] and Manifest["set_up_test_data"]"""
 
     RESET_DB = "reset_db"
@@ -97,7 +97,7 @@ class SetUpCommand(Enum):
 ########
 
 
-class DirectiveCommand(Enum):
+class DirectiveCommand(enum.Enum):
     """Values allowed for Manifest["checks"]"""
 
     STATUS_CODE = "status_code"
@@ -106,7 +106,7 @@ class DirectiveCommand(Enum):
     DOM_ELEMENT = "dom_element"
 
 
-class DomArgument(Enum):
+class DomArgument(enum.Enum):
     """Values allowed for Manifest["checks]["dom_element"]"""
 
     FIND = "find"
