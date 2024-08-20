@@ -4,6 +4,8 @@ import logging
 from types import TracebackType
 import unittest
 
+import common
+
 import django
 from django.conf import settings as django_settings
 from django.apps import apps as django_apps
@@ -35,15 +37,14 @@ django_settings.configure(
         # Add other apps here
         "rehearsal.project_django.some_app",
     ],
-    DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": "rehearsal/project_django/db.sqlite3",
-    }
-}
+    DATABASES={
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": "rehearsal/project_django/db.sqlite3",
+        }
+    },
 )
 django.setup()
-
 
 
 ####################################
@@ -230,3 +231,81 @@ class TestCaseOfDjangoTestCase(CustomTestCase):
             expected, msg=f"{django_test} did not raise expected exception {expected}"
         ):
             raise result.caught_exception[0](result.caught_exception[1])
+
+
+#####################################
+# DISCOVERER AND RUNNER
+#####################################
+
+
+class Discoverer:
+
+    def __init__(self) -> None:
+        self.logger = logging.getLogger("rehearsal")
+        self.loader = unittest.TestLoader()
+
+    def discover(self, verbosity):
+        """Returns a list of pair (test_name, suite), each suite contains a single test"""
+
+        import rehearsal.tests
+
+        tests_discovered = []
+
+        for testsuite in self.loader.loadTestsFromModule(rehearsal.tests):
+
+            for testcase in testsuite:
+
+                tests = self.loader.loadTestsFromTestCase(testcase.__class__)
+                for test in tests:
+
+                    test_name = pretty_test_name(test)
+
+                    # Log / verbosity
+                    msg = f"Discovered {test_name}"
+                    self.logger.debug(msg)
+                    if verbosity >= 2:
+                        print(msg)
+
+                    suite = unittest.TestSuite(tests=(test,))
+                    tests_discovered.append((test_name, suite))
+
+        return tests_discovered
+
+
+class Runner:
+
+    def __init__(self):
+        self.runner = unittest.TextTestRunner(stream=io.StringIO())
+        self.logger = logging.getLogger(__package__ + ".rehearsal")
+
+    def run(self, tests_discovered, verbosity):
+
+        results = {}
+        for test_name, suite in tests_discovered:
+
+            # with redirect_stdout():
+            result = self.runner.run(suite)
+
+            result_serialized = serialize_result(result)
+            results[test_name] = result_serialized
+
+            if result.errors or result.failures:
+                log_lvl, color = logging.ERROR, "red"
+            else:
+                log_lvl, color = logging.INFO, "green"
+            self.logger.log(
+                log_lvl, f"{test_name}\n{common.tabulate(result_serialized)}"
+            )
+            if verbosity > 0:
+                print(
+                    f"{common.colorize(color, test_name)}\n{common.tabulate({key: val for key, val in result_serialized.items() if val > 0})}"
+                )
+
+            # Log / verbosity
+            for head, traceback in result.failures + result.errors:
+                msg = f"{test_name}\n{head}\n{traceback}"
+                self.logger.error(msg)
+                if verbosity > 0:
+                    print(msg)
+
+        return results
