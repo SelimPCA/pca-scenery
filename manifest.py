@@ -1,6 +1,4 @@
-"""Represent all data conveied by the manifest
-TODO: rename Http HTTP
-"""
+"""Represent all data conveied by the manifest"""
 
 from dataclasses import dataclass, field
 from enum import Enum
@@ -18,6 +16,8 @@ from django.utils.http import urlencode
 from django.urls.exceptions import NoReverseMatch
 from django.db.models.base import ModelBase
 
+
+#  TODO: rename Http HTTP
 
 ####################################
 # ENUMS
@@ -485,7 +485,7 @@ class HttpCheck(HttpDirective):
                 # TODO
             case DirectiveCommand.COUNT_INSTANCES, {"model": ModelBase(), "n": int(n)}:
                 # Validate model is registered
-                app_config = apps.get_app_config("app")
+                app_config = apps.get_app_config(os.getenv("SCENERY_TESTED_APP"))
                 app_config.get_model(self.args["model"].__name__)
             case _:
                 raise ValueError(

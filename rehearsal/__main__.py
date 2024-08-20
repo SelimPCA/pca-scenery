@@ -1,33 +1,13 @@
-import os
+"""Test the package `pca-scenery` itself."""
+
 import unittest
 
-os.environ["SCENERY_TESTED_APP"] = "some_app"
-
-import rehearsal
-
-import django
-from django.conf import settings as django_settings
-
-django_settings.configure(
-    ROOT_URLCONF="rehearsal.app_django.app_django.urls",
-    INSTALLED_APPS=[
-        "django.contrib.admin",
-        "django.contrib.contenttypes",
-        "django.contrib.auth",
-        "django.contrib.sessions",
-        "django.contrib.messages",
-        "django.contrib.staticfiles",
-        # Add other apps here
-        # "rehearsal.app_django.app_django",
-        # "rehearsal.app_django.some_app.apps.SomeAppConfig",
-        "rehearsal.app_django.some_app",
-    ],
-)
-django.setup()
+import rehearsal.tests
 
 # TODO: remove and go through cli only ?
+# TODO: should be run_suite_from_module(module)
 
 loader = unittest.loader.TestLoader()
 runner = unittest.TextTestRunner()
-suite = loader.loadTestsFromModule(rehearsal)
+suite = loader.loadTestsFromModule(rehearsal.tests)
 runner.run(suite)
