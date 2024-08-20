@@ -1,4 +1,8 @@
+import os
 import unittest
+
+os.environ["SCENERY_TESTED_APP"] = "some_app"
+
 import rehearsal
 
 import django
@@ -14,6 +18,9 @@ django_settings.configure(
         "django.contrib.messages",
         "django.contrib.staticfiles",
         # Add other apps here
+        # "rehearsal.app_django.app_django",
+        # "rehearsal.app_django.some_app.apps.SomeAppConfig",
+        "rehearsal.app_django.some_app",
     ],
 )
 django.setup()

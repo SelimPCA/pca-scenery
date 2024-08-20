@@ -2,8 +2,9 @@
 TODO: rename Http HTTP
 """
 
-from enum import Enum
 from dataclasses import dataclass, field
+from enum import Enum
+import os
 import http
 from typing import Any
 from urllib.parse import urlparse
@@ -302,8 +303,7 @@ class HttpDirective:
                 # TODO
                 pass
             case DirectiveCommand.COUNT_INSTANCES, {"model": str(s), "n": int(n)}:
-                print("ICI")
-                app_config = apps.get_app_config("app")
+                app_config = apps.get_app_config(os.getenv("SCENERY_TESTED_APP"))
                 self.args["model"] = app_config.get_model(s)
             case DirectiveCommand.COUNT_INSTANCES, Substituable(field_repr, target):
                 # TODO

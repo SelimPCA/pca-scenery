@@ -1,3 +1,4 @@
+import os
 import http
 import unittest
 
@@ -89,7 +90,7 @@ class TestHttpDirective(unittest.TestCase):
             manifest.DirectiveCommand("dom_element"), {"find": object()}
         )
         manifest.HttpDirective(
-            manifest.DirectiveCommand("count_instances"), {"model": "Profile", "n": 1}
+            manifest.DirectiveCommand("count_instances"), {"model": "SomeModel", "n": 1}
         )
         with self.assertRaises(ValueError):
             manifest.HttpDirective(manifest.DirectiveCommand("status_code"), "200")
