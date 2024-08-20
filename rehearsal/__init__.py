@@ -11,7 +11,7 @@ os.environ["SCENERY_TESTED_APP"] = "some_app"
 os.environ["SCENERY_COMMON_ITEMS"] = "rehearsal/common_items.yml"
 
 django_settings.configure(
-    ROOT_URLCONF="rehearsal.app_django.app_django.urls",
+    ROOT_URLCONF="rehearsal.project_django.project_django.urls",
     INSTALLED_APPS=[
         "django.contrib.admin",
         "django.contrib.contenttypes",
@@ -20,9 +20,7 @@ django_settings.configure(
         "django.contrib.messages",
         "django.contrib.staticfiles",
         # Add other apps here
-        # "rehearsal.app_django.app_django",
-        # "rehearsal.app_django.some_app.apps.SomeAppConfig",
-        "rehearsal.app_django.some_app",
+        "rehearsal.project_django.some_app",
     ],
 )
 django.setup()

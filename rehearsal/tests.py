@@ -7,7 +7,7 @@ import common
 import manifest
 from manifest_parser import ManifestParser
 
-from rehearsal.app_django.some_app.models import SomeModel
+from rehearsal.project_django.some_app.models import SomeModel
 
 
 #####################
