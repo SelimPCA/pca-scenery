@@ -856,7 +856,7 @@ class TestMethodBuilder(rehearsal.TestCaseOfDjangoTestCase):
             [
                 manifest.SetUpInstruction("reset_db"),
                 manifest.SetUpInstruction(
-                    "create_someinstance",
+                    "create_some_instance",
                     {
                         "some_field": "some_value",
                     },
@@ -871,18 +871,7 @@ class TestMethodBuilder(rehearsal.TestCaseOfDjangoTestCase):
 
         def test_2(django_testcase):
             # NOTE: the assertion is done on the unittest.TestCase and not the django.TestCase
-            SetUpHandler.create_testuser(
-                user_email="another_email@mail.com",
-                first_name="Harry",
-                last_name="Potter",
-                password="password",
-                is_active=True,
-                birth_date_year=1980,
-                birth_date_month=7,
-                birth_date_day=31,
-                class_at_school="premiere",
-                contract=0,
-            )
+            SetUpHandler.exec_set_up_instruction(None, manifest.SetUpInstruction("create_some_instance", {"some_field": "another_value"}))
             instances = SomeModel.objects.all()
             self.assertEqual(len(instances), 2)
 

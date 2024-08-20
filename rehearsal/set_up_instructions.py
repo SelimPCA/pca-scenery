@@ -33,9 +33,10 @@ def login(
 
 # TODO: all of this below should be in a file in the app and set_up_handler should define its method dynamically
 
-def create_someinstance(*,some_field):
+def create_some_instance(*,some_field):
 
-    SomeModel(some_field=some_field)
+    some_instance = SomeModel(some_field=some_field)
+    some_instance.save()
     # birth_date = datetime.datetime(
     #     birth_date_year, birth_date_month, birth_date_day
     # )
