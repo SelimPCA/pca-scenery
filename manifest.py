@@ -10,14 +10,12 @@ import re
 
 from common import read_yaml, SingleKeyDict
 
-from django.apps import apps
+from django.apps import apps as django_apps
 from django.urls import reverse
 from django.utils.http import urlencode
 from django.urls.exceptions import NoReverseMatch
 from django.db.models.base import ModelBase
 
-
-#  TODO: rename Http HTTP
 
 ####################################
 # ENUMS
@@ -303,7 +301,7 @@ class HttpDirective:
                 # TODO
                 pass
             case DirectiveCommand.COUNT_INSTANCES, {"model": str(s), "n": int(n)}:
-                app_config = apps.get_app_config(os.getenv("SCENERY_TESTED_APP"))
+                app_config = django_apps.get_app_config(os.getenv("SCENERY_TESTED_APP"))
                 self.args["model"] = app_config.get_model(s)
             case DirectiveCommand.COUNT_INSTANCES, Substituable(field_repr, target):
                 # TODO
@@ -485,7 +483,7 @@ class HttpCheck(HttpDirective):
                 # TODO
             case DirectiveCommand.COUNT_INSTANCES, {"model": ModelBase(), "n": int(n)}:
                 # Validate model is registered
-                app_config = apps.get_app_config(os.getenv("SCENERY_TESTED_APP"))
+                app_config = django_apps.get_app_config(os.getenv("SCENERY_TESTED_APP"))
                 app_config.get_model(self.args["model"].__name__)
             case _:
                 raise ValueError(

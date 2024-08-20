@@ -4,11 +4,13 @@ import http
 import unittest
 
 import common
+from http_checker import HttpChecker
 import manifest
 from manifest_parser import ManifestParser
-
+import rehearsal
 from rehearsal.project_django.some_app.models import SomeModel
 
+import django.http
 
 #####################
 # COMMON
@@ -564,3 +566,201 @@ class TestManifestParser(unittest.TestCase):
             "manifest_origin": "origin",
         }
         ManifestParser.validate_yaml(manifest)
+
+
+#################
+# HTTP CHECKER
+#################
+
+class TestHttpChecker(rehearsal.TestCaseOfDjangoTestCase):
+
+    def test_check_status_code(self):
+
+        response = django.http.HttpResponse()
+        response.status_code = 200
+
+        def test_pass(django_testcase):
+            HttpChecker.check_status_code(django_testcase, response, 200)
+
+        def test_fail(django_testcase):
+            HttpChecker.check_status_code(django_testcase, response, 400)
+
+        self.django_testcase.test_pass = test_pass
+        self.django_testcase.test_fail = test_fail
+
+        self.assertTestPasses(self.django_testcase("test_pass"))
+        self.assertTestFails(self.django_testcase("test_fail"))
+
+    def test_check_redirect_url(self):
+        response = django.http.HttpResponseRedirect(redirect_to="somewhere")
+
+        def test_pass(django_testcase):
+            HttpChecker.check_redirect_url(django_testcase, response, "somewhere")
+
+        def test_fail(django_testcase):
+            HttpChecker.check_redirect_url(django_testcase, response, "elsewhere")
+
+        self.django_testcase.test_pass = test_pass
+        self.django_testcase.test_fail = test_fail
+
+        self.assertTestPasses(self.django_testcase("test_pass"))
+        self.assertTestFails(self.django_testcase("test_fail"))
+
+    def test_check_count_instances(self):
+        SetUpHandler.reset_db()  # As is it tested in TestSetUpInstructions we assume it is working
+        response = django.http.HttpResponse()
+
+        def test_pass(django_testcase):
+            HttpChecker.check_count_instances(
+                django_testcase, response, {"model": SomeModel, "n": 0}
+            )
+
+        def test_fail(django_testcase):
+            HttpChecker.check_count_instances(
+                django_testcase, response, {"model": SomeModel, "n": 1}
+            )
+
+        # def test_error(django_testcase):
+        #     class UndefinedModel:
+        #         pass
+
+        #     HttpChecker.check_count_instances(
+        #         django_testcase, response, {"model": UndefinedModel, "n": 0}
+        #     )
+
+        self.django_testcase.test_pass = test_pass
+        self.django_testcase.test_fail = test_fail
+        # self.django_testcase.test_error = test_error
+
+        self.assertTestPasses(self.django_testcase("test_pass"))
+        self.assertTestFails(self.django_testcase("test_fail"))
+        # This actually raises an AttributeError as now data validation is
+        # Performed by the HttpTake dataclasses
+        # self.assertTestRaises(self.django_testcase("test_error"), LookupError)
+
+    def test_check_dom_element(self):
+
+        def test_pass_find_by_id(django_testcase):
+            response = django.http.HttpResponse()
+            response.content = '<div id="target">Pass</div>'
+            HttpChecker.check_dom_element(
+                django_testcase, response, {manifest.DomArgument.FIND: {"id": "target"}}
+            )
+
+        def test_pass_find_by_class(django_testcase):
+            response = django.http.HttpResponse()
+            response.content = '<div class="target">Pass</div>'
+            HttpChecker.check_dom_element(
+                django_testcase, response, {manifest.DomArgument.FIND: {"class": "target"}}
+            )
+
+        def test_pass_text(django_testcase):
+            response = django.http.HttpResponse()
+            response.content = '<div id="target">Pass</div>'
+            HttpChecker.check_dom_element(
+                django_testcase,
+                response,
+                {manifest.DomArgument.FIND: {"id": "target"}, manifest.DomArgument.TEXT: "Pass"},
+            )
+
+        def test_pass_attribute(django_testcase):
+            response = django.http.HttpResponse()
+            response.content = '<div id="target" class="something">Pass</div>'
+            HttpChecker.check_dom_element(
+                django_testcase,
+                response,
+                {
+                    manifest.DomArgument.FIND: {"id": "target"},
+                    manifest.DomArgument.ATTRIBUTE: {"name": "class", "value": ["something"]},
+                },
+            )
+
+        def test_pass_find_all(django_testcase):
+            response = django.http.HttpResponse()
+            response.content = (
+                '<div class="something">Pass</div> <div class="something">Pass</div>'
+            )
+            HttpChecker.check_dom_element(
+                django_testcase,
+                response,
+                {
+                    manifest.DomArgument.FIND_ALL: {"class": "something"},
+                    manifest.DomArgument.COUNT: 2,
+                },
+            )
+
+        def test_pass_scope(django_testcase):
+            response = django.http.HttpResponse()
+            response.content = '<div id="scope"> <div class="something">In</div> <div class="something">In</div> </div> <div class="something">'
+            HttpChecker.check_dom_element(
+                django_testcase,
+                response,
+                {
+                    manifest.DomArgument.SCOPE: {"id": "scope"},
+                    manifest.DomArgument.FIND_ALL: {"class": "something"},
+                    manifest.DomArgument.COUNT: 2,
+                },
+            )
+
+        def test_fail_1(django_testcase):
+            response = django.http.HttpResponse()
+            response.content = '<div id="target">Pass</div>'
+            HttpChecker.check_dom_element(
+                django_testcase, response, {manifest.DomArgument.FIND: {"id": "another_target"}}
+            )
+
+        def test_fail_2(django_testcase):
+            response = django.http.HttpResponse()
+            response.content = '<div id="target">Pass</div>'
+            HttpChecker.check_dom_element(
+                django_testcase,
+                response,
+                {manifest.DomArgument.FIND: {"id": "target"}, manifest.DomArgument.TEXT: "Fail"},
+            )
+
+        def test_fail_3(django_testcase):
+            response = django.http.HttpResponse()
+            response.content = '<div id="target" class="something">Pass</div>'
+            HttpChecker.check_dom_element(
+                django_testcase,
+                response,
+                {
+                    manifest.DomArgument.FIND: {"id": "target"},
+                    manifest.DomArgument.ATTRIBUTE: {
+                        "name": "class",
+                        "value": ["something_else"],
+                    },
+                },
+            )
+
+        def test_error_1(django_testcase):
+            response = django.http.HttpResponse()
+            response.content = '<div id="target" class="something">Pass</div>'
+            HttpChecker.check_dom_element(
+                django_testcase,
+                response,
+                {},
+            )
+
+        self.django_testcase.test_pass_find_by_id = test_pass_find_by_id
+        self.django_testcase.test_pass_find_by_class = test_pass_find_by_class
+        self.django_testcase.test_pass_text = test_pass_text
+        self.django_testcase.test_pass_attribute = test_pass_attribute
+        self.django_testcase.test_pass_find_all = test_pass_find_all
+        self.django_testcase.test_pass_scope = test_pass_scope
+        self.django_testcase.test_fail_1 = test_fail_1
+        self.django_testcase.test_fail_2 = test_fail_2
+        self.django_testcase.test_fail_3 = test_fail_3
+        self.django_testcase.test_error_1 = test_error_1
+
+        self.assertTestPasses(self.django_testcase("test_pass_find_by_id"))
+        self.assertTestPasses(self.django_testcase("test_pass_find_by_class"))
+        self.assertTestPasses(self.django_testcase("test_pass_attribute"))
+        self.assertTestPasses(self.django_testcase("test_pass_text"))
+        self.assertTestPasses(self.django_testcase("test_pass_find_all"))
+        self.assertTestPasses(self.django_testcase("test_pass_scope"))
+        self.assertTestFails(self.django_testcase("test_fail_1"))
+        self.assertTestFails(self.django_testcase("test_fail_2"))
+        self.assertTestFails(self.django_testcase("test_fail_3"))
+        self.assertTestRaises(self.django_testcase("test_error_1"), ValueError)
+
