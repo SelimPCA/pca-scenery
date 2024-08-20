@@ -169,9 +169,6 @@ class ManifestParser:
         with open(fn) as f:
             content = yaml.load(f, Loader)
 
-        # from pprint import pprint
-
-        # pprint(content)
 
         return content
 
