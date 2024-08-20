@@ -15,7 +15,7 @@ class SetUpHandler:
     `SetUpInstruction`
     """
 
-    module = importlib.import_module(os.getenv("SCENERY_SET_UP_INSTRUCTIONS"))
+    module = importlib.import_module(os.getenv("SCENERY_SET_UP_INSTRUCTIONS"),)
 
     @staticmethod
     def exec_set_up_instruction(client, instruction: manifest.SetUpInstruction):

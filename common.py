@@ -10,7 +10,7 @@ import yaml
 # SINGLE KEY DICTIONNARY
 ########################
 
-# TODO: should this move to dataclasses ?
+# TODO: should this move to manifest ?
 
 SingleKeyDictKey = typing.TypeVar("SingleKeyDictKey", bound=str)
 SingleKeyDictKeyValue = typing.TypeVar("SingleKeyDictKeyValue")

@@ -70,15 +70,15 @@ class ManifestYAMLKeys(enum.Enum):
 ########
 
 
-class SetUpCommand(enum.Enum):
-    """Values allowed in Manifest["set_up"] and Manifest["set_up_test_data"]"""
+# class SetUpCommand(enum.Enum):
+#     """Values allowed in Manifest["set_up"] and Manifest["set_up_test_data"]"""
 
-    RESET_DB = "reset_db"
-    CREATE_SUPERUSER = "create_superuser"
-    CREATE_TESTUSER = "create_testuser"
-    LOGIN = "login"
-    LOAD_HIGHSCHOOLS = "load_highschools"
-    # LOAD_CONTENT = "load_content"
+#     RESET_DB = "reset_db"
+#     CREATE_SUPERUSER = "create_superuser"
+#     CREATE_TESTUSER = "create_testuser"
+#     LOGIN = "login"
+#     LOAD_HIGHSCHOOLS = "load_highschools"
+#     # LOAD_CONTENT = "load_content"
 
 
 ##############
