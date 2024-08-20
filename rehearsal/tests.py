@@ -41,8 +41,7 @@ class TestSetUpInstruction(unittest.TestCase):
 
     def test(self):
 
-        cmd_name = "reset_db"
-        cmd = manifest.SetUpCommand.RESET_DB
+        cmd = "reset_db"
         args = {"arg": object()}
 
         with self.subTest("__init__ without args"):
@@ -56,9 +55,9 @@ class TestSetUpInstruction(unittest.TestCase):
             self.assertEqual(instruction.args, args)
 
         with self.subTest("from_object"):
-            instruction = manifest.SetUpInstruction.from_object(cmd_name)
+            instruction = manifest.SetUpInstruction.from_object(cmd)
             self.assertEqual(instruction, manifest.SetUpInstruction(cmd))
-            instruction = manifest.SetUpInstruction.from_object({cmd_name: args})
+            instruction = manifest.SetUpInstruction.from_object({cmd: args})
             self.assertEqual(instruction, manifest.SetUpInstruction(cmd, args))
 
 
@@ -289,8 +288,8 @@ class TestManifest(unittest.TestCase):
             {},
         )
         scenes = [scene]
-        set_up_test_data = [manifest.SetUpInstruction(manifest.SetUpCommand.RESET_DB)]
-        set_up = [manifest.SetUpInstruction(manifest.SetUpCommand.LOGIN)]
+        set_up_test_data = [manifest.SetUpInstruction("reset_db")]
+        set_up = [manifest.SetUpInstruction("login")]
         cases = [
             manifest.Case("a", [manifest.Item("item_id", {})]),
             manifest.Case("b", [manifest.Item("item_id", {})]),
@@ -609,8 +608,8 @@ class TestHttpChecker(rehearsal.TestCaseOfDjangoTestCase):
         self.assertTestFails(self.django_testcase("test_fail"))
 
     def test_check_count_instances(self):
-        # SetUpHandler.reset_db()  # As is it tested in TestSetUpInstructions we assume it is working
-        SetUpHandler.exec_set_up_instruction(None, manifest.SetUpInstruction(manifest.SetUpCommand("reset_db"), {}))
+        # NOTE As the method below is tested in TestSetUpInstructions we assume it is working
+        SetUpHandler.exec_set_up_instruction(None, manifest.SetUpInstruction("reset_db", {}))
         response = django.http.HttpResponse()
 
         def test_pass(django_testcase):
@@ -784,7 +783,7 @@ class TestMethodBuilder(rehearsal.TestCaseOfDjangoTestCase):
         But we could therefore easily go beyond
         """
 
-        ## Reset class attribute
+        # Reset class attribute
         TestMethodBuilder.exec_order = []
 
         take = manifest.HttpTake(http.HTTPMethod.GET, "https://www.example.com", [], {}, {}, {})
@@ -855,20 +854,11 @@ class TestMethodBuilder(rehearsal.TestCaseOfDjangoTestCase):
         # Check the persistency of data created during tests
         self.django_testcase.setUpTestData = MethodBuilder.build_setUpTestData(
             [
-                manifest.SetUpInstruction(manifest.SetUpCommand.RESET_DB),
+                manifest.SetUpInstruction("reset_db"),
                 manifest.SetUpInstruction(
-                    manifest.SetUpCommand.CREATE_TESTUSER,
+                    "create_someinstance",
                     {
-                        "user_email": "email@mail.com",
-                        "first_name": "Harry",
-                        "last_name": "Potter",
-                        "password": "password",
-                        "is_active": True,
-                        "birth_date_year": 1980,
-                        "birth_date_month": 7,
-                        "birth_date_day": 31,
-                        "class_at_school": "premiere",
-                        "contract": 0,
+                        "some_field": "some_value",
                     },
                 ),
             ]

@@ -65,20 +65,6 @@ class ManifestYAMLKeys(enum.Enum):
     VARIABLES = "variables"
 
 
-########
-# SET UP
-########
-
-
-# class SetUpCommand(enum.Enum):
-#     """Values allowed in Manifest["set_up"] and Manifest["set_up_test_data"]"""
-
-#     RESET_DB = "reset_db"
-#     CREATE_SUPERUSER = "create_superuser"
-#     CREATE_TESTUSER = "create_testuser"
-#     LOGIN = "login"
-#     LOAD_HIGHSCHOOLS = "load_highschools"
-#     # LOAD_CONTENT = "load_content"
 
 
 ##############
@@ -126,7 +112,8 @@ class DomArgument(enum.Enum):
 class SetUpInstruction:
     """Store the command and potential arguments for setUpTestData and setUp"""
 
-    command: SetUpCommand
+    # command: SetUpCommand
+    command: str
     args: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
@@ -146,7 +133,8 @@ class SetUpInstruction:
                     f"`SetUpInstruction` cannot be instantiated from {type(x)}"
                 )
 
-        return cls(SetUpCommand(cmd_name), args)
+        # return cls(SetUpCommand(cmd_name), args)
+        return cls(cmd_name, args)
 
 
 ########################

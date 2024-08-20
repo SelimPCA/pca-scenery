@@ -21,7 +21,7 @@ class SetUpHandler:
     def exec_set_up_instruction(client, instruction: manifest.SetUpInstruction):
         """Execute the method corresponding to the SetUpInstruction"""
 
-        func = getattr(SetUpHandler.module, instruction.command.value)
+        func = getattr(SetUpHandler.module, instruction.command)
         func(**instruction.args)
         
         logger = logging.getLogger(__package__)

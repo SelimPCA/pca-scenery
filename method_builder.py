@@ -12,7 +12,7 @@ import django.test
 class MethodBuilder:
 
     @staticmethod
-    def build_setUpTestData(instructions: list[manifest.SetUpCommand]):
+    def build_setUpTestData(instructions: list[str]):
 
         def setUpTestData(self: django.test.TestCase):
 
@@ -22,7 +22,7 @@ class MethodBuilder:
         return classmethod(setUpTestData)
 
     @staticmethod
-    def build_setUp(instructions: list[manifest.SetUpCommand]):
+    def build_setUp(instructions: list[str]):
 
         def setUp(self: django.test.TestCase):
             self.client = (
