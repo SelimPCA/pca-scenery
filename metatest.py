@@ -27,9 +27,6 @@ from django.conf import settings
 ##############################
 
 
-# TODO:this should move to unittest ?
-
-
 class MetaTest(type):
 
     def __new__(cls, clsname, bases, manifest: Manifest):
@@ -78,68 +75,40 @@ class MetaTestDiscoverer:
         # print(self.runner)
         # raise Exception
 
-    def discover(self, verbosity, restrict_view_name):
+    def discover(self, folder, verbosity):
         """Returns a list of pair (test_name, suite), each suite contains a single test"""
 
         out = []
 
         suite_cls = self.runner.test_suite
 
-        # Get a list of subfolders containing manifests (per view)
-        subfolders = [
-            subfolder
-            for subfolder in os.listdir(SysConfig.this_folder)
-            if os.path.isdir(os.path.join(SysConfig.this_folder, subfolder))
-        ]
+        ## TODO: add progressive log (Sel)
+        for filename in os.listdir(folder):
+            self.logger.debug(f"Discovered manifest '{folder}/{filename}'")
 
-        # Filter out the ones that don't contain test manifests
-        # Todo: remove
-        # view_names = [folder for folder in subfolders if not folder.startswith("_")]
-        view_names = ["login", "register", "interaction_v1"]
+            manifest = ManifestParser.parse_yaml(
+                os.path.join(folder, filename)
+            )
 
-        # Build tests for each view
+            # Create class
+            filename = filename.replace(".yml", "")
+            testcase_name = f"Test{common.snake_to_camel_case(folder)}{common.snake_to_camel_case(filename)}"
+            cls = MetaTest(testcase_name, (django.test.TestCase,), manifest)
 
-        ## Todo ADD PROGRESSIVE LOG
-        for view_name in view_names:
+            # Log / verbosity
+            msg = f"Discovered {cls.__module__}.{cls.__qualname__}"
+            self.logger.debug(msg)
+            if verbosity >= 2:
+                print(msg)
 
-            if restrict_view_name and view_name != restrict_view_name:
-                continue
+            # Load
+            tests = self.loader.loadTestsFromTestCase(cls)
+            for test in tests:
 
-            ## Todo ADD PROGRESSIVE LOG
-            for filename in os.listdir(os.path.join(SysConfig.this_folder, view_name)):
-                self.logger.debug(f"Discovered manifest '{view_name}/{filename}'")
-
-                # Read manifest
-                # if filename not in ["seconde_tutoriels_9_03.yml"]:
-                #     continue
-
-                ### Todo Lire uniquement yaml dont on a strictement besoin
-                # tentative flag de tout compiler dans un seul yaml
-                # print("filename".upper())
-                # print(filename)
-                manifest = ManifestParser.parse_yaml(
-                    os.path.join(SysConfig.this_folder, view_name, filename)
-                )
-
-                # Create class
-                filename = filename.replace(".yml", "")
-                testcase_name = f"Test{common.snake_to_camel_case(view_name)}{common.snake_to_camel_case(filename)}"
-                cls = MetaTest(testcase_name, (django.test.TestCase,), manifest)
-
-                # Log / verbosity
-                msg = f"Discovered {cls.__module__}.{cls.__qualname__}"
-                self.logger.debug(msg)
-                if verbosity >= 2:
-                    print(msg)
-
-                # Load
-                tests = self.loader.loadTestsFromTestCase(cls)
-                for test in tests:
-
-                    test_name = common.pretty_test_name(test)
-                    suite = suite_cls()
-                    suite.addTest(test)
-                    out.append((test_name, suite))
+                test_name = common.pretty_test_name(test)
+                suite = suite_cls()
+                suite.addTest(test)
+                out.append((test_name, suite))
 
         return out
 
@@ -150,6 +119,7 @@ class MetaTestDiscoverer:
 class MetaTestRunner:
 
     def __init__(self):
+        # TODO: get the discoverer out
         self.runner = get_runner(
             settings, test_runner_class="django.test.runner.DiscoverRunner"
         )()
@@ -163,8 +133,6 @@ class MetaTestRunner:
         self.runner.get_test_runner_kwargs = overwrite.__get__(self.runner)
         app_logger = logging.getLogger("app.close_watch")
         app_logger.propagate = False
-        # print(app_logger.handlers)
-        # raise Exception
 
     def __del__(self):
         # TODO: this is not totally reliable, a context manager would be ideal
@@ -175,7 +143,7 @@ class MetaTestRunner:
     def run(self, verbosity, restrict_view_name):
 
         # TODO: this is VERY similar to rehearsalrunner.run
-        # NOTE: should probably take the discovered suite as argument
+        # TODO: should probably take the discovered suite as argument
 
         results = {}
         for test_name, suite in self.discoverer.discover(

@@ -52,28 +52,6 @@ django.setup()
 ####################################
 
 
-def serialize_result(result: unittest.TestResult) -> dict:
-    result: dict = {
-        attr: getattr(result, attr)
-        for attr in [
-            "failures",
-            "errors",
-            "testsRun",
-            "skipped",
-            "expectedFailures",
-            "unexpectedSuccesses",
-        ]
-    }
-    result = {
-        key: len(val) if isinstance(val, list) else val for key, val in result.items()
-    }
-    return result
-
-
-def pretty_test_name(test: unittest.TestCase):
-    return f"{test.__module__}.{test.__class__.__qualname__}.{test._testMethodName}"
-
-
 class CustomTestResult(unittest.TestResult):
     """
     Modify the addError method just to store the type of exception caught
@@ -171,7 +149,7 @@ class TestCaseOfDjangoTestCase(CustomTestCase):
     def tearDown(self):
         super().tearDown()
         msg = self.django_stream.getvalue()
-        self.logger_django.debug(f"{pretty_test_name(self)}\n{msg}")
+        self.logger_django.debug(f"{common.pretty_test_name(self)}\n{msg}")
         self.django_stream.seek(0)
         self.django_stream.truncate()
 
@@ -243,7 +221,7 @@ class Discoverer:
                 tests = self.loader.loadTestsFromTestCase(testcase.__class__)
                 for test in tests:
 
-                    test_name = pretty_test_name(test)
+                    test_name = common.pretty_test_name(test)
 
                     # Log / verbosity
                     msg = f"Discovered {test_name}"
@@ -271,7 +249,7 @@ class Runner:
             # with redirect_stdout():
             result = self.runner.run(suite)
 
-            result_serialized = serialize_result(result)
+            result_serialized = common.serialize_unittest_result(result)
             results[test_name] = result_serialized
 
             if result.errors or result.failures:
