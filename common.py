@@ -3,8 +3,12 @@
 import dataclasses
 import re
 import typing
+import unittest
+
+from django.test.runner import DiscoverRunner
 
 import yaml
+
 
 ########################
 # SINGLE KEY DICTIONNARY
@@ -91,27 +95,6 @@ def ceil(n):
 # TERMINAL OUTPUT
 ##################
 
-# TODO: this will move
-
-import sys
-import os
-from contextlib import contextmanager
-
-
-# @contextmanager
-# def redirect_stdout(target=None):
-#     # NOTE: written by chatgpt
-#     original_stdout = sys.stdout  # Save the reference to the original stdout
-#     if target is None:
-#         # Open os.devnull if no target specified to suppress all output
-#         with open(os.devnull, "w") as nullfile:
-#             sys.stdout = nullfile
-#             yield
-#     else:
-#         sys.stdout = target
-#         yield
-#     sys.stdout = original_stdout  # Restore stdout after exiting the context
-
 
 class colorize:
     """A context manager for colorizing text in the console"""
@@ -175,3 +158,50 @@ def graph_bar(d: dict, scale=20):
     bars = {key: bar + f"|{int(100 * d[key])} %" for key, bar in bars.items()}
     # bars = {key: bar.ljust(20) + f"|{round(d[key], 2)}" for key, bar in bars.items()}
     return bars
+
+
+###################
+# UNITTEST
+##################
+
+
+def serialize_unittest_result(result: unittest.TestResult) -> dict:
+    result: dict = {
+        attr: getattr(result, attr)
+        for attr in [
+            "failures",
+            "errors",
+            "testsRun",
+            "skipped",
+            "expectedFailures",
+            "unexpectedSuccesses",
+        ]
+    }
+    result = {
+        key: len(val) if isinstance(val, list) else val for key, val in result.items()
+    }
+    return result
+
+
+def pretty_test_name(test: unittest.TestCase):
+    return f"{test.__module__}.{test.__class__.__qualname__}.{test._testMethodName}"
+
+
+###################
+# DJANGO TEST
+###################
+
+
+def overwrite_get_runner_kwargs(django_runner: DiscoverRunner, stream):
+    """
+    see django.test.runner.DiscoverRunner.get_runner_kwargs
+    this is done to avoid to print the django tests output
+    """
+    kwargs = {
+        "failfast": django_runner.failfast,
+        "resultclass": django_runner.get_resultclass(),
+        "verbosity": django_runner.verbosity,
+        "buffer": django_runner.buffer,
+    }
+    kwargs.update({"stream": stream})
+    return kwargs

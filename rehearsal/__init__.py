@@ -129,21 +129,6 @@ class CustomTestCase(unittest.TestCase):
 ####################################
 
 
-def overwrite_get_runner_kwargs(django_runner: DiscoverRunner, stream):
-    """
-    see django.test.runner.DiscoverRunner.get_runner_kwargs
-    this is done to avoid to print the django tests output
-    """
-    kwargs = {
-        "failfast": django_runner.failfast,
-        "resultclass": django_runner.get_resultclass(),
-        "verbosity": django_runner.verbosity,
-        "buffer": django_runner.buffer,
-    }
-    kwargs.update({"stream": stream})
-    return kwargs
-
-
 class TestCaseOfDjangoTestCase(CustomTestCase):
     """
     This class augments the unittest.TestCase such that it is able to:
@@ -166,7 +151,7 @@ class TestCaseOfDjangoTestCase(CustomTestCase):
 
         # Bind the new method
         def overwrite(runner):
-            return overwrite_get_runner_kwargs(runner, cls.django_stream)
+            return common.overwrite_get_runner_kwargs(runner, cls.django_stream)
 
         cls.django_runner.get_test_runner_kwargs = overwrite.__get__(cls.django_runner)
 
