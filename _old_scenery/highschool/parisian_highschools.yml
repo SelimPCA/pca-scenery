@@ -1,0 +1,59 @@
+set_up_test_data:
+  - reset_db
+  - load_highschools
+  - create_testuser: !common-item TESTUSER
+
+set_up:
+  - login: !common-item CREDENTIALS
+
+cases:
+  JANSON_DE_SAILLY:
+    academy:
+      id: "23"
+      name: "\nPARIS\n"
+    highschool:
+      id: "50"
+      name: "\nJANSON DE SAILLY (PARIS 16E  ARRONDISSEMENT, LYCEE GENERAL)\n"
+
+  STANISLAS:
+    academy:
+      id: "23"
+      name: "\nPARIS\n"
+    highschool:
+      id: "119"
+      name: "\nSTANISLAS (PARIS  6E  ARRONDISSEMENT, LYCEE GENERAL PRIVE)\n"
+
+scenes:
+
+  - method: GET
+    url: app:highschool
+    directives:
+      - status_code: 200
+
+  - method: POST
+    url: app:highschool
+    data:
+      academy: !case "academy:id"
+    directives:
+      - status_code: 200
+      - dom_element:
+          find: 
+            id: academy-select
+          text: !case "academy:name"
+
+
+  - method: POST
+    url: app:highschool
+    data: 
+      academy: !case "academy:id"
+      highschool: !case "highschool:id"
+    directives:
+      - status_code: 200
+      - dom_element:
+          find: 
+            id : academy-select
+          text: !case "academy:name"
+      - dom_element:
+          find: 
+            id : highschool-select
+          text: !case "highschool:name"

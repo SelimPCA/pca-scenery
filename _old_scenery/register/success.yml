@@ -1,0 +1,24 @@
+set_up:
+  - reset_db
+
+case:
+  registration_form:
+    !common-item
+      ID: HARRY
+      user_email: !common-item EMAIL
+      password1: !common-item PASSWORD
+      password2: !common-item PASSWORD
+
+scene: 
+  method: POST
+  url: app:register
+  query_parameters:
+    send_verif_email: 0
+  data: !case registration_form
+  directives:
+    - status_code: 302
+    - redirect_url: /http_response_for_redirection/
+    - count_instances: 
+        model: UserCustom
+        n: 1
+

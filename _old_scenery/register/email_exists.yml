@@ -1,0 +1,32 @@
+set_up:
+  - reset_db
+  - create_testuser:
+      !common-item TESTUSER
+
+case:
+  registration_form:
+      ID: HARRY
+      user_email: !common-item EMAIL
+      password1: !common-item PASSWORD
+      password2: !common-item PASSWORD
+
+scene: 
+  method: POST
+  url: app:register
+  query_parameters:
+    send_verif_email: 0
+  data: !case registration_form
+  directives:
+    - status_code: 200
+    - count_instances: 
+        model: UserCustom
+        n: 1
+    - dom_element:
+        find: 
+          class: message
+        text: "\n\nL'email ssfmh@pm.me est déjà utilisé.\n\n"
+        attribute:
+          name: class
+          value:
+            - message 
+            - is-danger

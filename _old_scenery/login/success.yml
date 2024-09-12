@@ -1,0 +1,18 @@
+set_up:
+  - reset_db
+  # Creation must be in the setup 
+  # because it is not the behaviour we test
+  - create_testuser: 
+      !common-item TESTUSER
+
+case:
+  credentials: 
+    !common-item CREDENTIALS
+
+scene: 
+  method: POST
+  url: app:login
+  data: !case credentials
+  directives:
+    - status_code: 302
+    - redirect_url: "/v1/chapter_list"

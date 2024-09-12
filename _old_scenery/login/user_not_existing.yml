@@ -1,0 +1,13 @@
+set_up:
+  - reset_db
+
+case:
+  credentials:
+    !common-item CREDENTIALS
+
+scene: 
+  method: POST
+  url: app:login
+  data: !case credentials
+  directives:
+    - status_code: 401

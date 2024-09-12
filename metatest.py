@@ -9,13 +9,6 @@ from method_builder import MethodBuilder
 from manifest_parser import ManifestParser
 import common
 
-
-# from app.tests.views.manifest_parser import ManifestParser
-# from app.tests.views.unittest import serialize_result, pretty_test_name
-# from app.tests.views.unittest import overwrite_get_runner_kwargs
-
-# from app.tests.views.take_builder import TakeBuilder
-
 import django.test
 from django.test.utils import get_runner
 
@@ -54,13 +47,6 @@ class MetaTest(type):
 
 class MetaTestDiscoverer:
 
-    # TODO: could it be groupped under an abstract class with Rehearsal Discoverer?
-    # -> selim : autant garder les deux séparés : in fine on aura pas d'autres abstractions de Discoverer
-    # (j'espère)
-
-    # Todo Selim :
-    # Selenium and others
-
     def __init__(self):
         self.logger = logging.getLogger(__package__)
         # This is done to allow the cohabitation of scenery
@@ -68,12 +54,7 @@ class MetaTestDiscoverer:
         self.runner = get_runner(
             settings, test_runner_class="django.test.runner.DiscoverRunner"
         )()
-        # self.loader = unittest.TestLoader()
         self.loader = self.runner.test_loader
-
-        # print("#########################")
-        # print(self.runner)
-        # raise Exception
 
     def discover(self, folder, verbosity):
         """Returns a list of pair (test_name, suite), each suite contains a single test"""
@@ -86,9 +67,7 @@ class MetaTestDiscoverer:
         for filename in os.listdir(folder):
             self.logger.debug(f"Discovered manifest '{folder}/{filename}'")
 
-            manifest = ManifestParser.parse_yaml(
-                os.path.join(folder, filename)
-            )
+            manifest = ManifestParser.parse_yaml(os.path.join(folder, filename))
 
             # Create class
             filename = filename.replace(".yml", "")

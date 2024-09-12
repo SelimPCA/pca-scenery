@@ -1,0 +1,57 @@
+set_up_test_data:
+  - reset_db
+  - load_highschools
+  - create_testuser: !common-item TESTUSER
+
+set_up:
+  - login: !common-item CREDENTIALS
+
+case:
+  academy: 
+    id: "8"
+    name: "\nDIJON\n"
+  highschool: 
+    id: "4"
+    name: "\nCARNOT (DIJON, LYCEE GENERAL ET TECHNOLOGIQUE)\n"
+
+scenes:
+
+  - method: GET
+    url: app:highschool
+    directives:
+      - status_code: 200
+
+  - method: POST
+    url: app:highschool
+    data: 
+      # academy: {__from_case__ : dijon_carnot:academy}
+      academy: !case "academy:id"
+
+    directives:
+      - status_code: 200
+      - dom_element:
+          find: 
+            id: academy-select
+          text: !case "academy:name"
+          
+
+
+  - method: POST
+    url: app:highschool
+    # data: {__from_case__ : dijon_carnot}
+    data: 
+      academy: !case "academy:id"
+      highschool: !case highschool:id 
+    directives:
+      - status_code: 200
+      - dom_element:
+          find: 
+            id : academy-select
+          # text: {__from_case__: "dijon_carnot:academy"}
+          text: !case "academy:name"
+      - dom_element:
+          find: 
+            id : highschool-select
+          # text: {__from_case__: "dijon_carnot:highschool"}
+          text: !case "highschool:name"
+   

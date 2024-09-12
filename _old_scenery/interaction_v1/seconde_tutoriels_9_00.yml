@@ -1,0 +1,387 @@
+set_up_test_data:
+  - reset_db
+  - create_testuser: !common-item TESTUSER
+
+set_up:
+  - login: !common-item CREDENTIALS
+
+cases:
+
+  4_PERFECT_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 4
+        fragment_id: 4
+        flag_id: flag-4-dynamic
+        user_answer_latex: -\frac{b}{a}
+        flag: 30
+
+  4_WRONG_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 4
+        fragment_id: 4
+        flag_id: flag-4-dynamic
+        user_answer_latex: "-1"
+        flag: 31
+
+  4_ONLY_CORRECT_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 4
+        fragment_id: 4
+        flag_id: flag-4-dynamic
+        user_answer_latex: -\frac{2b}{2a}
+        flag: 32
+
+  6_PERFECT_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 6
+        fragment_id: 6
+        flag_id: flag-6-dynamic
+        user_answer_latex: 10x-22
+        flag: 30
+
+  6_WRONG_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 6
+        fragment_id: 6
+        flag_id: flag-6-dynamic
+        user_answer_latex: 10x-23
+        flag: 31
+
+  6_ONLY_CORRECT_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 6
+        fragment_id: 6
+        flag_id: flag-6-dynamic
+        user_answer_latex: 5x+5x-22
+        flag: 32
+
+  8_PERFECT_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 8
+        fragment_id: 8
+        flag_id: flag-8-dynamic
+        user_answer_latex: h+2
+        flag: 30
+
+  8_WRONG_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 8
+        fragment_id: 8
+        flag_id: flag-8-dynamic
+        user_answer_latex: h+3
+        flag: 31
+
+  8_ONLY_CORRECT_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 8
+        fragment_id: 8
+        flag_id: flag-8-dynamic
+        user_answer_latex: \frac{h^2+2h}{h}
+        flag: 32
+
+
+  10_CORRECT_RADIO:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: radio_
+        fragment_pos: 10
+        fragment_id: 10
+        flag_id: flag-10-dynamic
+        radio_pos_and_flag: 1|20
+        flag: 20
+
+  10_WRONG_RADIO:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: radio_
+        fragment_pos: 10
+        fragment_id: 10
+        flag_id: flag-10-dynamic
+        radio_pos_and_flag: 0|21
+        flag: 21
+
+
+  12_PERFECT_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 12
+        fragment_id: 12
+        flag_id: flag-12-dynamic
+        user_answer_latex: h+2a
+        flag: 30
+
+  12_WRONG_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 12
+        fragment_id: 12
+        flag_id: flag-12-dynamic
+        user_answer_latex: 2a
+        flag: 31
+
+  12_ONLY_CORRECT_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 12
+        fragment_id: 12
+        flag_id: flag-12-dynamic
+        user_answer_latex: a+h+a
+        flag: 32
+
+  14_PERFECT_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 14
+        fragment_id: 14
+        flag_id: flag-14-dynamic
+        user_answer_latex: 2
+        flag: 30
+
+  14_WRONG_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 14
+        fragment_id: 14
+        flag_id: flag-14-dynamic
+        user_answer_latex: 3
+        flag: 31
+
+  14_ONLY_CORRECT_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 14
+        fragment_id: 14
+        flag_id: flag-14-dynamic
+        user_answer_latex: 1+1
+        flag: 32
+
+  16_PERFECT_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 16
+        fragment_id: 16
+        flag_id: flag-16-dynamic
+        user_answer_latex: 2x
+        flag: 30
+
+  16_WRONG_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 16
+        fragment_id: 16
+        flag_id: flag-16-dynamic
+        user_answer_latex: 3x
+        flag: 31
+
+  16_ONLY_CORRECT_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 16
+        fragment_id: 16
+        flag_id: flag-16-dynamic
+        user_answer_latex: x+x
+        flag: 32
+
+  18_PERFECT_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 18
+        fragment_id: 18
+        flag_id: flag-18-dynamic
+        user_answer_latex: "]0,+\\inf["
+        flag: 30
+
+  18_WRONG_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 18
+        fragment_id: 18
+        flag_id: flag-18-dynamic
+        user_answer_latex: 3x
+        flag: 31
+
+  18_ONLY_CORRECT_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 18
+        fragment_id: 18
+        flag_id: flag-18-dynamic
+        user_answer_latex: "]0,1]\\cup]1,+\\inf["
+        flag: 32
+
+  20_PERFECT_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 20
+        fragment_id: 20
+        flag_id: flag-20-dynamic
+        user_answer_latex: "(x, x^2 + 3)"
+        flag: 30
+
+  20_WRONG_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 20
+        fragment_id: 20
+        flag_id: flag-20-dynamic
+        user_answer_latex: (x, x^2)
+        flag: 31
+
+  20_ONLY_CORRECT_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 20
+        fragment_id: 20
+        flag_id: flag-20-dynamic
+        user_answer_latex: "(x, 2x^2 -x^2 + 3)"
+        flag: 32
+
+  22_PERFECT_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 22
+        fragment_id: 22
+        flag_id: flag-22-dynamic
+        user_answer_latex: "\\left(\\frac{1}{\\cos(x)^2}, \\cos(x)\\right)"
+        flag: 30
+
+  22_WRONG_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 22
+        fragment_id: 22
+        flag_id: flag-22-dynamic
+        user_answer_latex: "\\left(\\frac{1}{\\cos(x)^2}, \\sin(x)\\right)"
+        flag: 31
+
+  22_ONLY_CORRECT_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 22
+        fragment_id: 22
+        flag_id: flag-22-dynamic
+        user_answer_latex: "\\left(\\frac{1}{\\cos(x)^2}, \\cos(2*x-x)\\right)"
+        flag: 32
+
+  24_PERFECT_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 24
+        fragment_id: 24
+        flag_id: flag-24-dynamic
+        user_answer_latex:  "]-\\inf,-1[\\cup]1,+\\inf["
+        flag: 30
+
+  24_WRONG_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 24
+        fragment_id: 24
+        flag_id: flag-24-dynamic
+        user_answer_latex:  "]-\\inf,-1[\\cup]2,+\\inf["
+        flag: 31
+
+  24_ONLY_CORRECT_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 24
+        fragment_id: 24
+        flag_id: flag-24-dynamic
+        user_answer_latex:  "]-\\inf,-2]\\cup[-2,-1[\\cup]1,+\\inf["
+        flag: 32
+
+
+scene:
+  method: POST
+  url: app:interaction_v1
+  url_parameters: 
+    origin: seconde/tutoriels/9-00
+    id_or_pos_min: !case answer:fragment_pos
+  data: !case answer
+  directives:
+    - status_code: 201
+    - count_instances:
+        model: UserInteraction
+        n: 1
+    - dom_element:
+        find:
+          id : !case answer:flag_id
+        attribute: 
+          name: data-flag
+          value: !case answer:flag
+
+
+
+
+

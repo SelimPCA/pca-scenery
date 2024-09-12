@@ -1,0 +1,98 @@
+set_up_test_data:
+  - reset_db
+  - create_testuser: !common-item TESTUSER
+
+set_up:
+  - login: !common-item CREDENTIALS
+
+cases:
+
+  3_PERFECT_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 3
+        fragment_id: 3
+        flag_id: flag-3-dynamic
+        user_answer_latex: "\\{a,b,c\\}"
+        flag: 30
+
+  3_WRONG_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 3
+        fragment_id: 3
+        flag_id: flag-3-dynamic
+        user_answer_latex: "\\{a,b\\}"
+        flag: 31
+
+  5_PERFECT_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 5
+        fragment_id: 5
+        flag_id: flag-5-dynamic
+        user_answer_latex: "]-2,+\\inf["
+        flag: 30
+
+  5_WRONG_MATHS:
+    answer:
+      !common-item 
+        ID: INTERACTION_BASE
+        interaction_ftype: maths_
+        fragment_pos: 5
+        fragment_id: 5
+        flag_id: flag-5-dynamic
+        user_answer_latex: "]-3,+\\inf["
+        flag: 31
+
+  # 4_WRONG_MATHS:
+  #   answer:
+  #     !common-item 
+  #       ID: INTERACTION_BASE
+  #       interaction_ftype: maths_
+  #       fragment_pos: 4
+  #       fragment_id: 4
+  #       flag_id: flag-4-dynamic
+  #       user_answer_latex: "\\{a,b\\}"
+  #       flag: 31
+
+  # 4_ONLY_CORRECT_MATHS:
+  #   answer:
+  #     !common-item 
+  #       ID: INTERACTION_BASE
+  #       interaction_ftype: maths_
+  #       fragment_pos: 4
+  #       fragment_id: 4
+  #       flag_id: flag-4-dynamic
+  #       user_answer_latex: "\\{a,c,b\\}"
+  #       flag: 32
+
+scene:
+  method: POST
+  url: app:interaction_v1
+  url_parameters: 
+    origin: seconde/tutoriels/9-03
+    id_or_pos_min: !case answer:fragment_pos
+  data: !case answer
+  directives:
+    - status_code: 201
+    - count_instances:
+        model: UserInteraction
+        n: 1
+    - dom_element:
+        find:
+          id : !case answer:flag_id
+        attribute: 
+          name: data-flag
+          value: !case answer:flag
+
+
+
+
+

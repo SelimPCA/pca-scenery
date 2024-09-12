@@ -1,0 +1,19 @@
+set_up_test_data:
+  - reset_db
+  - create_testuser:
+      !common-item TESTUSER
+
+set_up:
+  - login:
+      !common-item CREDENTIALS
+
+case: {}
+
+scene:
+  method: GET
+  url: app:interaction_v1
+  url_parameters:
+    origin: tests/tests/0-03
+    id_or_pos_min: 2
+  directives:
+    - status_code: 405

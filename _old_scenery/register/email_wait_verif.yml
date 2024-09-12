@@ -1,0 +1,39 @@
+set_up:
+  - reset_db
+
+  # BELOW DIRECTIVE SHOULD B n:2
+    # - count_instances:
+    #     model: UserCustom
+    #     n: 1
+  # IF THIS IS UNCOMMENTED : 
+  # - create_testuser:
+  #     is_active: False
+
+case:
+  registration_form:
+    # user_email: etienne.madinier@proton.me
+    # first_name: Harry
+    # last_name: Potter
+    # birth_date_year: "1980"
+    # birth_date_month: "7"
+    # birth_date_day: "31"
+    # class_at_school: premiere
+    # password1: OlO4mR49i2ZkH4Ya2JS8
+    # password2: OlO4mR49i2ZkH4Ya2JS8
+    !common-item
+      ID: HARRY
+      user_email: !common-item EMAIL
+      password1: !common-item PASSWORD
+      password2: !common-item PASSWORD
+
+scene:
+  method: POST
+  url: app:register
+  query_parameters:
+    send_verif_email: 0
+  data: !case registration_form
+  directives:
+    - status_code: 302
+    - count_instances:
+        model: UserCustom
+        n: 1
