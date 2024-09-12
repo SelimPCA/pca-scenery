@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scenery"
+version = "0.1.0"
+description = "A Python package for PCA scenery management."
+# authors = []
+dependencies = [
+    "bs4>=0.0.1",
+    "django>=4.2.7",
+    "python-dotenv>=1.0.1",
+    "pyyaml>=6.0.1"
+]
+readme = "README.md"
+# license = { text = "MIT" }

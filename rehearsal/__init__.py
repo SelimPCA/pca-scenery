@@ -4,39 +4,15 @@ import logging
 from types import TracebackType
 import unittest
 
-import common
+import scenery.common
 
-import django
-from django.conf import settings as django_settings
+import django.test
 from django.apps import apps as django_apps
+from django.conf import settings as django_settings
 from django.test.runner import DiscoverRunner
 from django.test.utils import get_runner
 
 
-###################
-# CONFIG DJANGO
-###################
-
-django_settings.configure(
-    ROOT_URLCONF="rehearsal.project_django.project_django.urls",
-    INSTALLED_APPS=[
-        "django.contrib.admin",
-        "django.contrib.contenttypes",
-        "django.contrib.auth",
-        "django.contrib.sessions",
-        "django.contrib.messages",
-        "django.contrib.staticfiles",
-        # Add other apps here
-        "rehearsal.project_django.some_app",
-    ],
-    DATABASES={
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": "rehearsal/project_django/db.sqlite3",
-        }
-    },
-)
-django.setup()
 
 
 ####################################
@@ -121,7 +97,7 @@ class TestCaseOfDjangoTestCase(CustomTestCase):
 
         # Bind the new method
         def overwrite(runner):
-            return common.overwrite_get_runner_kwargs(runner, cls.django_stream)
+            return pca_scenery.common.overwrite_get_runner_kwargs(runner, cls.django_stream)
 
         cls.django_runner.get_test_runner_kwargs = overwrite.__get__(cls.django_runner)
 
@@ -141,7 +117,7 @@ class TestCaseOfDjangoTestCase(CustomTestCase):
     def tearDown(self):
         super().tearDown()
         msg = self.django_stream.getvalue()
-        self.logger_django.debug(f"{common.pretty_test_name(self)}\n{msg}")
+        self.logger_django.debug(f"{pca_scenery.common.pretty_test_name(self)}\n{msg}")
         self.django_stream.seek(0)
         self.django_stream.truncate()
 
@@ -213,7 +189,7 @@ class RehearsalDiscoverer:
                 tests = self.loader.loadTestsFromTestCase(testcase.__class__)
                 for test in tests:
 
-                    test_name = common.pretty_test_name(test)
+                    test_name = pca_scenery.common.pretty_test_name(test)
 
                     # Log / verbosity
                     msg = f"Discovered {test_name}"
@@ -241,7 +217,7 @@ class RehearsalRunner:
             # with redirect_stdout():
             result = self.runner.run(suite)
 
-            result_serialized = common.serialize_unittest_result(result)
+            result_serialized = pca_scenery.common.serialize_unittest_result(result)
             results[test_name] = result_serialized
 
             if result.errors or result.failures:
@@ -249,11 +225,11 @@ class RehearsalRunner:
             else:
                 log_lvl, color = logging.INFO, "green"
             self.logger.log(
-                log_lvl, f"{test_name}\n{common.tabulate(result_serialized)}"
+                log_lvl, f"{test_name}\n{pca_scenery.common.tabulate(result_serialized)}"
             )
             if verbosity > 0:
                 print(
-                    f"{common.colorize(color, test_name)}\n{common.tabulate({key: val for key, val in result_serialized.items() if val > 0})}"
+                    f"{pca_scenery.common.colorize(color, test_name)}\n{pca_scenery.common.tabulate({key: val for key, val in result_serialized.items() if val > 0})}"
                 )
 
             # Log / verbosity
