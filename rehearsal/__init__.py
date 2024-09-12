@@ -12,14 +12,6 @@ from django.apps import apps as django_apps
 from django.test.runner import DiscoverRunner
 from django.test.utils import get_runner
 
-###################
-# CONFIG ENV
-###################
-
-os.environ["SCENERY_TESTED_APP"] = "some_app"
-os.environ["SCENERY_COMMON_ITEMS"] = "rehearsal/common_items.yml"
-os.environ["SCENERY_SET_UP_INSTRUCTIONS"] = "rehearsal.set_up_instructions"
-
 
 ###################
 # CONFIG DJANGO
@@ -201,7 +193,7 @@ class TestCaseOfDjangoTestCase(CustomTestCase):
 #####################################
 
 
-class Discoverer:
+class RehearsalDiscoverer:
 
     def __init__(self) -> None:
         self.logger = logging.getLogger("rehearsal")
@@ -235,7 +227,7 @@ class Discoverer:
         return tests_discovered
 
 
-class Runner:
+class RehearsalRunner:
 
     def __init__(self):
         self.runner = unittest.TextTestRunner(stream=io.StringIO())

@@ -1,22 +1,24 @@
 """Test the package `pca-scenery` itself."""
 
-import unittest
-
-# import rehearsal.tests
-
+import os
 import rehearsal
 
-discoverer = rehearsal.Discoverer()
-runner = rehearsal.Runner()
-tests_discovered = discoverer.discover(verbosity=2)
-runner.run(tests_discovered, verbosity=2)
 
-# TODO: remove and go through cli only ?
-# TODO: should be run_suite_from_module(module)
+###################
+# CONFIG ENV
+###################
 
-# loader = unittest.loader.TestLoader()
-# runner = unittest.TextTestRunner()
-# suite = loader.loadTestsFromModule(rehearsal.tests)
-# runner.run(suite)
-# for test in suite:
-#     print(test)
+
+def main():
+    os.environ["SCENERY_TESTED_APP"] = "some_app"
+    os.environ["SCENERY_COMMON_ITEMS"] = "rehearsal/common_items.yml"
+    os.environ["SCENERY_SET_UP_INSTRUCTIONS"] = "rehearsal.set_up_instructions"
+
+    discoverer = rehearsal.RehearsalDiscoverer()
+    runner = rehearsal.RehearsalRunner()
+    tests_discovered = discoverer.discover(verbosity=2)
+    runner.run(tests_discovered, verbosity=2)
+
+
+if __name__ == "__main__":
+    main()

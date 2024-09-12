@@ -1,35 +1,21 @@
 """Compute test coverage according to different criteria"""
 
-import warnings
-warnings.warn("Coverage is experimental yet.")
-
-import inspect
-import importlib
-import unittest
-import sys
-import io
-from trace import Trace, CoverageResults
+import abc
 import ast
-from functools import partial, cache, cached_property
-import re
-import linecache
-
+import collections
+import functools
+import importlib
+import inspect
+import io
 import logging
-
-
-from collections import defaultdict
-
-from abc import ABC, abstractmethod
-
-
-from logging import Logger
-
-from app.tests.views import SysConfig
-from app.tests.utils import snake_to_camel_case, tabulate, graph_bar, colorize
-from app.tests.views.metatest import MetaTestDiscoverer
+import unittest
+from trace import Trace, CoverageResults
+import re
 
 from django.urls import get_resolver
 
+import common
+from metatest import MetaTestDiscoverer
 
 class CustomTrace(Trace):
 
@@ -105,7 +91,7 @@ class CustomTrace(Trace):
 ##############################################
 
 
-class CoverageRunner(ABC):
+class CoverageRunner(abc.ABC):
 
     # def __init__(self):
     # self.logger = logger
@@ -115,25 +101,25 @@ class CoverageRunner(ABC):
     ###################################
 
     @property
-    @abstractmethod
-    def logger(self) -> Logger:
+    @abc.abstractmethod
+    def logger(self) -> logging.Logger:
         """This should return the logger"""
 
     @property
-    @abstractmethod
+    @abc.abstractmethod
     def tested_modules(self):
         """This should return the list of all tested modules (module_name, module)."""
 
     @property
-    @abstractmethod
+    @abc.abstractmethod
     def testcases(self):
         """This should return the list of all written testcases (TestCase_name, TestCase)."""
 
-    @abstractmethod
+    @abc.abstractmethod
     def is_testcase_of(self, obj_name, obj, testcase_name):
         """Returns a boolean indicating whether `testcase_name` indicates that it is testing `obj`."""
         if inspect.isfunction(obj):
-            obj_name = snake_to_camel_case(obj_name)
+            obj_name = common.snake_to_camel_case(obj_name)
         elif inspect.isclass(obj):
             pass
         else:
@@ -158,7 +144,7 @@ class CoverageRunner(ABC):
     @staticmethod
     def get_module_members(module):
         """Returns all objects found in `module` and which are defined in `module`."""
-        is_defined_in_module = partial(CoverageRunner.is_defined_in, module)
+        is_defined_in_module = functools.partial(CoverageRunner.is_defined_in, module)
         return inspect.getmembers(module, is_defined_in_module)
 
     @staticmethod
@@ -170,13 +156,13 @@ class CoverageRunner(ABC):
     @staticmethod
     def get_methods(obj, dunder=False):
         """Returns all methods of `obj` excluding or not dunder methods through the parameter `dunder`."""
-        is_method_of_obj = partial(CoverageRunner.is_method_of, obj)
+        is_method_of_obj = functools.partial(CoverageRunner.is_method_of, obj)
         methods = filter(is_method_of_obj, dir(obj))
         if not dunder:
             methods = filter(lambda attr: not attr.startswith("__"), methods)
         return map(lambda attr: (attr, getattr(obj, attr)), methods)
 
-    @cache
+    @functools.cache
     def get_testcases_trace(
         self, obj_name, obj, *, count: bool, countfuncs: bool, trace: bool
     ) -> CoverageResults:
@@ -301,7 +287,7 @@ class CoverageRunner(ABC):
                 yield (module_name, module, obj_name, obj)
 
     def get_dedicated_testcases(self, obj_name, obj):
-        is_dedicated_testcase = partial(self.is_testcase_of, obj_name, obj)
+        is_dedicated_testcase = functools.partial(self.is_testcase_of, obj_name, obj)
         return filter(
             lambda x: is_dedicated_testcase(x[0]),
             self.testcases,
@@ -358,7 +344,7 @@ class CoverageRunner(ABC):
     # 2. Function coverage
     ######################
 
-    @abstractmethod
+    @abc.abstractmethod
     def expected_function_trace(self, module_name, function_name):
         """Returns the trace expected to be found by the call of a given function"""
 
@@ -406,7 +392,7 @@ class CoverageRunner(ABC):
     # 3. Statement coverage
     #######################
 
-    @abstractmethod
+    @abc.abstractmethod
     def expected_statement_trace(self, module_name, lineno):
         """Returns the trace expected to be found by the call of a given statement"""
 
@@ -426,7 +412,7 @@ class CoverageRunner(ABC):
             )
             statements = self.find_executable_statements(module)
 
-            result[module_name] = result.get(module_name, defaultdict(lambda: False))
+            result[module_name] = result.get(module_name, collections.defaultdict(lambda: False))
             for lineno, endlineno, source in statements:
                 if not result[module_name][(lineno, source)]:
                     result[module_name][(lineno, source)] = self.is_statement_executed(
@@ -488,19 +474,19 @@ class CoverageRunner(ABC):
         if testcase:
             self.logger.debug("Launching testcase coverage...")
             result["testcase"] = self.coverage_testcases()
-            self.logger.info(f"Testcase coverage: \n{tabulate(result['testcase'])}")
+            self.logger.info(f"Testcase coverage: \n{common.tabulate(result['testcase'])}")
 
         # Check TestCases.test_method are defined
         if test:
             self.logger.debug("Launching test coverage...")
             result["test"] = self.coverage_tests()
-            self.logger.info(f"Test coverage: \n{tabulate(result['test'])}")
+            self.logger.info(f"Test coverage: \n{common.tabulate(result['test'])}")
 
         # Check all functions of classes are executed
         if function:
             self.logger.debug("Launching function coverage...")
             result["function"] = self.coverage_functions()
-            self.logger.info(f"Function coverage: \n{tabulate(result['function'])}")
+            self.logger.info(f"Function coverage: \n{common.tabulate(result['function'])}")
 
         # Check all statements are executed
         if statement:
@@ -518,7 +504,7 @@ class CoverageRunner(ABC):
                 for module_name, result_module in result["statement"].items()
             }
             result["statement"]["STATS"] = stats
-            self.logger.info(f"Statement coverage: \n{tabulate(result['statement']["STATS"])}")
+            self.logger.info(f"Statement coverage: \n{common.tabulate(result['statement']["STATS"])}")
 
         # Check if possible branches are being executed
         if branch:
@@ -540,7 +526,7 @@ class RehearsalCoverageRunner(CoverageRunner):
     def logger(self):
         return logging.getLogger(__package__ + ".rehearsal")
 
-    @cached_property
+    @functools.cached_property
     def tested_modules(self):
         package = importlib.import_module(__package__)
         tested_modules = []
@@ -552,7 +538,7 @@ class RehearsalCoverageRunner(CoverageRunner):
                         tested_modules.append((module_name, module))
         return tested_modules
 
-    @cached_property
+    @functools.cached_property
     def testcases(self):
 
         testcases = inspect.getmembers(
@@ -590,7 +576,7 @@ class MetatestCoverageRunner(CoverageRunner):
     def logger(self):
         return logging.getLogger(__package__)
 
-    @cached_property
+    @functools.cached_property
     def tested_modules(self):
         resolver = get_resolver("app.urls")
         # TODO: this is for testing
@@ -603,7 +589,7 @@ class MetatestCoverageRunner(CoverageRunner):
 
         return tested_modules
 
-    @cached_property
+    @functools.cached_property
     def testcases(self):
         testcases = list(MetaTestDiscoverer().discover())
         testcases = [(testcase.__name__, testcase) for _, testcase in testcases]
