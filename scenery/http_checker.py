@@ -1,10 +1,9 @@
 """Perform assertions on HTTP response"""
 
 import http
-import os
 from typing import Any
 
-import manifest
+import scenery.manifest
 
 import django.test
 import django.http
@@ -20,7 +19,7 @@ from bs4 import BeautifulSoup
 class HttpChecker:
 
     @staticmethod
-    def get_http_client_response(client, take: manifest.HttpTake):
+    def get_http_client_response(client, take: scenery.manifest.HttpTake):
 
         match take.method:
             case http.HTTPMethod.GET:
@@ -41,7 +40,7 @@ class HttpChecker:
     def exec_check(
         django_testcase: django.test.TestCase,
         response: django.http.HttpResponse,
-        check: manifest.HttpCheck,
+        check: scenery.manifest.HttpCheck,
     ):
 
         ## SANITY CHECK SELIM
@@ -59,13 +58,13 @@ class HttpChecker:
         #     # print("\n")
 
         match check.instruction:
-            case manifest.DirectiveCommand.STATUS_CODE:
+            case scenery.manifest.DirectiveCommand.STATUS_CODE:
                 HttpChecker.check_status_code(django_testcase, response, check.args)
-            case manifest.DirectiveCommand.REDIRECT_URL:
+            case scenery.manifest.DirectiveCommand.REDIRECT_URL:
                 HttpChecker.check_redirect_url(django_testcase, response, check.args)
-            case manifest.DirectiveCommand.COUNT_INSTANCES:
+            case scenery.manifest.DirectiveCommand.COUNT_INSTANCES:
                 HttpChecker.check_count_instances(django_testcase, response, check.args)
-            case manifest.DirectiveCommand.DOM_ELEMENT:
+            case scenery.manifest.DirectiveCommand.DOM_ELEMENT:
                 HttpChecker.check_dom_element(django_testcase, response, check.args)
             case _:
                 raise NotImplementedError(check)
@@ -101,7 +100,7 @@ class HttpChecker:
     def check_dom_element(
         django_testcase: django.test.TestCase,
         response: django.http.HttpResponse,
-        args: dict[manifest.DomArgument, Any],
+        args: dict[scenery.manifest.DomArgument, Any],
     ):
         # NOTE: we do not support xpath as it is not supported by BeautifulSoup
         # this would require to use lxml
@@ -110,30 +109,30 @@ class HttpChecker:
         soup = BeautifulSoup(response.content, "html.parser")
 
         # Apply the scope
-        if scope := args.get(manifest.DomArgument.SCOPE):
+        if scope := args.get(scenery.manifest.DomArgument.SCOPE):
             soup = soup.find(**scope)
 
         # Locate the element(s)
         # If find_all is provided, the checks are performed on ALL elements
         # If find is provided we enforce the result to be la list
-        if args.get(manifest.DomArgument.FIND_ALL):
-            dom_elements = soup.find_all(**args[manifest.DomArgument.FIND_ALL])
+        if args.get(scenery.manifest.DomArgument.FIND_ALL):
+            dom_elements = soup.find_all(**args[scenery.manifest.DomArgument.FIND_ALL])
             django_testcase.assertGreaterEqual(len(dom_elements), 1)
-        elif args.get(manifest.DomArgument.FIND):
-            dom_element = soup.find(**args[manifest.DomArgument.FIND])
+        elif args.get(scenery.manifest.DomArgument.FIND):
+            dom_element = soup.find(**args[scenery.manifest.DomArgument.FIND])
             django_testcase.assertIsNotNone(dom_element)
             dom_elements = [dom_element]
         else:
             raise ValueError("Neither find of find_all argument provided")
 
         # Perform the additional checks
-        if count := args.get(manifest.DomArgument.COUNT):
+        if count := args.get(scenery.manifest.DomArgument.COUNT):
             django_testcase.assertEqual(len(dom_elements), count)
         for dom_element in dom_elements:
-            if text := args.get(manifest.DomArgument.TEXT):
+            if text := args.get(scenery.manifest.DomArgument.TEXT):
                 # TODO: this should/could disappear as text is too likely to change
                 django_testcase.assertEqual(dom_element.text, text)
-            if attribute := args.get(manifest.DomArgument.ATTRIBUTE):
+            if attribute := args.get(scenery.manifest.DomArgument.ATTRIBUTE):
                 # TODO: this should move to manifest parser
                 match attribute["value"]:
                     case str(v) | list(v):

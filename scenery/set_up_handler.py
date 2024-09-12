@@ -2,7 +2,7 @@ import importlib
 import logging
 import os
 
-import manifest
+import scenery.manifest
 
 
 
@@ -18,7 +18,7 @@ class SetUpHandler:
     module = importlib.import_module(os.getenv("SCENERY_SET_UP_INSTRUCTIONS"),)
 
     @staticmethod
-    def exec_set_up_instruction(client, instruction: manifest.SetUpInstruction):
+    def exec_set_up_instruction(client, instruction: scenery.manifest.SetUpInstruction):
         """Execute the method corresponding to the SetUpInstruction"""
 
         func = getattr(SetUpHandler.module, instruction.command)

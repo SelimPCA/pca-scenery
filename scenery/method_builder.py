@@ -1,6 +1,6 @@
-import manifest
-from http_checker import HttpChecker
-from set_up_handler import SetUpHandler
+import scenery.manifest
+from scenery.http_checker import HttpChecker
+from scenery.set_up_handler import SetUpHandler
 
 import django.test
 
@@ -34,7 +34,7 @@ class MethodBuilder:
         return setUp
 
     @staticmethod
-    def build_test_from_take(take: manifest.HttpTake):
+    def build_test_from_take(take: scenery.manifest.HttpTake):
 
         def test(self: django.test.TestCase):
             response = HttpChecker.get_http_client_response(self.client, take)

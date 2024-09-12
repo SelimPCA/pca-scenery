@@ -97,7 +97,7 @@ class TestCaseOfDjangoTestCase(CustomTestCase):
 
         # Bind the new method
         def overwrite(runner):
-            return pca_scenery.common.overwrite_get_runner_kwargs(runner, cls.django_stream)
+            return scenery.common.overwrite_get_runner_kwargs(runner, cls.django_stream)
 
         cls.django_runner.get_test_runner_kwargs = overwrite.__get__(cls.django_runner)
 
@@ -117,7 +117,7 @@ class TestCaseOfDjangoTestCase(CustomTestCase):
     def tearDown(self):
         super().tearDown()
         msg = self.django_stream.getvalue()
-        self.logger_django.debug(f"{pca_scenery.common.pretty_test_name(self)}\n{msg}")
+        self.logger_django.debug(f"{scenery.common.pretty_test_name(self)}\n{msg}")
         self.django_stream.seek(0)
         self.django_stream.truncate()
 
@@ -178,18 +178,18 @@ class RehearsalDiscoverer:
     def discover(self, verbosity):
         """Returns a list of pair (test_name, suite), each suite contains a single test"""
 
-        import rehearsal.tests
+        import scenery.rehearsal.tests
 
         tests_discovered = []
 
-        for testsuite in self.loader.loadTestsFromModule(rehearsal.tests):
+        for testsuite in self.loader.loadTestsFromModule(scenery.rehearsal.tests):
 
             for testcase in testsuite:
 
                 tests = self.loader.loadTestsFromTestCase(testcase.__class__)
                 for test in tests:
 
-                    test_name = pca_scenery.common.pretty_test_name(test)
+                    test_name = scenery.common.pretty_test_name(test)
 
                     # Log / verbosity
                     msg = f"Discovered {test_name}"
@@ -217,7 +217,7 @@ class RehearsalRunner:
             # with redirect_stdout():
             result = self.runner.run(suite)
 
-            result_serialized = pca_scenery.common.serialize_unittest_result(result)
+            result_serialized = scenery.common.serialize_unittest_result(result)
             results[test_name] = result_serialized
 
             if result.errors or result.failures:
@@ -225,11 +225,11 @@ class RehearsalRunner:
             else:
                 log_lvl, color = logging.INFO, "green"
             self.logger.log(
-                log_lvl, f"{test_name}\n{pca_scenery.common.tabulate(result_serialized)}"
+                log_lvl, f"{test_name}\n{scenery.common.tabulate(result_serialized)}"
             )
             if verbosity > 0:
                 print(
-                    f"{pca_scenery.common.colorize(color, test_name)}\n{pca_scenery.common.tabulate({key: val for key, val in result_serialized.items() if val > 0})}"
+                    f"{scenery.common.colorize(color, test_name)}\n{scenery.common.tabulate({key: val for key, val in result_serialized.items() if val > 0})}"
                 )
 
             # Log / verbosity

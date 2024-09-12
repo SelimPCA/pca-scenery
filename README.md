@@ -1,8 +1,5 @@
 # pca_scenery
 
-## Development setup
+## Development instructions
 
-- `~/.pyenv/versions/3.12.3/bin/python -m venv env`
-- `source env/bin/activate` 
-- `pip install -r requirements.txt`
-- `pip install -e .`
+- Run `./setup_dev.sh`, this will create a new virtual environment with all required dependencies and install `scenery` itself as an editable package.

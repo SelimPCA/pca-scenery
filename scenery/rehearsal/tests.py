@@ -3,14 +3,14 @@
 import http
 import unittest
 
-import common
-from http_checker import HttpChecker
-import manifest
-from manifest_parser import ManifestParser
-from method_builder import MethodBuilder
-import rehearsal
-from rehearsal.project_django.some_app.models import SomeModel
-from set_up_handler import SetUpHandler
+import scenery.common
+from scenery.http_checker import HttpChecker
+import scenery.manifest
+from scenery.manifest_parser import ManifestParser
+from scenery.method_builder import MethodBuilder
+import scenery.rehearsal
+from scenery.rehearsal.project_django.some_app.models import SomeModel
+from scenery.set_up_handler import SetUpHandler
 
 import django.http
 
@@ -22,14 +22,14 @@ import django.http
 class TestSingleKeyDict(unittest.TestCase):
 
     def test(self):
-        d = common.SingleKeyDict({"key": "value"})
+        d = scenery.common.SingleKeyDict({"key": "value"})
         self.assertEqual(d.key, "key")
         self.assertEqual(d.value, "value")
         self.assertEqual(d.as_tuple(), ("key", "value"))
         with self.assertRaisesRegex(
             ValueError, r"^SingleKeyDict should have length 1 not '2'"
         ):
-            d = common.SingleKeyDict({"1": None, "2": None})
+            d = scenery.common.SingleKeyDict({"1": None, "2": None})
 
 
 #####################
@@ -45,27 +45,27 @@ class TestSetUpInstruction(unittest.TestCase):
         args = {"arg": object()}
 
         with self.subTest("__init__ without args"):
-            instruction = manifest.SetUpInstruction(cmd)
+            instruction = scenery.manifest.SetUpInstruction(cmd)
             self.assertEqual(instruction.command, cmd)
             self.assertEqual(instruction.args, {})
 
         with self.subTest("__init__ with args"):
-            instruction = manifest.SetUpInstruction(cmd, args)
+            instruction = scenery.manifest.SetUpInstruction(cmd, args)
             self.assertEqual(instruction.command, cmd)
             self.assertEqual(instruction.args, args)
 
         with self.subTest("from_object"):
-            instruction = manifest.SetUpInstruction.from_object(cmd)
-            self.assertEqual(instruction, manifest.SetUpInstruction(cmd))
-            instruction = manifest.SetUpInstruction.from_object({cmd: args})
-            self.assertEqual(instruction, manifest.SetUpInstruction(cmd, args))
+            instruction = scenery.manifest.SetUpInstruction.from_object(cmd)
+            self.assertEqual(instruction, scenery.manifest.SetUpInstruction(cmd))
+            instruction = scenery.manifest.SetUpInstruction.from_object({cmd: args})
+            self.assertEqual(instruction, scenery.manifest.SetUpInstruction(cmd, args))
 
 
 class TestItem(unittest.TestCase):
 
     def test(self):
         d = {"a": object()}
-        item = manifest.Item("id", d)
+        item = scenery.manifest.Item("id", d)
         self.assertEqual(item._id, "id")
         self.assertEqual(item["a"], d["a"])
 
@@ -77,49 +77,49 @@ class TestCase(unittest.TestCase):
     def test(self):
 
         with self.subTest("__init__"):
-            case_a = manifest.Case("id", {"item_id": manifest.Item("item_id", {})})
+            case_a = scenery.manifest.Case("id", {"item_id": scenery.manifest.Item("item_id", {})})
             self.assertEqual(case_a._id, "id")
-            self.assertEqual(case_a.items, {"item_id": manifest.Item("item_id", {})})
+            self.assertEqual(case_a.items, {"item_id": scenery.manifest.Item("item_id", {})})
 
         with self.subTest("from_id_and_dict"):
-            case_b = manifest.Case.from_id_and_dict("id", {"item_id": {}})
+            case_b = scenery.manifest.Case.from_id_and_dict("id", {"item_id": {}})
             self.assertEqual(case_a, case_b)
 
 
 class TestHttpDirective(unittest.TestCase):
 
     def test(self):
-        manifest.HttpDirective(manifest.DirectiveCommand("status_code"), 200)
-        manifest.HttpDirective(
-            manifest.DirectiveCommand("redirect_url"), "https://www.example.com"
+        scenery.manifest.HttpDirective(scenery.manifest.DirectiveCommand("status_code"), 200)
+        scenery.manifest.HttpDirective(
+            scenery.manifest.DirectiveCommand("redirect_url"), "https://www.example.com"
         )
-        manifest.HttpDirective(
-            manifest.DirectiveCommand("dom_element"), {"find": object()}
+        scenery.manifest.HttpDirective(
+            scenery.manifest.DirectiveCommand("dom_element"), {"find": object()}
         )
-        manifest.HttpDirective(
-            manifest.DirectiveCommand("count_instances"), {"model": "SomeModel", "n": 1}
+        scenery.manifest.HttpDirective(
+            scenery.manifest.DirectiveCommand("count_instances"), {"model": "SomeModel", "n": 1}
         )
         with self.assertRaises(ValueError):
-            manifest.HttpDirective(manifest.DirectiveCommand("status_code"), "200")
+            scenery.manifest.HttpDirective(scenery.manifest.DirectiveCommand("status_code"), "200")
         with self.assertRaises(ValueError):
-            manifest.HttpDirective(manifest.DirectiveCommand("redirect_url"), 0)
+            scenery.manifest.HttpDirective(scenery.manifest.DirectiveCommand("redirect_url"), 0)
         with self.assertRaises(ValueError):
-            manifest.HttpDirective(manifest.DirectiveCommand("dom_element"), 0)
+            scenery.manifest.HttpDirective(scenery.manifest.DirectiveCommand("dom_element"), 0)
         with self.assertRaises(LookupError):
-            manifest.HttpDirective(
-                manifest.DirectiveCommand("count_instances"),
+            scenery.manifest.HttpDirective(
+                scenery.manifest.DirectiveCommand("count_instances"),
                 {"model": "NotAModel", "n": 1},
             )
 
-        manifest.HttpDirective.from_dict({"dom_element": {"find": object()}})
-        manifest.HttpDirective.from_dict(
+        scenery.manifest.HttpDirective.from_dict({"dom_element": {"find": object()}})
+        scenery.manifest.HttpDirective.from_dict(
             {"dom_element": {"find": object(), "scope": {}}}
         )
-        manifest.HttpDirective.from_dict({"dom_element": {"find_all": object()}})
+        scenery.manifest.HttpDirective.from_dict({"dom_element": {"find_all": object()}})
         with self.assertRaises(ValueError):
-            manifest.HttpDirective.from_dict({"dom_element": {"scope": {}}})
+            scenery.manifest.HttpDirective.from_dict({"dom_element": {"scope": {}}})
         with self.assertRaises(ValueError):
-            manifest.HttpDirective.from_dict(
+            scenery.manifest.HttpDirective.from_dict(
                 {"dom_element": {"find": object(), "find_all": object()}}
             )
 
@@ -127,30 +127,30 @@ class TestHttpDirective(unittest.TestCase):
 class TestSubstituable(unittest.TestCase):
 
     def test(self):
-        case = manifest.Case(
-            "id", {"item_id": manifest.Item("item_id", {"a": object()})}
+        case = scenery.manifest.Case(
+            "id", {"item_id": scenery.manifest.Item("item_id", {"a": object()})}
         )
-        sub = manifest.Substituable("item_id")
+        sub = scenery.manifest.Substituable("item_id")
         x = sub.shoot(case)
         self.assertDictEqual(x, case["item_id"]._dict)
-        sub = manifest.Substituable("item_id:a")
+        sub = scenery.manifest.Substituable("item_id:a")
         x = sub.shoot(case)
         self.assertEqual(x, case["item_id"]["a"])
 
     def test_regex(self):
 
-        self.assertRegex("item", manifest.Substituable.regex_field)
-        self.assertRegex("item_with_underscore", manifest.Substituable.regex_field)
-        self.assertRegex("item:field", manifest.Substituable.regex_field)
+        self.assertRegex("item", scenery.manifest.Substituable.regex_field)
+        self.assertRegex("item_with_underscore", scenery.manifest.Substituable.regex_field)
+        self.assertRegex("item:field", scenery.manifest.Substituable.regex_field)
         self.assertRegex(
-            "item:field_with_underscore", manifest.Substituable.regex_field
+            "item:field_with_underscore", scenery.manifest.Substituable.regex_field
         )
-        self.assertNotRegex("item_Uppercase", manifest.Substituable.regex_field)
-        self.assertNotRegex("item_0", manifest.Substituable.regex_field)
-        self.assertNotRegex("item-with-hyphen", manifest.Substituable.regex_field)
-        self.assertNotRegex("item:field_Uppercase", manifest.Substituable.regex_field)
-        self.assertNotRegex("item:field_0", manifest.Substituable.regex_field)
-        self.assertNotRegex("item:field-with-hyphen", manifest.Substituable.regex_field)
+        self.assertNotRegex("item_Uppercase", scenery.manifest.Substituable.regex_field)
+        self.assertNotRegex("item_0", scenery.manifest.Substituable.regex_field)
+        self.assertNotRegex("item-with-hyphen", scenery.manifest.Substituable.regex_field)
+        self.assertNotRegex("item:field_Uppercase", scenery.manifest.Substituable.regex_field)
+        self.assertNotRegex("item:field_0", scenery.manifest.Substituable.regex_field)
+        self.assertNotRegex("item:field-with-hyphen", scenery.manifest.Substituable.regex_field)
 
 
 class TestHttpScene(unittest.TestCase):
@@ -173,18 +173,18 @@ class TestHttpScene(unittest.TestCase):
             },
         }
 
-        self.case = manifest.Case.from_id_and_dict("case_id", case_dict)
+        self.case = scenery.manifest.Case.from_id_and_dict("case_id", case_dict)
 
     def test(self):
-        manifest.HttpScene(
+        scenery.manifest.HttpScene(
             "GET",
             "https://www.example.com",
-            [manifest.HttpDirective(manifest.DirectiveCommand("status_code"), 200)],
+            [scenery.manifest.HttpDirective(scenery.manifest.DirectiveCommand("status_code"), 200)],
             [],
             {},
             {},
         )
-        manifest.HttpScene.from_dict(
+        scenery.manifest.HttpScene.from_dict(
             {
                 "method": "GET",
                 "url": "https://www.example.com",
@@ -197,50 +197,50 @@ class TestHttpScene(unittest.TestCase):
 
     def test_substitute_recusively(self):
 
-        scene = manifest.HttpScene.from_dict(
+        scene = scenery.manifest.HttpScene.from_dict(
             self.scene_base_dict
             | {
-                "data": manifest.Substituable("item_id"),
-                "url_parameters": manifest.Substituable("item_id"),
+                "data": scenery.manifest.Substituable("item_id"),
+                "url_parameters": scenery.manifest.Substituable("item_id"),
                 "directives": [
                     {
-                        manifest.DirectiveCommand.STATUS_CODE: manifest.Substituable(
+                        scenery.manifest.DirectiveCommand.STATUS_CODE: scenery.manifest.Substituable(
                             "item_id:status_code"
                         )
                     }
                 ],
             }
         )
-        data = manifest.HttpScene.substitute_recursively(scene.data, self.case)
+        data = scenery.manifest.HttpScene.substitute_recursively(scene.data, self.case)
         self.assertDictEqual(data, self.case["item_id"]._dict)
-        url_parameters = manifest.HttpScene.substitute_recursively(
+        url_parameters = scenery.manifest.HttpScene.substitute_recursively(
             scene.url_parameters, self.case
         )
         self.assertDictEqual(url_parameters, self.case["item_id"]._dict)
-        checks = manifest.HttpScene.substitute_recursively(scene.directives, self.case)
+        checks = scenery.manifest.HttpScene.substitute_recursively(scene.directives, self.case)
 
         self.assertEqual(
             checks[0],
-            manifest.HttpCheck.from_dict(
+            scenery.manifest.HttpCheck.from_dict(
                 {"status_code": self.case["item_id"]["status_code"]}
             ),
         )
 
     def test_shoot(self):
-        scene = manifest.HttpScene.from_dict(
+        scene = scenery.manifest.HttpScene.from_dict(
             self.scene_base_dict
-            | {"data": {"a": manifest.Substituable("item_id:a")}}
-            | {"url_parameters": {"key": manifest.Substituable("item_id:a")}}
+            | {"data": {"a": scenery.manifest.Substituable("item_id:a")}}
+            | {"url_parameters": {"key": scenery.manifest.Substituable("item_id:a")}}
             | {
                 "directives": [
                     {
                         "dom_element": {
                             "find": {
-                                "id": manifest.Substituable("item_id:dom_element_id")
+                                "id": scenery.manifest.Substituable("item_id:dom_element_id")
                             },
                             "attribute": {
                                 "name": "name",
-                                "value": manifest.Substituable(
+                                "value": scenery.manifest.Substituable(
                                     "item_id:attribute_value"
                                 ),
                             },
@@ -252,15 +252,15 @@ class TestHttpScene(unittest.TestCase):
         take = scene.shoot(self.case)
         self.assertEqual(
             take,
-            manifest.HttpTake(
+            scenery.manifest.HttpTake(
                 method=self.scene_base_dict["method"],
                 url=self.scene_base_dict["url"],
                 data={"a": self.case["item_id"]["a"]},
                 url_parameters={"key": self.case["item_id"]["a"]},
                 query_parameters={},
                 checks=[
-                    manifest.HttpCheck(
-                        instruction=manifest.DirectiveCommand.DOM_ELEMENT,
+                    scenery.manifest.HttpCheck(
+                        instruction=scenery.manifest.DirectiveCommand.DOM_ELEMENT,
                         args={
                             "find": {
                                 "id": self.case["item_id"]["dom_element_id"],
@@ -279,29 +279,29 @@ class TestHttpScene(unittest.TestCase):
 class TestManifest(unittest.TestCase):
 
     def test(self):
-        scene = manifest.HttpScene(
+        scene = scenery.manifest.HttpScene(
             "GET",
             "https://www.example.com",
-            [manifest.HttpDirective(manifest.DirectiveCommand("status_code"), 200)],
+            [scenery.manifest.HttpDirective(scenery.manifest.DirectiveCommand("status_code"), 200)],
             [],
             {},
             {},
         )
         scenes = [scene]
-        set_up_test_data = [manifest.SetUpInstruction("reset_db")]
-        set_up = [manifest.SetUpInstruction("login")]
+        set_up_test_data = [scenery.manifest.SetUpInstruction("reset_db")]
+        set_up = [scenery.manifest.SetUpInstruction("login")]
         cases = [
-            manifest.Case("a", [manifest.Item("item_id", {})]),
-            manifest.Case("b", [manifest.Item("item_id", {})]),
+            scenery.manifest.Case("a", [scenery.manifest.Item("item_id", {})]),
+            scenery.manifest.Case("b", [scenery.manifest.Item("item_id", {})]),
         ]
 
-        manifest.Manifest(set_up_test_data, set_up, scenes, cases, "origin")
-        manifest.Manifest.from_formatted_dict(
+        scenery.manifest.Manifest(set_up_test_data, set_up, scenes, cases, "origin")
+        scenery.manifest.Manifest.from_formatted_dict(
             {
-                manifest.ManifestFormattedDictKeys.SET_UP_TEST_DATA: ["reset_db"],
-                manifest.ManifestFormattedDictKeys.SET_UP: ["login"],
-                manifest.ManifestFormattedDictKeys.CASES: {"case_id": {"item_id": {}}},
-                manifest.ManifestFormattedDictKeys.SCENES: [
+                scenery.manifest.ManifestFormattedDictKeys.SET_UP_TEST_DATA: ["reset_db"],
+                scenery.manifest.ManifestFormattedDictKeys.SET_UP: ["login"],
+                scenery.manifest.ManifestFormattedDictKeys.CASES: {"case_id": {"item_id": {}}},
+                scenery.manifest.ManifestFormattedDictKeys.SCENES: [
                     {
                         "method": "GET",
                         "url": "https://www.example.com",
@@ -311,7 +311,7 @@ class TestManifest(unittest.TestCase):
                         "directives": [{"status_code": 200}],
                     }
                 ],
-                manifest.ManifestFormattedDictKeys.MANIFEST_ORIGIN: "origin",
+                scenery.manifest.ManifestFormattedDictKeys.MANIFEST_ORIGIN: "origin",
             }
         )
 
@@ -323,23 +323,23 @@ class TestHttpCheck(unittest.TestCase):
         class NotAModel:
             pass
 
-        manifest.HttpCheck(manifest.DirectiveCommand("status_code"), 200)
-        manifest.HttpCheck(
-            manifest.DirectiveCommand("redirect_url"), "https://www.example.com"
+        scenery.manifest.HttpCheck(scenery.manifest.DirectiveCommand("status_code"), 200)
+        scenery.manifest.HttpCheck(
+            scenery.manifest.DirectiveCommand("redirect_url"), "https://www.example.com"
         )
-        manifest.HttpCheck(manifest.DirectiveCommand("dom_element"), {})
-        manifest.HttpCheck(
-            manifest.DirectiveCommand("count_instances"), {"model": SomeModel, "n": 1}
+        scenery.manifest.HttpCheck(scenery.manifest.DirectiveCommand("dom_element"), {})
+        scenery.manifest.HttpCheck(
+            scenery.manifest.DirectiveCommand("count_instances"), {"model": SomeModel, "n": 1}
         )
         with self.assertRaises(ValueError):
-            manifest.HttpCheck(manifest.DirectiveCommand("status_code"), "200")
+            scenery.manifest.HttpCheck(scenery.manifest.DirectiveCommand("status_code"), "200")
         with self.assertRaises(ValueError):
-            manifest.HttpCheck(manifest.DirectiveCommand("redirect_url"), 0)
+            scenery.manifest.HttpCheck(scenery.manifest.DirectiveCommand("redirect_url"), 0)
         with self.assertRaises(ValueError):
-            manifest.HttpCheck(manifest.DirectiveCommand("dom_element"), 0)
+            scenery.manifest.HttpCheck(scenery.manifest.DirectiveCommand("dom_element"), 0)
         with self.assertRaises(ValueError):
-            manifest.HttpCheck(
-                manifest.DirectiveCommand("count_instances"),
+            scenery.manifest.HttpCheck(
+                scenery.manifest.DirectiveCommand("count_instances"),
                 {"model": NotAModel, "n": 1},
             )
 
@@ -347,10 +347,10 @@ class TestHttpCheck(unittest.TestCase):
 class TestHttpTake(unittest.TestCase):
 
     def test(self):
-        take = manifest.HttpTake(
+        take = scenery.manifest.HttpTake(
             "GET",
             "https://www.example.com",
-            [manifest.HttpDirective(manifest.DirectiveCommand("status_code"), 200)],
+            [scenery.manifest.HttpDirective(scenery.manifest.DirectiveCommand("status_code"), 200)],
             [],
             {},
             {},
@@ -575,7 +575,7 @@ class TestManifestParser(unittest.TestCase):
 # HTTP CHECKER
 #################
 
-class TestHttpChecker(rehearsal.TestCaseOfDjangoTestCase):
+class TestHttpChecker(scenery.rehearsal.TestCaseOfDjangoTestCase):
 
     def test_check_status_code(self):
 
@@ -611,7 +611,7 @@ class TestHttpChecker(rehearsal.TestCaseOfDjangoTestCase):
 
     def test_check_count_instances(self):
         # NOTE As the method below is tested in TestSetUpInstructions we assume it is working
-        SetUpHandler.exec_set_up_instruction(None, manifest.SetUpInstruction("reset_db", {}))
+        SetUpHandler.exec_set_up_instruction(None, scenery.manifest.SetUpInstruction("reset_db", {}))
         response = django.http.HttpResponse()
 
         def test_pass(django_testcase):
@@ -648,14 +648,14 @@ class TestHttpChecker(rehearsal.TestCaseOfDjangoTestCase):
             response = django.http.HttpResponse()
             response.content = '<div id="target">Pass</div>'
             HttpChecker.check_dom_element(
-                django_testcase, response, {manifest.DomArgument.FIND: {"id": "target"}}
+                django_testcase, response, {scenery.manifest.DomArgument.FIND: {"id": "target"}}
             )
 
         def test_pass_find_by_class(django_testcase):
             response = django.http.HttpResponse()
             response.content = '<div class="target">Pass</div>'
             HttpChecker.check_dom_element(
-                django_testcase, response, {manifest.DomArgument.FIND: {"class": "target"}}
+                django_testcase, response, {scenery.manifest.DomArgument.FIND: {"class": "target"}}
             )
 
         def test_pass_text(django_testcase):
@@ -664,7 +664,7 @@ class TestHttpChecker(rehearsal.TestCaseOfDjangoTestCase):
             HttpChecker.check_dom_element(
                 django_testcase,
                 response,
-                {manifest.DomArgument.FIND: {"id": "target"}, manifest.DomArgument.TEXT: "Pass"},
+                {scenery.manifest.DomArgument.FIND: {"id": "target"}, scenery.manifest.DomArgument.TEXT: "Pass"},
             )
 
         def test_pass_attribute(django_testcase):
@@ -674,8 +674,8 @@ class TestHttpChecker(rehearsal.TestCaseOfDjangoTestCase):
                 django_testcase,
                 response,
                 {
-                    manifest.DomArgument.FIND: {"id": "target"},
-                    manifest.DomArgument.ATTRIBUTE: {"name": "class", "value": ["something"]},
+                    scenery.manifest.DomArgument.FIND: {"id": "target"},
+                    scenery.manifest.DomArgument.ATTRIBUTE: {"name": "class", "value": ["something"]},
                 },
             )
 
@@ -688,8 +688,8 @@ class TestHttpChecker(rehearsal.TestCaseOfDjangoTestCase):
                 django_testcase,
                 response,
                 {
-                    manifest.DomArgument.FIND_ALL: {"class": "something"},
-                    manifest.DomArgument.COUNT: 2,
+                    scenery.manifest.DomArgument.FIND_ALL: {"class": "something"},
+                    scenery.manifest.DomArgument.COUNT: 2,
                 },
             )
 
@@ -700,9 +700,9 @@ class TestHttpChecker(rehearsal.TestCaseOfDjangoTestCase):
                 django_testcase,
                 response,
                 {
-                    manifest.DomArgument.SCOPE: {"id": "scope"},
-                    manifest.DomArgument.FIND_ALL: {"class": "something"},
-                    manifest.DomArgument.COUNT: 2,
+                    scenery.manifest.DomArgument.SCOPE: {"id": "scope"},
+                    scenery.manifest.DomArgument.FIND_ALL: {"class": "something"},
+                    scenery.manifest.DomArgument.COUNT: 2,
                 },
             )
 
@@ -710,7 +710,7 @@ class TestHttpChecker(rehearsal.TestCaseOfDjangoTestCase):
             response = django.http.HttpResponse()
             response.content = '<div id="target">Pass</div>'
             HttpChecker.check_dom_element(
-                django_testcase, response, {manifest.DomArgument.FIND: {"id": "another_target"}}
+                django_testcase, response, {scenery.manifest.DomArgument.FIND: {"id": "another_target"}}
             )
 
         def test_fail_2(django_testcase):
@@ -719,7 +719,7 @@ class TestHttpChecker(rehearsal.TestCaseOfDjangoTestCase):
             HttpChecker.check_dom_element(
                 django_testcase,
                 response,
-                {manifest.DomArgument.FIND: {"id": "target"}, manifest.DomArgument.TEXT: "Fail"},
+                {scenery.manifest.DomArgument.FIND: {"id": "target"}, scenery.manifest.DomArgument.TEXT: "Fail"},
             )
 
         def test_fail_3(django_testcase):
@@ -729,8 +729,8 @@ class TestHttpChecker(rehearsal.TestCaseOfDjangoTestCase):
                 django_testcase,
                 response,
                 {
-                    manifest.DomArgument.FIND: {"id": "target"},
-                    manifest.DomArgument.ATTRIBUTE: {
+                    scenery.manifest.DomArgument.FIND: {"id": "target"},
+                    scenery.manifest.DomArgument.ATTRIBUTE: {
                         "name": "class",
                         "value": ["something_else"],
                     },
@@ -773,7 +773,7 @@ class TestHttpChecker(rehearsal.TestCaseOfDjangoTestCase):
 ################
 
 
-class TestMethodBuilder(rehearsal.TestCaseOfDjangoTestCase):
+class TestMethodBuilder(scenery.rehearsal.TestCaseOfDjangoTestCase):
 
     exec_order = []
 
@@ -788,7 +788,7 @@ class TestMethodBuilder(rehearsal.TestCaseOfDjangoTestCase):
         # Reset class attribute
         TestMethodBuilder.exec_order = []
 
-        take = manifest.HttpTake(http.HTTPMethod.GET, "https://www.example.com", [], {}, {}, {})
+        take = scenery.manifest.HttpTake(http.HTTPMethod.GET, "https://www.example.com", [], {}, {}, {})
 
         def watch(func):
 
@@ -856,8 +856,8 @@ class TestMethodBuilder(rehearsal.TestCaseOfDjangoTestCase):
         # Check the persistency of data created during tests
         self.django_testcase.setUpTestData = MethodBuilder.build_setUpTestData(
             [
-                manifest.SetUpInstruction("reset_db"),
-                manifest.SetUpInstruction(
+                scenery.manifest.SetUpInstruction("reset_db"),
+                scenery.manifest.SetUpInstruction(
                     "create_some_instance",
                     {
                         "some_field": "some_value",
@@ -873,7 +873,7 @@ class TestMethodBuilder(rehearsal.TestCaseOfDjangoTestCase):
 
         def test_2(django_testcase):
             # NOTE: the assertion is done on the unittest.TestCase and not the django.TestCase
-            SetUpHandler.exec_set_up_instruction(None, manifest.SetUpInstruction("create_some_instance", {"some_field": "another_value"}))
+            SetUpHandler.exec_set_up_instruction(None, scenery.manifest.SetUpInstruction("create_some_instance", {"some_field": "another_value"}))
             instances = SomeModel.objects.all()
             self.assertEqual(len(instances), 2)
 

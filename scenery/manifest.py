@@ -8,7 +8,7 @@ from typing import Any
 from urllib.parse import urlparse
 import re
 
-from common import read_yaml, SingleKeyDict
+from scenery.common import read_yaml, SingleKeyDict
 
 from django.apps import apps as django_apps
 from django.urls import reverse

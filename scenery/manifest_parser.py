@@ -1,7 +1,7 @@
 import os
 
-import common
-import manifest
+import scenery.common
+import scenery.manifest
 
 import yaml
 from yaml.constructor import ConstructorError
@@ -10,7 +10,7 @@ from yaml.constructor import ConstructorError
 class ManifestParser:
 
     # common_items = common.read_yaml("app/tests/views/common_items.yml")
-    common_items = common.read_yaml(os.getenv("SCENERY_COMMON_ITEMS"))
+    common_items = scenery.common.read_yaml(os.getenv("SCENERY_COMMON_ITEMS"))
 
     ################
     # FORMATTED DICT
@@ -27,8 +27,8 @@ class ManifestParser:
         - manifest_origin
         """
 
-        d = {key: d[key.value] for key in manifest.ManifestFormattedDictKeys}
-        return manifest.Manifest.from_formatted_dict(d)
+        d = {key: d[key.value] for key in scenery.manifest.ManifestFormattedDictKeys}
+        return scenery.manifest.Manifest.from_formatted_dict(d)
 
     ##########
     # ANY DICT
@@ -42,7 +42,7 @@ class ManifestParser:
         """
 
         if not all(
-            key in [x.value for x in manifest.ManifestDictKeys] for key in d.keys()
+            key in [x.value for x in scenery.manifest.ManifestDictKeys] for key in d.keys()
         ):
             raise ValueError(
                 f"Invalid key(s) in {d.keys()} ({d.get('manifest_origin', 'No origin found.')})."
@@ -115,7 +115,7 @@ class ManifestParser:
             raise TypeError(f"Manifest need to be a dict not a '{type(yaml)}'")
 
         if not all(
-            key in [x.value for x in manifest.ManifestYAMLKeys] for key in yaml.keys()
+            key in [x.value for x in scenery.manifest.ManifestYAMLKeys] for key in yaml.keys()
         ):
             raise ValueError(
                 f"Invalid key(s) in {yaml.keys()} ({yaml.get('origin', 'No origin found.')})"
@@ -133,7 +133,7 @@ class ManifestParser:
     @staticmethod
     def _yaml_constructor_case(loader: yaml.SafeLoader, node: yaml.nodes.Node):
         if isinstance(node, yaml.nodes.ScalarNode):
-            return manifest.Substituable(loader.construct_scalar(node))
+            return scenery.manifest.Substituable(loader.construct_scalar(node))
         else:
             raise ConstructorError
 
