@@ -1,47 +1,34 @@
-"""Test the package `scenery` itself."""
-
+import os
 
 
 def main():
+    """Test the package `scenery` itself."""
+
+    result = {}
+
+    # TODO: add parser and logger (see scenery.__main__)
 
     ###################
-    # CONFIG ENV
+    # CONFIG SCENERY
     ###################
-
-    import os
 
     os.environ["SCENERY_TESTED_APP"] = "some_app"
     os.environ["SCENERY_COMMON_ITEMS"] = "scenery/rehearsal/common_items.yml"
     os.environ["SCENERY_SET_UP_INSTRUCTIONS"] = "scenery.rehearsal.set_up_instructions"
 
+    # TODO: config env
+
     ###################
     # CONFIG DJANGO
     ###################
 
-    import django
-    from django.conf import settings as django_settings
-    # from django.apps import apps as django_apps
+    import scenery.common
 
-    django_settings.configure(
+    scenery.common.django_setup(
         ROOT_URLCONF="scenery.rehearsal.project_django.project_django.urls",
-        INSTALLED_APPS=[
-            "django.contrib.admin",
-            "django.contrib.contenttypes",
-            "django.contrib.auth",
-            "django.contrib.sessions",
-            "django.contrib.messages",
-            "django.contrib.staticfiles",
-            # Add other apps here
-            "scenery.rehearsal.project_django.some_app",
-        ],
-        DATABASES={
-            "default": {
-                "ENGINE": "django.db.backends.sqlite3",
-                "NAME": "scenery/rehearsal/project_django/db.sqlite3",
-            }
-        },
+        APP="scenery.rehearsal.project_django.some_app",
+        DB_NAME="scenery/rehearsal/project_django/db.sqlite3",
     )
-    django.setup()
 
     #############
     # RUN TESTS
@@ -52,9 +39,14 @@ def main():
     discoverer = scenery.rehearsal.RehearsalDiscoverer()
     runner = scenery.rehearsal.RehearsalRunner()
     tests_discovered = discoverer.discover(verbosity=2)
-    runner.run(tests_discovered, verbosity=2)
+    result["metatesting"] = runner.run(tests_discovered, verbosity=2)
 
+    # TODO: output result
 
 
 if __name__ == "__main__":
+    import sys
+
     main()
+    sys.exit(0)
+    # TODO: depends on output actually ?

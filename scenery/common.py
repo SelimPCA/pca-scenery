@@ -5,7 +5,9 @@ import re
 import typing
 import unittest
 
+import django
 from django.test.runner import DiscoverRunner
+from django.conf import settings as django_settings
 
 import yaml
 
@@ -185,6 +187,38 @@ def serialize_unittest_result(result: unittest.TestResult) -> dict:
 
 def pretty_test_name(test: unittest.TestCase):
     return f"{test.__module__}.{test.__class__.__qualname__}.{test._testMethodName}"
+
+
+###################
+# DJANGO CONFIG
+###################
+
+
+def django_setup(ROOT_URLCONF, APP, DB_NAME):
+
+    django_settings.configure(
+        # ROOT_URLCONF="scenery.rehearsal.project_django.project_django.urls",
+        ROOT_URLCONF=ROOT_URLCONF,
+        INSTALLED_APPS=[
+            "django.contrib.admin",
+            "django.contrib.contenttypes",
+            "django.contrib.auth",
+            "django.contrib.sessions",
+            "django.contrib.messages",
+            "django.contrib.staticfiles",
+            # Add other apps here
+            # "scenery.rehearsal.project_django.some_app",
+            APP,
+        ],
+        DATABASES={
+            "default": {
+                "ENGINE": "django.db.backends.sqlite3",
+                # "NAME": "scenery/rehearsal/project_django/db.sqlite3",
+                "NAME": DB_NAME,
+            }
+        },
+    )
+    django.setup()
 
 
 ###################

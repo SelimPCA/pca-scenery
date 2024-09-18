@@ -1,0 +1,11 @@
+set_up:
+  - reset_db
+
+case:
+  field: value
+
+scene: 
+  method: GET
+  url: "some_app:hello"
+  directives:
+    - status_code: 200

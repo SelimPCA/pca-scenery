@@ -4,10 +4,10 @@ import logging
 import itertools
 
 
-from manifest import Manifest
-from method_builder import MethodBuilder
-from manifest_parser import ManifestParser
-import common
+from scenery.manifest import Manifest
+from scenery.method_builder import MethodBuilder
+from scenery.manifest_parser import ManifestParser
+import scenery.common
 
 import django.test
 from django.test.utils import get_runner
@@ -71,7 +71,8 @@ class MetaTestDiscoverer:
 
             # Create class
             filename = filename.replace(".yml", "")
-            testcase_name = f"Test{common.snake_to_camel_case(folder)}{common.snake_to_camel_case(filename)}"
+            folder = folder.replace("/", "_")
+            testcase_name = f"Test{scenery.common.snake_to_camel_case(folder)}{scenery.common.snake_to_camel_case(filename)}"
             cls = MetaTest(testcase_name, (django.test.TestCase,), manifest)
 
             # Log / verbosity
@@ -84,7 +85,7 @@ class MetaTestDiscoverer:
             tests = self.loader.loadTestsFromTestCase(cls)
             for test in tests:
 
-                test_name = common.pretty_test_name(test)
+                test_name = scenery.common.pretty_test_name(test)
                 suite = suite_cls()
                 suite.addTest(test)
                 out.append((test_name, suite))
@@ -97,6 +98,10 @@ class MetaTestDiscoverer:
 
 class MetaTestRunner:
 
+    # TODO: this is VERY similar to rehearsalrunner.run
+    # TODO: should probably take the discovered suite as argument
+    # TODO: it should be a single TestsRunner
+
     def __init__(self):
         # TODO: get the discoverer out
         self.runner = get_runner(
@@ -107,7 +112,7 @@ class MetaTestRunner:
         self.stream = io.StringIO()
 
         def overwrite(runner):
-            return common.overwrite_get_runner_kwargs(runner, self.stream)
+            return scenery.common.overwrite_get_runner_kwargs(runner, self.stream)
 
         self.runner.get_test_runner_kwargs = overwrite.__get__(self.runner)
         app_logger = logging.getLogger("app.close_watch")
@@ -119,31 +124,26 @@ class MetaTestRunner:
         app_logger = logging.getLogger("app.close_watch")
         app_logger.propagate = True
 
-    def run(self, verbosity, restrict_view_name):
-
-        # TODO: this is VERY similar to rehearsalrunner.run
-        # TODO: should probably take the discovered suite as argument
+    def run(self, tests_discovered, verbosity):
 
         results = {}
-        for test_name, suite in self.discoverer.discover(
-            verbosity=verbosity, restrict_view_name=restrict_view_name
-        ):
+        for test_name, suite in tests_discovered:
 
             result = self.runner.run_suite(suite)
 
-            result_serialized = common.serialize_unittest_result(result)
+            result_serialized = scenery.common.serialize_unittest_result(result)
             results[test_name] = result_serialized
 
             if result.errors or result.failures:
-                log_lvl, color = logging.ERROR, "red"  # TODO: verbose should be an enum
+                log_lvl, color = logging.ERROR, "red"
             else:
                 log_lvl, color = logging.INFO, "green"
             self.logger.log(
-                log_lvl, f"{test_name}\n{common.tabulate(result_serialized)}"
+                log_lvl, f"{test_name}\n{scenery.common.tabulate(result_serialized)}"
             )
             if verbosity > 0:
                 print(
-                    f"{common.colorize(color, test_name)}\n{common.tabulate({key: val for key, val in result_serialized.items() if val > 0})}"
+                    f"{scenery.common.colorize(color, test_name)}\n{scenery.common.tabulate({key: val for key, val in result_serialized.items() if val > 0})}"
                 )
 
             # Log / verbosity
