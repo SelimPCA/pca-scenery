@@ -44,7 +44,7 @@ class CustomTestCase(unittest.TestCase):
     @classmethod
     def log_db(cls):
         # TODO: this depends on django
-        app_config = django_apps.get_app_config(os.getenv("SCENERY_TESTED_APP"))
+        app_config = django_apps.get_app_config(os.getenv("SCENERY_TESTED_APP_NAME"))
         for model in app_config.get_models():
             cls.logger.debug(f"{model.__name__}: {model.objects.count()} instances.")
 

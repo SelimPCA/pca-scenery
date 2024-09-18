@@ -1,4 +1,4 @@
-bs4==0.0.1_
+bs4==0.0.1
 django==4.2.7
 python-dotenv==1.0.1
 pyyaml==6.0.1

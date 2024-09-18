@@ -9,7 +9,7 @@ from scenery.rehearsal.project_django.some_app.models import SomeModel
 def reset_db():
     """Delete all instances of all app models"""
 
-    app_config = django_apps.get_app_config(os.getenv("SCENERY_TESTED_APP"))
+    app_config = django_apps.get_app_config(os.getenv("SCENERY_TESTED_APP_NAME"))
 
     # NOTE: bug if kept as an iterator
     models = list(app_config.get_models())

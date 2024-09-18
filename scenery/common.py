@@ -194,7 +194,7 @@ def pretty_test_name(test: unittest.TestCase):
 ###################
 
 
-def django_setup(ROOT_URLCONF, APP, DB_NAME):
+def django_setup(ROOT_URLCONF, APPS, DB_NAME):
 
     django_settings.configure(
         # ROOT_URLCONF="scenery.rehearsal.project_django.project_django.urls",
@@ -206,10 +206,8 @@ def django_setup(ROOT_URLCONF, APP, DB_NAME):
             "django.contrib.sessions",
             "django.contrib.messages",
             "django.contrib.staticfiles",
-            # Add other apps here
-            # "scenery.rehearsal.project_django.some_app",
-            APP,
-        ],
+        ]
+        + APPS,
         DATABASES={
             "default": {
                 "ENGINE": "django.db.backends.sqlite3",

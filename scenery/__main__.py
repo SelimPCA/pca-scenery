@@ -93,26 +93,45 @@ def main():
     # CONFIG SCENERY
     ##################
 
-    # TODO: shoudl be a load_settings function
-    os.environ["SCENERY_TESTED_APP"] = "some_app"
-    os.environ["SCENERY_COMMON_ITEMS"] = "scenery/rehearsal/common_items.yml"
-    os.environ["SCENERY_SET_UP_INSTRUCTIONS"] = "scenery.rehearsal.set_up_instructions"
-    os.environ["SCENERY_MANIFESTS_FOLDER"] = "scenery/rehearsal/manifests"
+    import dotenv
+
+    has_config = dotenv.load_dotenv(".env_scenery")
+    if not has_config:
+        # TODO: this should actually become a test
+        scenery_dir = os.path.abspath(os.path.join(__file__, os.pardir))
+
+        # Scenery
+        os.environ["SCENERY_COMMON_ITEMS"] = f"{scenery_dir}/rehearsal/common_items.yml"
+        os.environ["SCENERY_SET_UP_INSTRUCTIONS"] = (
+            "scenery.rehearsal.set_up_instructions"
+        )
+        os.environ["SCENERY_MANIFESTS_FOLDER"] = f"{scenery_dir}/rehearsal/manifests"
+        # Django
+        os.environ["SCENERY_TESTED_APP_NAME"] = "some_app"
+        os.environ["SCENERY_DB_NAME"] = (
+            f"{scenery_dir}/rehearsal/project_django/db.sqlite3"
+        )
+        os.environ["SCENERY_ROOT_URLCONF"] = (
+            "scenery.rehearsal.project_django.project_django.urls"
+        )
+        os.environ["SCENERY_INSTALLED_APPS"] = (
+            "scenery.rehearsal.project_django.some_app"
+        )
 
     ##############
     # CONFIG ENV
     ##############
 
     # TODO
-    result["config"] = {
-        "stdlib": None,  # SysConfig.stdlib,
-        "purelib": None,  # SysConfig.purelib,
-        "src": None,  # SysConfig.src,
-        "this_folder": None,  # SysConfig.this_folder,
-    }
+    # result["config"] = {
+    #     "stdlib": None,  # SysConfig.stdlib,
+    #     "purelib": None,  # SysConfig.purelib,
+    #     "src": None,  # SysConfig.src,
+    #     "this_folder": None,  # SysConfig.this_folder,
+    # }
 
-    for key, val in result["config"].items():
-        logger.debug(f"`{key}` found at {val}")
+    # for key, val in result["config"].items():
+    #     logger.debug(f"`{key}` found at {val}")
 
     #####################
     # CONFIG DJANGO
@@ -121,10 +140,23 @@ def main():
     import scenery.common
 
     scenery.common.django_setup(
-        ROOT_URLCONF="scenery.rehearsal.project_django.project_django.urls",
-        APP="scenery.rehearsal.project_django.some_app",
-        DB_NAME="scenery/rehearsal/project_django/db.sqlite3",
+        ROOT_URLCONF=os.getenv("SCENERY_ROOT_URLCONF"),
+        APPS=os.getenv("SCENERY_INSTALLED_APPS").split(";"),
+        DB_NAME=os.getenv("SCENERY_DB_NAME"),
     )
+
+    # TODO: this should move
+
+    from django.conf import settings
+
+    settings.BLOCK_SOURCE = "markdown"
+
+    from django.urls import get_resolver
+
+    # Print all URL patterns Django is aware of
+    resolver = get_resolver()
+    for pattern in resolver.url_patterns:
+        print("*********************", pattern)
 
     #############
     # METATESTING

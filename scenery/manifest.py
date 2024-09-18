@@ -65,8 +65,6 @@ class ManifestYAMLKeys(enum.Enum):
     VARIABLES = "variables"
 
 
-
-
 ##############
 # SUBSTITUTION
 ##############
@@ -289,7 +287,9 @@ class HttpDirective:
                 # TODO
                 pass
             case DirectiveCommand.COUNT_INSTANCES, {"model": str(s), "n": int(n)}:
-                app_config = django_apps.get_app_config(os.getenv("SCENERY_TESTED_APP"))
+                app_config = django_apps.get_app_config(
+                    os.getenv("SCENERY_TESTED_APP_NAME")
+                )
                 self.args["model"] = app_config.get_model(s)
             case DirectiveCommand.COUNT_INSTANCES, Substituable(field_repr, target):
                 # TODO
@@ -471,7 +471,9 @@ class HttpCheck(HttpDirective):
                 # TODO
             case DirectiveCommand.COUNT_INSTANCES, {"model": ModelBase(), "n": int(n)}:
                 # Validate model is registered
-                app_config = django_apps.get_app_config(os.getenv("SCENERY_TESTED_APP"))
+                app_config = django_apps.get_app_config(
+                    os.getenv("SCENERY_TESTED_APP_NAME")
+                )
                 app_config.get_model(self.args["model"].__name__)
             case _:
                 raise ValueError(

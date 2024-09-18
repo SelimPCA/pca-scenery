@@ -46,7 +46,7 @@ class HttpChecker:
         ## SANITY CHECK SELIM
         ## TO CHECK IN THE DATABASE ON TEST ENVIRONMENT THAT SOMETHING HAS BEEN STORED
         ## PROBABLY WE SHOULD AT IT AT THE LEVEL OF THE SCENERY
-        # app_config = django_apps.get_app_config(os.getenv("SCENERY_TESTED_APP"))
+        # app_config = django_apps.get_app_config(os.getenv("SCENERY_TESTED_APP_NAME"))
         # NOTE: bug if kept as a iterator, UserCustom cannot be deleted
         # models = list(app_config.get_models())
         # for model in models:
