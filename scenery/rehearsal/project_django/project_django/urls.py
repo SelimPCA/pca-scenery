@@ -18,12 +18,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from project_django.some_app import views
+try:
+    from scenery.rehearsal.project_django.some_app import views
+except:
+    from some_app import views
 
 # app_name = "some_app"
 urlpatterns = [
     path("admin/", admin.site.urls, name="admin"),
-    path("hello/", views.hello_world, name="hello_world"),
+    path("hello/", views.hello_world, name="hello"),
 ]
 
 

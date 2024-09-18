@@ -6,6 +6,6 @@ case:
 
 scene: 
   method: GET
-  url: "some_app:hello"
+  url: "hello"
   directives:
     - status_code: 200
