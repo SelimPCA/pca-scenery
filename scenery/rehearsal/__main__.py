@@ -19,12 +19,13 @@ def main():
     os.environ["SCENERY_SET_UP_INSTRUCTIONS"] = "scenery.rehearsal.set_up_instructions"
     # Django
     os.environ["SCENERY_TESTED_APP_NAME"] = "some_app"
-    os.environ["SCENERY_DB_NAME"] = f"{rehearsal_dir}/project_django/db.sqlite3"
-    os.environ["SCENERY_ROOT_URLCONF"] = (
-        "scenery.rehearsal.project_django.project_django.urls"
-    )
-    os.environ["SCENERY_INSTALLED_APPS"] = "scenery.rehearsal.project_django.some_app"
-    # os.environ["SCENERY_MANIFESTS_FOLDER"] = None
+
+    SCENERY_DB = {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": f"{rehearsal_dir}/project_django/db.sqlite3",
+    }
+    SCENERY_ROOT_URLCONF = "scenery.rehearsal.project_django.project_django.urls"
+    SCENERY_INSTALLED_APPS = ["scenery.rehearsal.project_django.some_app"]
 
     ###################
     # CONFIG DJANGO
@@ -33,9 +34,9 @@ def main():
     import scenery.common
 
     scenery.common.django_setup(
-        ROOT_URLCONF=os.getenv("SCENERY_ROOT_URLCONF"),
-        APPS=os.getenv("SCENERY_INSTALLED_APPS").split(";"),
-        DB_NAME=os.getenv("SCENERY_DB_NAME"),
+        ROOT_URLCONF=SCENERY_ROOT_URLCONF,
+        APPS=SCENERY_INSTALLED_APPS,
+        DB_DICT=SCENERY_DB,
     )
 
     #############
@@ -57,4 +58,3 @@ if __name__ == "__main__":
 
     main()
     sys.exit(0)
-    # TODO: depends on output actually ?

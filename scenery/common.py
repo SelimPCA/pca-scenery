@@ -194,7 +194,9 @@ def pretty_test_name(test: unittest.TestCase):
 ###################
 
 
-def django_setup(ROOT_URLCONF, APPS, DB_NAME):
+def django_setup(ROOT_URLCONF, APPS, DB_DICT):
+
+    # TODO: should load settings of the app the django way
 
     django_settings.configure(
         # ROOT_URLCONF="scenery.rehearsal.project_django.project_django.urls",
@@ -209,11 +211,18 @@ def django_setup(ROOT_URLCONF, APPS, DB_NAME):
         ]
         + APPS,
         DATABASES={
-            "default": {
-                "ENGINE": "django.db.backends.sqlite3",
-                # "NAME": "scenery/rehearsal/project_django/db.sqlite3",
-                "NAME": DB_NAME,
-            }
+            "default": DB_DICT
+            # {
+            # "ENGINE": "django.db.backends.postgresql_psycopg2",
+            # "NAME": "pca-local",
+            # "USER": "user",
+            # "PASSWORD": "cnlIHmVZ0qm3dK11wS3X",
+            # "HOST": "127.0.0.1",
+            # "PORT": "5432",
+            # # "ENGINE": "django.db.backends.sqlite3",
+            # # "NAME": "scenery/rehearsal/project_django/db.sqlite3",
+            # "NAME": DB_NAME,
+            # }
         },
     )
     django.setup()

@@ -1,6 +1,7 @@
 import argparse
 import os
 import logging
+import importlib.util
 
 
 def main():
@@ -93,10 +94,31 @@ def main():
     # CONFIG SCENERY
     ##################
 
-    import dotenv
+    # import dotenv
 
-    has_config = dotenv.load_dotenv(".env_scenery")
-    if not has_config:
+    # has_config = dotenv.load_dotenv(".env_scenery")
+    has_config = os.path.exists("./scenery_settings.py")
+    if has_config:
+        # TODO this should be a function ?
+        # TODO this should load nicely the django way ?
+        # scenery_settings = importlib.import_module("./scenery_settings.py")
+        spec = importlib.util.spec_from_file_location(
+            "scenery_settings", "./scenery_settings.py"
+        )
+        scenery_settings = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(scenery_settings)
+
+        os.environ["SCENERY_COMMON_ITEMS"] = scenery_settings.SCENERY_COMMON_ITEMS
+        os.environ["SCENERY_SET_UP_INSTRUCTIONS"] = (
+            scenery_settings.SCENERY_SET_UP_INSTRUCTIONS
+        )
+
+        SCENERY_DB = scenery_settings.SCENERY_DB
+        SCENERY_ROOT_URLCONF = scenery_settings.SCENERY_ROOT_URLCONF
+        SCENERY_INSTALLED_APPS = scenery_settings.SCENERY_INSTALLED_APPS
+        SCENERY_MANIFESTS_FOLDER = scenery_settings.SCENERY_MANIFESTS_FOLDER
+
+    else:
         # TODO: this should actually become a test
         scenery_dir = os.path.abspath(os.path.join(__file__, os.pardir))
 
@@ -108,15 +130,14 @@ def main():
         os.environ["SCENERY_MANIFESTS_FOLDER"] = f"{scenery_dir}/rehearsal/manifests"
         # Django
         os.environ["SCENERY_TESTED_APP_NAME"] = "some_app"
-        os.environ["SCENERY_DB_NAME"] = (
-            f"{scenery_dir}/rehearsal/project_django/db.sqlite3"
-        )
-        os.environ["SCENERY_ROOT_URLCONF"] = (
-            "scenery.rehearsal.project_django.project_django.urls"
-        )
-        os.environ["SCENERY_INSTALLED_APPS"] = (
-            "scenery.rehearsal.project_django.some_app"
-        )
+
+        SCENERY_DB = {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": "scenery/rehearsal/project_django/db.sqlite3",
+        }
+        SCENERY_ROOT_URLCONF = "scenery.rehearsal.project_django.project_django.urls"
+        SCENERY_INSTALLED_APPS = ["scenery.rehearsal.project_django.some_app"]
+        SCENERY_MANIFESTS_FOLDER = f"{scenery_dir}/rehearsal/manifests"
 
     ##############
     # CONFIG ENV
@@ -140,23 +161,22 @@ def main():
     import scenery.common
 
     scenery.common.django_setup(
-        ROOT_URLCONF=os.getenv("SCENERY_ROOT_URLCONF"),
-        APPS=os.getenv("SCENERY_INSTALLED_APPS").split(";"),
-        DB_NAME=os.getenv("SCENERY_DB_NAME"),
+        ROOT_URLCONF=SCENERY_ROOT_URLCONF,
+        APPS=SCENERY_INSTALLED_APPS,
+        DB_DICT=SCENERY_DB,
     )
 
-    # TODO: this should move
+    # TODO: this should move outside of pca-scenery
 
     from django.conf import settings
 
     settings.BLOCK_SOURCE = "markdown"
 
-    from django.urls import get_resolver
-
     # Print all URL patterns Django is aware of
-    resolver = get_resolver()
-    for pattern in resolver.url_patterns:
-        print("*********************", pattern)
+    # from django.urls import get_resolver
+    # resolver = get_resolver()
+    # for pattern in resolver.url_patterns:
+    #     print("*********************", pattern)
 
     #############
     # METATESTING
@@ -168,9 +188,7 @@ def main():
     import scenery.rehearsal
 
     discoverer = MetaTestDiscoverer()
-    tests_discovered = discoverer.discover(
-        os.getenv("SCENERY_MANIFESTS_FOLDER"), verbosity=2
-    )
+    tests_discovered = discoverer.discover(SCENERY_MANIFESTS_FOLDER, verbosity=2)
     runner = MetaTestRunner()
     result["metatesting"] = runner.run(tests_discovered, args.verbosity)
 
