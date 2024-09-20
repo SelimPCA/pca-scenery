@@ -198,7 +198,7 @@ def django_setup(ROOT_URLCONF, APPS, DB_DICT):
 
     # TODO: should load settings of the app the django way
 
-    # HERE = can I load settings ?
+    HERE = can I load settings ?
 
     django_settings.configure(
         # ROOT_URLCONF="scenery.rehearsal.project_django.project_django.urls",
