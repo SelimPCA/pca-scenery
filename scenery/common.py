@@ -230,14 +230,6 @@ def django_setup(ROOT_URLCONF, APPS, DB_DICT, MIDDLEWARE):
     )
     django.setup()
 
-    # from django.conf import settings
-
-    # # Print out the settings to debug
-    # print("INSTALLED_APPS:", settings.INSTALLED_APPS)
-    # print("DATABASES:", settings.DATABASES)
-    # print("MIDDLEWARE:", settings.MIDDLEWARE)
-    # print("ROOT_URLCONF:", settings.ROOT_URLCONF)
-    # print("DEBUG:", settings.DEBUG)
 
 
 ###################

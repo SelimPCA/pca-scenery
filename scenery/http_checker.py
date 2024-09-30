@@ -21,10 +21,12 @@ class HttpChecker:
     @staticmethod
     def get_http_client_response(client, take: scenery.manifest.HttpTake):
 
-        print("HERE", client)
+        print("###########", take.url, take.data)
+        print(client)
 
         match take.method:
             case http.HTTPMethod.GET:
+                print("GOTCHA")
                 response = client.get(
                     take.url,
                     take.data,
@@ -36,6 +38,11 @@ class HttpChecker:
                 )
             case _:
                 raise NotImplementedError(take.method)
+        print("HERE", response)
+        print(response.content)
+
+        print("\n" * 5)
+
         return response
 
     @staticmethod

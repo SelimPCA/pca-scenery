@@ -177,17 +177,26 @@ def main():
     # print("##################")
     # pprint(SCENERY_DB)
 
+    from django.conf import settings, global_settings
+
+    # # Print out the settings to debug
+    # print("INSTALLED_APPS:", settings.INSTALLED_APPS)
+    # print("DATABASES:", settings.DATABASES)
+    # print("MIDDLEWARE:", settings.MIDDLEWARE)
+    # print("ROOT_URLCONF:", settings.ROOT_URLCONF)
+    # print("DEBUG:", settings.DEBUG)
+
     # TODO: this should move outside of pca-scenery
 
-    from django.conf import settings
-
     settings.BLOCK_SOURCE = "markdown"
-
+    # global_settings.BLOCK_SOURCE = "markdown"
+    #
     # Print all URL patterns Django is aware of
-    # from django.urls import get_resolver
-    # resolver = get_resolver()
-    # for pattern in resolver.url_patterns:
-    #     print("*********************", pattern)
+    from django.urls import get_resolver
+
+    resolver = get_resolver()
+    for pattern in resolver.url_patterns:
+        print("*********************", pattern)
 
     #############
     # METATESTING
