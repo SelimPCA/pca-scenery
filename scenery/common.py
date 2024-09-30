@@ -194,11 +194,11 @@ def pretty_test_name(test: unittest.TestCase):
 ###################
 
 
-def django_setup(ROOT_URLCONF, APPS, DB_DICT):
+def django_setup(ROOT_URLCONF, APPS, DB_DICT, MIDDLEWARE):
 
     # TODO: should load settings of the app the django way
 
-    HERE = can I load settings ?
+    # HERE = can I load settings ?
 
     django_settings.configure(
         # ROOT_URLCONF="scenery.rehearsal.project_django.project_django.urls",
@@ -226,8 +226,18 @@ def django_setup(ROOT_URLCONF, APPS, DB_DICT):
             # "NAME": DB_NAME,
             # }
         },
+        MIDDLEWARE=MIDDLEWARE,
     )
     django.setup()
+
+    # from django.conf import settings
+
+    # # Print out the settings to debug
+    # print("INSTALLED_APPS:", settings.INSTALLED_APPS)
+    # print("DATABASES:", settings.DATABASES)
+    # print("MIDDLEWARE:", settings.MIDDLEWARE)
+    # print("ROOT_URLCONF:", settings.ROOT_URLCONF)
+    # print("DEBUG:", settings.DEBUG)
 
 
 ###################

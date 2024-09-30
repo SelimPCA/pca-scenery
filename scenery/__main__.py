@@ -117,6 +117,12 @@ def main():
         SCENERY_ROOT_URLCONF = scenery_settings.SCENERY_ROOT_URLCONF
         SCENERY_INSTALLED_APPS = scenery_settings.SCENERY_INSTALLED_APPS
         SCENERY_MANIFESTS_FOLDER = scenery_settings.SCENERY_MANIFESTS_FOLDER
+        SCENERY_MIDDLEWARE = scenery_settings.SCENERY_MIDDLEWARE
+
+        # from pprint import pprint
+
+        # print("*****************")
+        # pprint(SCENERY_MIDDLEWARE)
 
     else:
         # TODO: this should actually become a test
@@ -164,7 +170,12 @@ def main():
         ROOT_URLCONF=SCENERY_ROOT_URLCONF,
         APPS=SCENERY_INSTALLED_APPS,
         DB_DICT=SCENERY_DB,
+        MIDDLEWARE=SCENERY_MIDDLEWARE,
     )
+
+    # from pprint import pprint
+    # print("##################")
+    # pprint(SCENERY_DB)
 
     # TODO: this should move outside of pca-scenery
 

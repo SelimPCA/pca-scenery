@@ -21,6 +21,8 @@ class HttpChecker:
     @staticmethod
     def get_http_client_response(client, take: scenery.manifest.HttpTake):
 
+        print("HERE", client)
+
         match take.method:
             case http.HTTPMethod.GET:
                 response = client.get(
