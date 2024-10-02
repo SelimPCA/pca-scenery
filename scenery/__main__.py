@@ -127,6 +127,9 @@ def main():
         SCENERY_MANIFESTS_FOLDER = scenery_settings.SCENERY_MANIFESTS_FOLDER
         # SCENERY_MIDDLEWARE = scenery_settings.SCENERY_MIDDLEWARE
 
+        # Django
+        os.environ["SCENERY_TESTED_APP_NAME"] = "app"
+
         # from pprint import pprint
 
         # print("*****************")

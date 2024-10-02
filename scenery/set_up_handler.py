@@ -4,7 +4,7 @@ import os
 
 import scenery.manifest
 
-
+import django.test
 
 
 class SetUpHandler:
@@ -15,14 +15,19 @@ class SetUpHandler:
     `SetUpInstruction`
     """
 
-    module = importlib.import_module(os.getenv("SCENERY_SET_UP_INSTRUCTIONS"),)
+    module = importlib.import_module(
+        os.getenv("SCENERY_SET_UP_INSTRUCTIONS"),
+    )
 
     @staticmethod
-    def exec_set_up_instruction(client, instruction: scenery.manifest.SetUpInstruction):
+    def exec_set_up_instruction(
+        django_testcase: django.test.TestCase,
+        instruction: scenery.manifest.SetUpInstruction,
+    ):
         """Execute the method corresponding to the SetUpInstruction"""
 
         func = getattr(SetUpHandler.module, instruction.command)
-        func(**instruction.args)
-        
+        func(django_testcase, **instruction.args)
+
         logger = logging.getLogger(__package__)
         logger.debug(f"Applied {instruction}")

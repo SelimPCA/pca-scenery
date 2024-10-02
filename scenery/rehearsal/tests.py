@@ -663,7 +663,7 @@ class TestHttpChecker(scenery.rehearsal.TestCaseOfDjangoTestCase):
     def test_check_count_instances(self):
         # NOTE As the method below is tested in TestSetUpInstructions we assume it is working
         SetUpHandler.exec_set_up_instruction(
-            None, scenery.manifest.SetUpInstruction("reset_db", {})
+            self.django_testcase, scenery.manifest.SetUpInstruction("reset_db", {})
         )
         response = django.http.HttpResponse()
 
@@ -677,23 +677,16 @@ class TestHttpChecker(scenery.rehearsal.TestCaseOfDjangoTestCase):
                 django_testcase, response, {"model": SomeModel, "n": 1}
             )
 
+        # TODO
         # def test_error(django_testcase):
         #     class UndefinedModel:
         #         pass
 
-        #     HttpChecker.check_count_instances(
-        #         django_testcase, response, {"model": UndefinedModel, "n": 0}
-        #     )
-
         self.django_testcase.test_pass = test_pass
         self.django_testcase.test_fail = test_fail
-        # self.django_testcase.test_error = test_error
 
         self.assertTestPasses(self.django_testcase("test_pass"))
         self.assertTestFails(self.django_testcase("test_fail"))
-        # This actually raises an AttributeError as now data validation is
-        # Performed by the HttpTake dataclasses
-        # self.assertTestRaises(self.django_testcase("test_error"), LookupError)
 
     def test_check_dom_element(self):
 
@@ -948,7 +941,7 @@ class TestMethodBuilder(scenery.rehearsal.TestCaseOfDjangoTestCase):
         def test_2(django_testcase):
             # NOTE: the assertion is done on the unittest.TestCase and not the django.TestCase
             SetUpHandler.exec_set_up_instruction(
-                None,
+                django_testcase,
                 scenery.manifest.SetUpInstruction(
                     "create_some_instance", {"some_field": "another_value"}
                 ),

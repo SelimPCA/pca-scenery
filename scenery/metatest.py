@@ -67,12 +67,12 @@ class MetaTestDiscoverer:
         for filename in os.listdir(folder):
             self.logger.debug(f"Discovered manifest '{folder}/{filename}'")
 
+            print("##########", folder, filename)
+
             manifest = ManifestParser.parse_yaml(os.path.join(folder, filename))
 
             # Create class
             filename = filename.replace(".yml", "")
-            folder = folder.replace("/", "_")
-            folder = folder.replace("-", "")
             testcase_name = f"Test{scenery.common.snake_to_camel_case(folder)}{scenery.common.snake_to_camel_case(filename)}"
             cls = MetaTest(testcase_name, (django.test.TestCase,), manifest)
 

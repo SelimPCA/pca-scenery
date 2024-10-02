@@ -2,11 +2,12 @@ import os
 
 from django.apps import apps as django_apps
 from django.db.models.deletion import ProtectedError
+from django.test import Client
 
 from scenery.rehearsal.project_django.some_app.models import SomeModel
 
 
-def reset_db():
+def reset_db(django_testcase):
     """Delete all instances of all app models"""
 
     app_config = django_apps.get_app_config(os.getenv("SCENERY_TESTED_APP_NAME"))
@@ -21,12 +22,12 @@ def reset_db():
                 continue
 
 
-def login(client, *, user_email, password):
+def login(django_testcase, *, user_email, password):
     """Login a test user"""
-    client.login(username=user_email, password=password)
+    django_testcase.client.login(username=user_email, password=password)
 
 
-def create_some_instance(*, some_field):
+def create_some_instance(django_testcase, *, some_field):
 
     some_instance = SomeModel(some_field=some_field)
     some_instance.save()

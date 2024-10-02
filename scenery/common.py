@@ -65,6 +65,8 @@ def read_yaml(filename: str) -> typing.Any:
 
 def snake_to_camel_case(s: str) -> str:
     """Transforms a string assumed to be in snake_case into CamelCase"""
+    s = s.replace("/", "_")
+    s = s.replace("-", "")
     if not re.fullmatch(r"[a-z0-9_]+", s):
         raise ValueError(f"'{s}' is not snake_case")
     words = s.split("_")

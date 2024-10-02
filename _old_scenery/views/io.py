@@ -9,7 +9,8 @@ class IO:
     @staticmethod
     def get_http_client_response(client, take: HttpTake):
 
-        # print("###########", take)
+        print("###########", take.url, take.data)
+        print(client)
 
         match take.method:
             case HTTPMethod.GET:
@@ -24,4 +25,5 @@ class IO:
                 )
             case _:
                 raise NotImplementedError(take.method)
+        print("HERE", response)
         return response
