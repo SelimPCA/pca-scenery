@@ -171,6 +171,16 @@ elif main_script.endswith("scenery/rehearsal/__main__.py"):
     INSTALLED_APPS.append("scenery.rehearsal.project_django")
     INSTALLED_APPS.append("scenery.rehearsal.project_django.some_app")
 
+# run rehearsal
+elif main_script.endswith("scenery/__main__.py"):
+
+    ALLOWED_HOSTS = ["testserver"]
+
+    ROOT_URLCONF = "scenery.rehearsal.project_django.project_django.urls"
+
+    INSTALLED_APPS.append("scenery.rehearsal.project_django")
+    INSTALLED_APPS.append("scenery.rehearsal.project_django.some_app")
+
 # Fail
 else:
     raise NotImplementedError(f"settings for call from {main_script}")

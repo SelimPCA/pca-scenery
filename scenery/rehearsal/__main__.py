@@ -20,13 +20,13 @@ def main():
     # Django
     os.environ["SCENERY_TESTED_APP_NAME"] = "some_app"
 
-    SCENERY_DB = {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": f"{rehearsal_dir}/project_django/db.sqlite3",
-    }
-    SCENERY_ROOT_URLCONF = "scenery.rehearsal.project_django.project_django.urls"
-    SCENERY_INSTALLED_APPS = ["scenery.rehearsal.project_django.some_app"]
-    SCENERY_MIDDLEWARE = []
+    # SCENERY_DB = {
+    #     "ENGINE": "django.db.backends.sqlite3",
+    #     "NAME": f"{rehearsal_dir}/project_django/db.sqlite3",
+    # }
+    # SCENERY_ROOT_URLCONF = "scenery.rehearsal.project_django.project_django.urls"
+    # SCENERY_INSTALLED_APPS = ["scenery.rehearsal.project_django.some_app"]
+    # SCENERY_MIDDLEWARE = []
 
     ###################
     # CONFIG DJANGO
@@ -34,12 +34,7 @@ def main():
 
     import scenery.common
 
-    scenery.common.django_setup(
-        ROOT_URLCONF=SCENERY_ROOT_URLCONF,
-        APPS=SCENERY_INSTALLED_APPS,
-        DB_DICT=SCENERY_DB,
-        MIDDLEWARE=SCENERY_MIDDLEWARE,
-    )
+    scenery.common.django_setup()
 
     #############
     # RUN TESTS

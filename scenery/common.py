@@ -195,16 +195,18 @@ def pretty_test_name(test: unittest.TestCase):
 import os
 
 
-def django_setup(ROOT_URLCONF, APPS, DB_DICT, MIDDLEWARE):
+# def django_setup(ROOT_URLCONF, APPS, DB_DICT, MIDDLEWARE):
+def django_setup(settings_module=None):
 
     # TODO: should load settings of the app the django way
 
-    os.environ.setdefault(
-        "DJANGO_SETTINGS_MODULE",
-        "scenery.rehearsal.project_django.project_django.settings",
-    )
-
-    # HERE = can I load settings ?
+    if settings_module is None:
+        os.environ.setdefault(
+            "DJANGO_SETTINGS_MODULE",
+            "scenery.rehearsal.project_django.project_django.settings",
+        )
+    else:
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_module)
 
     # django_settings.configure(
     #     # ROOT_URLCONF="scenery.rehearsal.project_django.project_django.urls",

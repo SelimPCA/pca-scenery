@@ -24,12 +24,21 @@ def main():
     )
 
     parser.add_argument(
-        "--view",
-        dest="restrict_view_name",
-        action="store",
+        "-s",
+        "--settings",
+        dest="settings_module",
+        type=str,
         default=None,
-        help="Restrict to a specific view",
+        help="Location of django settings module",
     )
+
+    # parser.add_argument(
+    #     "--view",
+    #     dest="restrict_view_name",
+    #     action="store",
+    #     default=None,
+    #     help="Restrict to a specific view",
+    # )
 
     parser.add_argument(
         "--output",
@@ -100,7 +109,6 @@ def main():
     has_config = os.path.exists("./scenery_settings.py")
     if has_config:
         # TODO this should be a function ?
-        # TODO this should load nicely the django way ?
         # scenery_settings = importlib.import_module("./scenery_settings.py")
         spec = importlib.util.spec_from_file_location(
             "scenery_settings", "./scenery_settings.py"
@@ -113,11 +121,11 @@ def main():
             scenery_settings.SCENERY_SET_UP_INSTRUCTIONS
         )
 
-        SCENERY_DB = scenery_settings.SCENERY_DB
-        SCENERY_ROOT_URLCONF = scenery_settings.SCENERY_ROOT_URLCONF
-        SCENERY_INSTALLED_APPS = scenery_settings.SCENERY_INSTALLED_APPS
+        # SCENERY_DB = scenery_settings.SCENERY_DB
+        # SCENERY_ROOT_URLCONF = scenery_settings.SCENERY_ROOT_URLCONF
+        # SCENERY_INSTALLED_APPS = scenery_settings.SCENERY_INSTALLED_APPS
         SCENERY_MANIFESTS_FOLDER = scenery_settings.SCENERY_MANIFESTS_FOLDER
-        SCENERY_MIDDLEWARE = scenery_settings.SCENERY_MIDDLEWARE
+        # SCENERY_MIDDLEWARE = scenery_settings.SCENERY_MIDDLEWARE
 
         # from pprint import pprint
 
@@ -133,18 +141,18 @@ def main():
         os.environ["SCENERY_SET_UP_INSTRUCTIONS"] = (
             "scenery.rehearsal.set_up_instructions"
         )
-        os.environ["SCENERY_MANIFESTS_FOLDER"] = f"{scenery_dir}/rehearsal/manifests"
+        # os.environ["SCENERY_MANIFESTS_FOLDER"] = f"{scenery_dir}/rehearsal/manifests"
         # Django
         os.environ["SCENERY_TESTED_APP_NAME"] = "some_app"
 
-        SCENERY_DB = {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": "scenery/rehearsal/project_django/db.sqlite3",
-        }
-        SCENERY_ROOT_URLCONF = "scenery.rehearsal.project_django.project_django.urls"
-        SCENERY_INSTALLED_APPS = ["scenery.rehearsal.project_django.some_app"]
+        # SCENERY_DB = {
+        #     "ENGINE": "django.db.backends.sqlite3",
+        #     "NAME": "scenery/rehearsal/project_django/db.sqlite3",
+        # }
+        # SCENERY_ROOT_URLCONF = "scenery.rehearsal.project_django.project_django.urls"
+        # SCENERY_INSTALLED_APPS = ["scenery.rehearsal.project_django.some_app"]
         SCENERY_MANIFESTS_FOLDER = f"{scenery_dir}/rehearsal/manifests"
-        SCENERY_MIDDLEWARE = []
+        # SCENERY_MIDDLEWARE = []
 
     ##############
     # CONFIG ENV
@@ -167,12 +175,14 @@ def main():
 
     import scenery.common
 
-    scenery.common.django_setup(
-        ROOT_URLCONF=SCENERY_ROOT_URLCONF,
-        APPS=SCENERY_INSTALLED_APPS,
-        DB_DICT=SCENERY_DB,
-        MIDDLEWARE=SCENERY_MIDDLEWARE,
-    )
+    # scenery.common.django_setup(
+    #     ROOT_URLCONF=SCENERY_ROOT_URLCONF,
+    #     APPS=SCENERY_INSTALLED_APPS,
+    #     DB_DICT=SCENERY_DB,
+    #     MIDDLEWARE=SCENERY_MIDDLEWARE,
+    # )
+
+    scenery.common.django_setup(settings_module=args.settings_module)
 
     # from pprint import pprint
     # print("##################")
@@ -193,11 +203,11 @@ def main():
     # global_settings.BLOCK_SOURCE = "markdown"
     #
     # Print all URL patterns Django is aware of
-    from django.urls import get_resolver
+    # from django.urls import get_resolver
 
-    resolver = get_resolver()
-    for pattern in resolver.url_patterns:
-        print("*********************", pattern)
+    # resolver = get_resolver()
+    # for pattern in resolver.url_patterns:
+    #     print("*********************", pattern)
 
     #############
     # METATESTING
