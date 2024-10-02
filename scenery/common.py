@@ -7,7 +7,6 @@ import unittest
 
 import django
 from django.test.runner import DiscoverRunner
-from django.conf import settings as django_settings
 
 import yaml
 
@@ -193,43 +192,60 @@ def pretty_test_name(test: unittest.TestCase):
 # DJANGO CONFIG
 ###################
 
+import os
+
 
 def django_setup(ROOT_URLCONF, APPS, DB_DICT, MIDDLEWARE):
 
     # TODO: should load settings of the app the django way
 
+    os.environ.setdefault(
+        "DJANGO_SETTINGS_MODULE",
+        "scenery.rehearsal.project_django.project_django.settings",
+    )
+
     # HERE = can I load settings ?
 
-    django_settings.configure(
-        # ROOT_URLCONF="scenery.rehearsal.project_django.project_django.urls",
-        ROOT_URLCONF=ROOT_URLCONF,
-        INSTALLED_APPS=[
-            "django.contrib.admin",
-            "django.contrib.contenttypes",
-            "django.contrib.auth",
-            "django.contrib.sessions",
-            "django.contrib.messages",
-            "django.contrib.staticfiles",
-        ]
-        + APPS,
-        DATABASES={
-            "default": DB_DICT
-            # {
-            # "ENGINE": "django.db.backends.postgresql_psycopg2",
-            # "NAME": "pca-local",
-            # "USER": "user",
-            # "PASSWORD": "cnlIHmVZ0qm3dK11wS3X",
-            # "HOST": "127.0.0.1",
-            # "PORT": "5432",
-            # # "ENGINE": "django.db.backends.sqlite3",
-            # # "NAME": "scenery/rehearsal/project_django/db.sqlite3",
-            # "NAME": DB_NAME,
-            # }
-        },
-        MIDDLEWARE=MIDDLEWARE,
-    )
+    # django_settings.configure(
+    #     # ROOT_URLCONF="scenery.rehearsal.project_django.project_django.urls",
+    #     ROOT_URLCONF=ROOT_URLCONF,
+    #     INSTALLED_APPS=[
+    #         "django.contrib.admin",
+    #         "django.contrib.contenttypes",
+    #         "django.contrib.auth",
+    #         "django.contrib.sessions",
+    #         "django.contrib.messages",
+    #         "django.contrib.staticfiles",
+    #     ]
+    #     + APPS,
+    #     DATABASES={
+    #         "default": DB_DICT
+    #         # {
+    #         # "ENGINE": "django.db.backends.postgresql_psycopg2",
+    #         # "NAME": "pca-local",
+    #         # "USER": "user",
+    #         # "PASSWORD": "cnlIHmVZ0qm3dK11wS3X",
+    #         # "HOST": "127.0.0.1",
+    #         # "PORT": "5432",
+    #         # # "ENGINE": "django.db.backends.sqlite3",
+    #         # # "NAME": "scenery/rehearsal/project_django/db.sqlite3",
+    #         # "NAME": DB_NAME,
+    #         # }
+    #     },
+    #     MIDDLEWARE=MIDDLEWARE,
+    # )
+
+    # from django.conf import settings as django_settings
+    # from pprint import pprint
+
+    # pprint(django_settings)
+    # for setting_name in dir(django_settings):
+    #     if setting_name.isupper():  # Django settings are all uppercase
+    #         print(f"{setting_name}: {getattr(django_settings, setting_name)}")
+
     django.setup()
 
+    print("Django set up done")
 
 
 ###################

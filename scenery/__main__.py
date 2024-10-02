@@ -144,6 +144,7 @@ def main():
         SCENERY_ROOT_URLCONF = "scenery.rehearsal.project_django.project_django.urls"
         SCENERY_INSTALLED_APPS = ["scenery.rehearsal.project_django.some_app"]
         SCENERY_MANIFESTS_FOLDER = f"{scenery_dir}/rehearsal/manifests"
+        SCENERY_MIDDLEWARE = []
 
     ##############
     # CONFIG ENV

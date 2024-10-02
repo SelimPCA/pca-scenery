@@ -12,6 +12,33 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 
+import sys
+import inspect
+
+##################
+# STACK INPSECTION
+##################
+
+
+def check_caller():
+    """Useful to handle different settings"""
+    stack = inspect.stack()
+    # The file that initiated the call
+    caller_file = stack[-1].filename
+    return caller_file
+
+
+caller_file = check_caller()
+main_script = sys.argv[0]
+
+print("*********** settings called by", caller_file)
+print("###############", main_script)
+
+#######################
+# VARIABLES
+#######################
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,11 +52,8 @@ SECRET_KEY = "django-insecure-)!2bbd-grr8bit(n9jh&1#$)=narckvdi%^#w(_#gdx1&bky_n
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
 
 # Application definition
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -37,8 +61,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "project_django",
-    "some_app.apps.SomeAppConfig",
 ]
 
 MIDDLEWARE = [
@@ -51,7 +73,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "project_django.urls"
 
 TEMPLATES = [
     {
@@ -123,3 +144,33 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+#####################################################
+# STUFF THAT DEPENDS FROM WHERE THE CALL IS MADE FROM
+#####################################################
+
+# manage the app for rehearsal
+if main_script == "manage.py":
+
+    ALLOWED_HOSTS = []
+
+    ROOT_URLCONF = "project_django.urls"
+
+    INSTALLED_APPS.append("project_django")
+    INSTALLED_APPS.append("some_app")
+
+
+# run rehearsal
+elif main_script.endswith("scenery/rehearsal/__main__.py"):
+
+    ALLOWED_HOSTS = ["testserver"]
+
+    ROOT_URLCONF = "scenery.rehearsal.project_django.project_django.urls"
+
+    INSTALLED_APPS.append("scenery.rehearsal.project_django")
+    INSTALLED_APPS.append("scenery.rehearsal.project_django.some_app")
+
+# Fail
+else:
+    raise NotImplementedError(f"settings for call from {main_script}")

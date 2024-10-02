@@ -77,9 +77,13 @@ class TestCase(unittest.TestCase):
     def test(self):
 
         with self.subTest("__init__"):
-            case_a = scenery.manifest.Case("id", {"item_id": scenery.manifest.Item("item_id", {})})
+            case_a = scenery.manifest.Case(
+                "id", {"item_id": scenery.manifest.Item("item_id", {})}
+            )
             self.assertEqual(case_a._id, "id")
-            self.assertEqual(case_a.items, {"item_id": scenery.manifest.Item("item_id", {})})
+            self.assertEqual(
+                case_a.items, {"item_id": scenery.manifest.Item("item_id", {})}
+            )
 
         with self.subTest("from_id_and_dict"):
             case_b = scenery.manifest.Case.from_id_and_dict("id", {"item_id": {}})
@@ -89,7 +93,9 @@ class TestCase(unittest.TestCase):
 class TestHttpDirective(unittest.TestCase):
 
     def test(self):
-        scenery.manifest.HttpDirective(scenery.manifest.DirectiveCommand("status_code"), 200)
+        scenery.manifest.HttpDirective(
+            scenery.manifest.DirectiveCommand("status_code"), 200
+        )
         scenery.manifest.HttpDirective(
             scenery.manifest.DirectiveCommand("redirect_url"), "https://www.example.com"
         )
@@ -97,14 +103,21 @@ class TestHttpDirective(unittest.TestCase):
             scenery.manifest.DirectiveCommand("dom_element"), {"find": object()}
         )
         scenery.manifest.HttpDirective(
-            scenery.manifest.DirectiveCommand("count_instances"), {"model": "SomeModel", "n": 1}
+            scenery.manifest.DirectiveCommand("count_instances"),
+            {"model": "SomeModel", "n": 1},
         )
         with self.assertRaises(ValueError):
-            scenery.manifest.HttpDirective(scenery.manifest.DirectiveCommand("status_code"), "200")
+            scenery.manifest.HttpDirective(
+                scenery.manifest.DirectiveCommand("status_code"), "200"
+            )
         with self.assertRaises(ValueError):
-            scenery.manifest.HttpDirective(scenery.manifest.DirectiveCommand("redirect_url"), 0)
+            scenery.manifest.HttpDirective(
+                scenery.manifest.DirectiveCommand("redirect_url"), 0
+            )
         with self.assertRaises(ValueError):
-            scenery.manifest.HttpDirective(scenery.manifest.DirectiveCommand("dom_element"), 0)
+            scenery.manifest.HttpDirective(
+                scenery.manifest.DirectiveCommand("dom_element"), 0
+            )
         with self.assertRaises(LookupError):
             scenery.manifest.HttpDirective(
                 scenery.manifest.DirectiveCommand("count_instances"),
@@ -115,7 +128,9 @@ class TestHttpDirective(unittest.TestCase):
         scenery.manifest.HttpDirective.from_dict(
             {"dom_element": {"find": object(), "scope": {}}}
         )
-        scenery.manifest.HttpDirective.from_dict({"dom_element": {"find_all": object()}})
+        scenery.manifest.HttpDirective.from_dict(
+            {"dom_element": {"find_all": object()}}
+        )
         with self.assertRaises(ValueError):
             scenery.manifest.HttpDirective.from_dict({"dom_element": {"scope": {}}})
         with self.assertRaises(ValueError):
@@ -140,17 +155,25 @@ class TestSubstituable(unittest.TestCase):
     def test_regex(self):
 
         self.assertRegex("item", scenery.manifest.Substituable.regex_field)
-        self.assertRegex("item_with_underscore", scenery.manifest.Substituable.regex_field)
+        self.assertRegex(
+            "item_with_underscore", scenery.manifest.Substituable.regex_field
+        )
         self.assertRegex("item:field", scenery.manifest.Substituable.regex_field)
         self.assertRegex(
             "item:field_with_underscore", scenery.manifest.Substituable.regex_field
         )
         self.assertNotRegex("item_Uppercase", scenery.manifest.Substituable.regex_field)
         self.assertNotRegex("item_0", scenery.manifest.Substituable.regex_field)
-        self.assertNotRegex("item-with-hyphen", scenery.manifest.Substituable.regex_field)
-        self.assertNotRegex("item:field_Uppercase", scenery.manifest.Substituable.regex_field)
+        self.assertNotRegex(
+            "item-with-hyphen", scenery.manifest.Substituable.regex_field
+        )
+        self.assertNotRegex(
+            "item:field_Uppercase", scenery.manifest.Substituable.regex_field
+        )
         self.assertNotRegex("item:field_0", scenery.manifest.Substituable.regex_field)
-        self.assertNotRegex("item:field-with-hyphen", scenery.manifest.Substituable.regex_field)
+        self.assertNotRegex(
+            "item:field-with-hyphen", scenery.manifest.Substituable.regex_field
+        )
 
 
 class TestHttpScene(unittest.TestCase):
@@ -179,7 +202,11 @@ class TestHttpScene(unittest.TestCase):
         scenery.manifest.HttpScene(
             "GET",
             "https://www.example.com",
-            [scenery.manifest.HttpDirective(scenery.manifest.DirectiveCommand("status_code"), 200)],
+            [
+                scenery.manifest.HttpDirective(
+                    scenery.manifest.DirectiveCommand("status_code"), 200
+                )
+            ],
             [],
             {},
             {},
@@ -217,7 +244,9 @@ class TestHttpScene(unittest.TestCase):
             scene.url_parameters, self.case
         )
         self.assertDictEqual(url_parameters, self.case["item_id"]._dict)
-        checks = scenery.manifest.HttpScene.substitute_recursively(scene.directives, self.case)
+        checks = scenery.manifest.HttpScene.substitute_recursively(
+            scene.directives, self.case
+        )
 
         self.assertEqual(
             checks[0],
@@ -236,7 +265,9 @@ class TestHttpScene(unittest.TestCase):
                     {
                         "dom_element": {
                             "find": {
-                                "id": scenery.manifest.Substituable("item_id:dom_element_id")
+                                "id": scenery.manifest.Substituable(
+                                    "item_id:dom_element_id"
+                                )
                             },
                             "attribute": {
                                 "name": "name",
@@ -282,7 +313,11 @@ class TestManifest(unittest.TestCase):
         scene = scenery.manifest.HttpScene(
             "GET",
             "https://www.example.com",
-            [scenery.manifest.HttpDirective(scenery.manifest.DirectiveCommand("status_code"), 200)],
+            [
+                scenery.manifest.HttpDirective(
+                    scenery.manifest.DirectiveCommand("status_code"), 200
+                )
+            ],
             [],
             {},
             {},
@@ -298,9 +333,13 @@ class TestManifest(unittest.TestCase):
         scenery.manifest.Manifest(set_up_test_data, set_up, scenes, cases, "origin")
         scenery.manifest.Manifest.from_formatted_dict(
             {
-                scenery.manifest.ManifestFormattedDictKeys.SET_UP_TEST_DATA: ["reset_db"],
+                scenery.manifest.ManifestFormattedDictKeys.SET_UP_TEST_DATA: [
+                    "reset_db"
+                ],
                 scenery.manifest.ManifestFormattedDictKeys.SET_UP: ["login"],
-                scenery.manifest.ManifestFormattedDictKeys.CASES: {"case_id": {"item_id": {}}},
+                scenery.manifest.ManifestFormattedDictKeys.CASES: {
+                    "case_id": {"item_id": {}}
+                },
                 scenery.manifest.ManifestFormattedDictKeys.SCENES: [
                     {
                         "method": "GET",
@@ -323,20 +362,29 @@ class TestHttpCheck(unittest.TestCase):
         class NotAModel:
             pass
 
-        scenery.manifest.HttpCheck(scenery.manifest.DirectiveCommand("status_code"), 200)
+        scenery.manifest.HttpCheck(
+            scenery.manifest.DirectiveCommand("status_code"), 200
+        )
         scenery.manifest.HttpCheck(
             scenery.manifest.DirectiveCommand("redirect_url"), "https://www.example.com"
         )
         scenery.manifest.HttpCheck(scenery.manifest.DirectiveCommand("dom_element"), {})
         scenery.manifest.HttpCheck(
-            scenery.manifest.DirectiveCommand("count_instances"), {"model": SomeModel, "n": 1}
+            scenery.manifest.DirectiveCommand("count_instances"),
+            {"model": SomeModel, "n": 1},
         )
         with self.assertRaises(ValueError):
-            scenery.manifest.HttpCheck(scenery.manifest.DirectiveCommand("status_code"), "200")
+            scenery.manifest.HttpCheck(
+                scenery.manifest.DirectiveCommand("status_code"), "200"
+            )
         with self.assertRaises(ValueError):
-            scenery.manifest.HttpCheck(scenery.manifest.DirectiveCommand("redirect_url"), 0)
+            scenery.manifest.HttpCheck(
+                scenery.manifest.DirectiveCommand("redirect_url"), 0
+            )
         with self.assertRaises(ValueError):
-            scenery.manifest.HttpCheck(scenery.manifest.DirectiveCommand("dom_element"), 0)
+            scenery.manifest.HttpCheck(
+                scenery.manifest.DirectiveCommand("dom_element"), 0
+            )
         with self.assertRaises(ValueError):
             scenery.manifest.HttpCheck(
                 scenery.manifest.DirectiveCommand("count_instances"),
@@ -350,7 +398,11 @@ class TestHttpTake(unittest.TestCase):
         take = scenery.manifest.HttpTake(
             "GET",
             "https://www.example.com",
-            [scenery.manifest.HttpDirective(scenery.manifest.DirectiveCommand("status_code"), 200)],
+            [
+                scenery.manifest.HttpDirective(
+                    scenery.manifest.DirectiveCommand("status_code"), 200
+                )
+            ],
             [],
             {},
             {},
@@ -569,11 +621,10 @@ class TestManifestParser(unittest.TestCase):
         ManifestParser.validate_yaml(manifest)
 
 
-
-
 #################
 # HTTP CHECKER
 #################
+
 
 class TestHttpChecker(scenery.rehearsal.TestCaseOfDjangoTestCase):
 
@@ -611,7 +662,9 @@ class TestHttpChecker(scenery.rehearsal.TestCaseOfDjangoTestCase):
 
     def test_check_count_instances(self):
         # NOTE As the method below is tested in TestSetUpInstructions we assume it is working
-        SetUpHandler.exec_set_up_instruction(None, scenery.manifest.SetUpInstruction("reset_db", {}))
+        SetUpHandler.exec_set_up_instruction(
+            None, scenery.manifest.SetUpInstruction("reset_db", {})
+        )
         response = django.http.HttpResponse()
 
         def test_pass(django_testcase):
@@ -648,14 +701,18 @@ class TestHttpChecker(scenery.rehearsal.TestCaseOfDjangoTestCase):
             response = django.http.HttpResponse()
             response.content = '<div id="target">Pass</div>'
             HttpChecker.check_dom_element(
-                django_testcase, response, {scenery.manifest.DomArgument.FIND: {"id": "target"}}
+                django_testcase,
+                response,
+                {scenery.manifest.DomArgument.FIND: {"id": "target"}},
             )
 
         def test_pass_find_by_class(django_testcase):
             response = django.http.HttpResponse()
             response.content = '<div class="target">Pass</div>'
             HttpChecker.check_dom_element(
-                django_testcase, response, {scenery.manifest.DomArgument.FIND: {"class": "target"}}
+                django_testcase,
+                response,
+                {scenery.manifest.DomArgument.FIND: {"class": "target"}},
             )
 
         def test_pass_text(django_testcase):
@@ -664,7 +721,10 @@ class TestHttpChecker(scenery.rehearsal.TestCaseOfDjangoTestCase):
             HttpChecker.check_dom_element(
                 django_testcase,
                 response,
-                {scenery.manifest.DomArgument.FIND: {"id": "target"}, scenery.manifest.DomArgument.TEXT: "Pass"},
+                {
+                    scenery.manifest.DomArgument.FIND: {"id": "target"},
+                    scenery.manifest.DomArgument.TEXT: "Pass",
+                },
             )
 
         def test_pass_attribute(django_testcase):
@@ -675,7 +735,10 @@ class TestHttpChecker(scenery.rehearsal.TestCaseOfDjangoTestCase):
                 response,
                 {
                     scenery.manifest.DomArgument.FIND: {"id": "target"},
-                    scenery.manifest.DomArgument.ATTRIBUTE: {"name": "class", "value": ["something"]},
+                    scenery.manifest.DomArgument.ATTRIBUTE: {
+                        "name": "class",
+                        "value": ["something"],
+                    },
                 },
             )
 
@@ -710,7 +773,9 @@ class TestHttpChecker(scenery.rehearsal.TestCaseOfDjangoTestCase):
             response = django.http.HttpResponse()
             response.content = '<div id="target">Pass</div>'
             HttpChecker.check_dom_element(
-                django_testcase, response, {scenery.manifest.DomArgument.FIND: {"id": "another_target"}}
+                django_testcase,
+                response,
+                {scenery.manifest.DomArgument.FIND: {"id": "another_target"}},
             )
 
         def test_fail_2(django_testcase):
@@ -719,7 +784,10 @@ class TestHttpChecker(scenery.rehearsal.TestCaseOfDjangoTestCase):
             HttpChecker.check_dom_element(
                 django_testcase,
                 response,
-                {scenery.manifest.DomArgument.FIND: {"id": "target"}, scenery.manifest.DomArgument.TEXT: "Fail"},
+                {
+                    scenery.manifest.DomArgument.FIND: {"id": "target"},
+                    scenery.manifest.DomArgument.TEXT: "Fail",
+                },
             )
 
         def test_fail_3(django_testcase):
@@ -768,6 +836,7 @@ class TestHttpChecker(scenery.rehearsal.TestCaseOfDjangoTestCase):
         self.assertTestFails(self.django_testcase("test_fail_3"))
         self.assertTestRaises(self.django_testcase("test_error_1"), ValueError)
 
+
 ################
 # METHOD BUILDER
 ################
@@ -788,7 +857,12 @@ class TestMethodBuilder(scenery.rehearsal.TestCaseOfDjangoTestCase):
         # Reset class attribute
         TestMethodBuilder.exec_order = []
 
-        take = scenery.manifest.HttpTake(http.HTTPMethod.GET, "https://www.example.com", [], {}, {}, {})
+        # take = scenery.manifest.HttpTake(
+        #     http.HTTPMethod.GET, "https://www.example.com", [], {}, {}, {}
+        # )
+        take = scenery.manifest.HttpTake(
+            http.HTTPMethod.GET, "http://127.0.0.1:8000/hello/", [], {}, {}, {}
+        )
 
         def watch(func):
 
@@ -873,7 +947,12 @@ class TestMethodBuilder(scenery.rehearsal.TestCaseOfDjangoTestCase):
 
         def test_2(django_testcase):
             # NOTE: the assertion is done on the unittest.TestCase and not the django.TestCase
-            SetUpHandler.exec_set_up_instruction(None, scenery.manifest.SetUpInstruction("create_some_instance", {"some_field": "another_value"}))
+            SetUpHandler.exec_set_up_instruction(
+                None,
+                scenery.manifest.SetUpInstruction(
+                    "create_some_instance", {"some_field": "another_value"}
+                ),
+            )
             instances = SomeModel.objects.all()
             self.assertEqual(len(instances), 2)
 

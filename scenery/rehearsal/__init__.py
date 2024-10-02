@@ -180,23 +180,22 @@ class RehearsalDiscoverer:
 
         tests_discovered = []
 
-        for testsuite in self.loader.loadTestsFromModule(scenery.rehearsal.tests):
+        testsuites = self.loader.loadTestsFromModule(scenery.rehearsal.tests)
 
-            for testcase in testsuite:
+        for testsuite in testsuites:
+            for test in testsuite:
+                # print("!!!!!!!!!!", type(test), test)
 
-                tests = self.loader.loadTestsFromTestCase(testcase.__class__)
-                for test in tests:
+                test_name = scenery.common.pretty_test_name(test)
 
-                    test_name = scenery.common.pretty_test_name(test)
+                # Log / verbosity
+                msg = f"Discovered {test_name}"
+                self.logger.debug(msg)
+                if verbosity >= 2:
+                    print(msg)
 
-                    # Log / verbosity
-                    msg = f"Discovered {test_name}"
-                    self.logger.debug(msg)
-                    if verbosity >= 2:
-                        print(msg)
-
-                    suite = unittest.TestSuite(tests=(test,))
-                    tests_discovered.append((test_name, suite))
+                suite = unittest.TestSuite(tests=(test,))
+                tests_discovered.append((test_name, suite))
 
         return tests_discovered
 
