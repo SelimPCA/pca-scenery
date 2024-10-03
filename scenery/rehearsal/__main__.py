@@ -6,7 +6,30 @@ def main():
 
     result = {}
 
-    # TODO: add parser and logger (see scenery.__main__)
+    #################
+    # PARSE ARGUMENTS
+    #################
+
+    # TODO:
+
+    ####################
+    # LOGGERS
+    ####################
+
+    # TODO:
+    # Rehearsal
+    # logger_rehearsal = logging.getLogger(__package__ + ".rehearsal")
+    # logger_rehearsal.addHandler(handler_full)
+    # logger_rehearsal.setLevel(level)
+    # logger_rehearsal.propagate = False
+
+    # # Rehearsal django
+    # logger_rehearsal_django = logging.getLogger(__package__ + ".rehearsal.django")
+    # logger_rehearsal_django.addHandler(handler_full)
+    # logger_rehearsal_django.setLevel(level)
+    # # This is a bit brutal/rough/ugly
+    # logger_rehearsal_django.manager.disable = logging.NOTSET
+    # logger_rehearsal_django.propagate = False
 
     ###################
     # CONFIG SCENERY
@@ -17,16 +40,7 @@ def main():
     # Scenery
     os.environ["SCENERY_COMMON_ITEMS"] = f"{rehearsal_dir}/common_items.yml"
     os.environ["SCENERY_SET_UP_INSTRUCTIONS"] = "scenery.rehearsal.set_up_instructions"
-    # Django
     os.environ["SCENERY_TESTED_APP_NAME"] = "some_app"
-
-    # SCENERY_DB = {
-    #     "ENGINE": "django.db.backends.sqlite3",
-    #     "NAME": f"{rehearsal_dir}/project_django/db.sqlite3",
-    # }
-    # SCENERY_ROOT_URLCONF = "scenery.rehearsal.project_django.project_django.urls"
-    # SCENERY_INSTALLED_APPS = ["scenery.rehearsal.project_django.some_app"]
-    # SCENERY_MIDDLEWARE = []
 
     ###################
     # CONFIG DJANGO
@@ -47,7 +61,11 @@ def main():
     tests_discovered = discoverer.discover(verbosity=2)
     result["metatesting"] = runner.run(tests_discovered, verbosity=2)
 
-    return result
+    ###############
+    # OUTPUT RESULT
+    ###############
+
+    # TODO
 
 
 if __name__ == "__main__":

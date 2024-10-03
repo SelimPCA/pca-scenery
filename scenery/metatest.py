@@ -56,12 +56,14 @@ class MetaTestDiscoverer:
         )()
         self.loader = self.runner.test_loader
 
-    def discover(self, folder, verbosity):
+    def discover(self, verbosity):
         """Returns a list of pair (test_name, suite), each suite contains a single test"""
 
         out = []
 
         suite_cls = self.runner.test_suite
+
+        folder = os.getenv("SCENERY_MANIFESTS_FOLDER")
 
         ## TODO: add progressive log (Sel)
         for filename in os.listdir(folder):

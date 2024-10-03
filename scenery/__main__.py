@@ -25,8 +25,17 @@ def main():
 
     parser.add_argument(
         "-s",
-        "--settings",
-        dest="settings_module",
+        "--scenery_settings",
+        dest="scenery_settings_module",
+        type=str,
+        default=None,
+        help="Location of scenery settings module",
+    )
+
+    parser.add_argument(
+        "-ds",
+        "--django_settings",
+        dest="django_settings_module",
         type=str,
         default=None,
         help="Location of django settings module",
@@ -57,7 +66,6 @@ def main():
     ####################
 
     # TODO: ajuster avec les micro secondes
-    # TODO: move ?
 
     level = logging.DEBUG
 
@@ -79,83 +87,10 @@ def main():
     logger.addHandler(handler_full)
     logger.setLevel(level)
 
-    # TODO: move this somewhere useful
-    # Rehearsal
-    # logger_rehearsal = logging.getLogger(__package__ + ".rehearsal")
-    # logger_rehearsal.addHandler(handler_full)
-    # logger_rehearsal.setLevel(level)
-    # logger_rehearsal.propagate = False
-
-    # # Rehearsal django
-    # logger_rehearsal_django = logging.getLogger(__package__ + ".rehearsal.django")
-    # logger_rehearsal_django.addHandler(handler_full)
-    # logger_rehearsal_django.setLevel(level)
-    # # This is a bit brutal/rough/ugly
-    # logger_rehearsal_django.manager.disable = logging.NOTSET
-    # logger_rehearsal_django.propagate = False
-
-    logger_app = logging.getLogger("logger_app")  # TODO: change? should be in env ?
-    logger_app.handlers = []
-    logger_app.addHandler(handler_full)
-    logger_app.setLevel(level)
-
-    ##################
-    # CONFIG SCENERY
-    ##################
-
-    # import dotenv
-
-    # has_config = dotenv.load_dotenv(".env_scenery")
-    has_config = os.path.exists("./scenery_settings.py")
-    if has_config:
-        # TODO this should be a function ?
-        # scenery_settings = importlib.import_module("./scenery_settings.py")
-        spec = importlib.util.spec_from_file_location(
-            "scenery_settings", "./scenery_settings.py"
-        )
-        scenery_settings = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(scenery_settings)
-
-        os.environ["SCENERY_COMMON_ITEMS"] = scenery_settings.SCENERY_COMMON_ITEMS
-        os.environ["SCENERY_SET_UP_INSTRUCTIONS"] = (
-            scenery_settings.SCENERY_SET_UP_INSTRUCTIONS
-        )
-
-        # SCENERY_DB = scenery_settings.SCENERY_DB
-        # SCENERY_ROOT_URLCONF = scenery_settings.SCENERY_ROOT_URLCONF
-        # SCENERY_INSTALLED_APPS = scenery_settings.SCENERY_INSTALLED_APPS
-        SCENERY_MANIFESTS_FOLDER = scenery_settings.SCENERY_MANIFESTS_FOLDER
-        # SCENERY_MIDDLEWARE = scenery_settings.SCENERY_MIDDLEWARE
-
-        # Django
-        os.environ["SCENERY_TESTED_APP_NAME"] = "app"
-
-        # from pprint import pprint
-
-        # print("*****************")
-        # pprint(SCENERY_MIDDLEWARE)
-
-    else:
-        # TODO: this should actually become a test
-        scenery_dir = os.path.abspath(os.path.join(__file__, os.pardir))
-
-        # Scenery
-        os.environ["SCENERY_COMMON_ITEMS"] = f"{scenery_dir}/rehearsal/common_items.yml"
-        os.environ["SCENERY_SET_UP_INSTRUCTIONS"] = (
-            "scenery.rehearsal.set_up_instructions"
-        )
-        # os.environ["SCENERY_MANIFESTS_FOLDER"] = f"{scenery_dir}/rehearsal/manifests"
-        # Django
-        os.environ["SCENERY_TESTED_APP_NAME"] = "some_app"
-
-        # SCENERY_DB = {
-        #     "ENGINE": "django.db.backends.sqlite3",
-        #     "NAME": "scenery/rehearsal/project_django/db.sqlite3",
-        # }
-        # SCENERY_ROOT_URLCONF = "scenery.rehearsal.project_django.project_django.urls"
-        # SCENERY_INSTALLED_APPS = ["scenery.rehearsal.project_django.some_app"]
-        SCENERY_MANIFESTS_FOLDER = f"{scenery_dir}/rehearsal/manifests"
-        # SCENERY_MIDDLEWARE = []
+    # logger_app = logging.getLogger("logger_app")  # TODO: change? should be in env ?
+    # logger_app.handlers = []
+    # logger_app.addHandler(handler_full)
+    # logger_app.setLevel(level)
 
     ##############
     # CONFIG ENV
@@ -172,45 +107,25 @@ def main():
     # for key, val in result["config"].items():
     #     logger.debug(f"`{key}` found at {val}")
 
+    ##################
+    # CONFIG SCENERY
+    ##################
+
+    import scenery.common
+
+    scenery.common.scenery_setup(settings_location=args.scenery_settings_module)
+
     #####################
     # CONFIG DJANGO
     #####################
 
-    import scenery.common
-
-    # scenery.common.django_setup(
-    #     ROOT_URLCONF=SCENERY_ROOT_URLCONF,
-    #     APPS=SCENERY_INSTALLED_APPS,
-    #     DB_DICT=SCENERY_DB,
-    #     MIDDLEWARE=SCENERY_MIDDLEWARE,
-    # )
-
-    scenery.common.django_setup(settings_module=args.settings_module)
-
-    # from pprint import pprint
-    # print("##################")
-    # pprint(SCENERY_DB)
-
-    from django.conf import settings, global_settings
-
-    # # Print out the settings to debug
-    # print("INSTALLED_APPS:", settings.INSTALLED_APPS)
-    # print("DATABASES:", settings.DATABASES)
-    # print("MIDDLEWARE:", settings.MIDDLEWARE)
-    # print("ROOT_URLCONF:", settings.ROOT_URLCONF)
-    # print("DEBUG:", settings.DEBUG)
+    scenery.common.django_setup(settings_module=args.django_settings_module)
 
     # TODO: this should move outside of pca-scenery
 
-    settings.BLOCK_SOURCE = "markdown"
-    # global_settings.BLOCK_SOURCE = "markdown"
-    #
-    # Print all URL patterns Django is aware of
-    # from django.urls import get_resolver
+    from django.conf import settings
 
-    # resolver = get_resolver()
-    # for pattern in resolver.url_patterns:
-    #     print("*********************", pattern)
+    settings.BLOCK_SOURCE = "markdown"
 
     #############
     # METATESTING
@@ -219,10 +134,10 @@ def main():
     # NOTE: the imports will fail if loaded before SCENERY_ENV configuration
     from scenery.metatest import MetaTestRunner, MetaTestDiscoverer
 
-    import scenery.rehearsal
+    # import scenery.rehearsal
 
     discoverer = MetaTestDiscoverer()
-    tests_discovered = discoverer.discover(SCENERY_MANIFESTS_FOLDER, verbosity=2)
+    tests_discovered = discoverer.discover(verbosity=2)
     runner = MetaTestRunner()
     result["metatesting"] = runner.run(tests_discovered, args.verbosity)
 

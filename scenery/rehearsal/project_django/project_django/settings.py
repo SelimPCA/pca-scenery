@@ -31,8 +31,8 @@ def check_caller():
 caller_file = check_caller()
 main_script = sys.argv[0]
 
-print("*********** settings called by", caller_file)
-print("###############", main_script)
+# print("*********** settings called by", caller_file)
+# print("###############", main_script)
 
 #######################
 # VARIABLES

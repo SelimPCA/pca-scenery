@@ -1,6 +1,8 @@
 """General functions and classes used by other modules"""
 
+import os
 import dataclasses
+import importlib.util
 import re
 import typing
 import unittest
@@ -9,6 +11,41 @@ import django
 from django.test.runner import DiscoverRunner
 
 import yaml
+
+########################
+# SETTINGS
+########################
+
+
+def scenery_setup(settings_location=None):
+
+    if settings_location is not None:
+
+        # Load from module
+        spec = importlib.util.spec_from_file_location(
+            "scenery_settings", settings_location
+        )
+        settings = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(settings)
+
+        # Env variables
+        os.environ["SCENERY_COMMON_ITEMS"] = settings.SCENERY_COMMON_ITEMS
+        os.environ["SCENERY_SET_UP_INSTRUCTIONS"] = settings.SCENERY_SET_UP_INSTRUCTIONS
+        os.environ["SCENERY_TESTED_APP_NAME"] = settings.SCENERY_TESTED_APP_NAME
+        os.environ["SCENERY_MANIFESTS_FOLDER"] = settings.SCENERY_MANIFESTS_FOLDER
+
+    else:
+        # TODO: this should actually be run as a test
+        scenery_dir = os.path.abspath(os.path.join(__file__, os.pardir))
+
+        # Scenery
+        os.environ["SCENERY_COMMON_ITEMS"] = f"{scenery_dir}/rehearsal/common_items.yml"
+        os.environ["SCENERY_SET_UP_INSTRUCTIONS"] = (
+            "scenery.rehearsal.set_up_instructions"
+        )
+        os.environ["SCENERY_TESTED_APP_NAME"] = "some_app"
+
+        os.environ["SCENERY_MANIFESTS_FOLDER"] = f"{scenery_dir}/rehearsal/manifests"
 
 
 ########################
@@ -194,13 +231,8 @@ def pretty_test_name(test: unittest.TestCase):
 # DJANGO CONFIG
 ###################
 
-import os
 
-
-# def django_setup(ROOT_URLCONF, APPS, DB_DICT, MIDDLEWARE):
 def django_setup(settings_module=None):
-
-    # TODO: should load settings of the app the django way
 
     if settings_module is None:
         os.environ.setdefault(
@@ -210,46 +242,9 @@ def django_setup(settings_module=None):
     else:
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_module)
 
-    # django_settings.configure(
-    #     # ROOT_URLCONF="scenery.rehearsal.project_django.project_django.urls",
-    #     ROOT_URLCONF=ROOT_URLCONF,
-    #     INSTALLED_APPS=[
-    #         "django.contrib.admin",
-    #         "django.contrib.contenttypes",
-    #         "django.contrib.auth",
-    #         "django.contrib.sessions",
-    #         "django.contrib.messages",
-    #         "django.contrib.staticfiles",
-    #     ]
-    #     + APPS,
-    #     DATABASES={
-    #         "default": DB_DICT
-    #         # {
-    #         # "ENGINE": "django.db.backends.postgresql_psycopg2",
-    #         # "NAME": "pca-local",
-    #         # "USER": "user",
-    #         # "PASSWORD": "cnlIHmVZ0qm3dK11wS3X",
-    #         # "HOST": "127.0.0.1",
-    #         # "PORT": "5432",
-    #         # # "ENGINE": "django.db.backends.sqlite3",
-    #         # # "NAME": "scenery/rehearsal/project_django/db.sqlite3",
-    #         # "NAME": DB_NAME,
-    #         # }
-    #     },
-    #     MIDDLEWARE=MIDDLEWARE,
-    # )
-
-    # from django.conf import settings as django_settings
-    # from pprint import pprint
-
-    # pprint(django_settings)
-    # for setting_name in dir(django_settings):
-    #     if setting_name.isupper():  # Django settings are all uppercase
-    #         print(f"{setting_name}: {getattr(django_settings, setting_name)}")
-
     django.setup()
 
-    print("Django set up done")
+    # print("Django set up done")
 
 
 ###################
@@ -270,3 +265,11 @@ def overwrite_get_runner_kwargs(django_runner: DiscoverRunner, stream):
     }
     kwargs.update({"stream": stream})
     return kwargs
+
+
+# Print all URL patterns Django is aware of
+# from django.urls import get_resolver
+
+# resolver = get_resolver()
+# for pattern in resolver.url_patterns:
+#     print("*********************", pattern)
