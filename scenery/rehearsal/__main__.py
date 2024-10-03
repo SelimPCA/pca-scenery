@@ -50,7 +50,9 @@ def main():
 
     import scenery.common
 
-    scenery.common.django_setup()
+    scenery.common.django_setup(
+        "scenery.rehearsal.project_django.project_django.settings"
+    )
 
     #############
     # RUN TESTS

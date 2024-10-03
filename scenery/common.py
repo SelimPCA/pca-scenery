@@ -212,15 +212,9 @@ def pretty_test_name(test: unittest.TestCase):
 ###################
 
 
-def django_setup(settings_module=None):
+def django_setup(settings_module):
 
-    if settings_module is not None:
-        os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_module)
-    else:
-        os.environ.setdefault(
-            "DJANGO_SETTINGS_MODULE",
-            "scenery.rehearsal.project_django.project_django.settings",
-        )
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_module)
     django.setup()
 
 
