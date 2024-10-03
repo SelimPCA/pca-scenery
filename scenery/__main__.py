@@ -23,13 +23,12 @@ def main():
         help="Verbose output",
     )
 
-    # TODO: could I give it as module ?
     parser.add_argument(
         "-s",
         "--scenery_settings",
         dest="scenery_settings_module",
         type=str,
-        default="./scenery_settings.py",
+        default="scenery_settings",
         help="Location of scenery settings module",
     )
 
