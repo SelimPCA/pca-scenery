@@ -65,11 +65,8 @@ class MetaTestDiscoverer:
 
         folder = os.getenv("SCENERY_MANIFESTS_FOLDER")
 
-        ## TODO: add progressive log (Sel)
         for filename in os.listdir(folder):
             self.logger.debug(f"Discovered manifest '{folder}/{filename}'")
-
-            print("##########", folder, filename)
 
             manifest = ManifestParser.parse_yaml(os.path.join(folder, filename))
 

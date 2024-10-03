@@ -1,7 +1,5 @@
 import argparse
-import os
 import logging
-import importlib.util
 
 
 def main():
@@ -11,6 +9,8 @@ def main():
     #################
     # PARSE ARGUMENTS
     #################
+
+    # TODO: do I really want defaults for settings module ?
 
     parser = argparse.ArgumentParser()
 
@@ -23,12 +23,13 @@ def main():
         help="Verbose output",
     )
 
+    # TODO: could I give it as module ?
     parser.add_argument(
         "-s",
         "--scenery_settings",
         dest="scenery_settings_module",
         type=str,
-        default=None,
+        default="./scenery_settings.py",
         help="Location of scenery settings module",
     )
 
@@ -121,11 +122,9 @@ def main():
 
     scenery.common.django_setup(settings_module=args.django_settings_module)
 
-    # TODO: this should move outside of pca-scenery
-
-    from django.conf import settings
-
-    settings.BLOCK_SOURCE = "markdown"
+    # TODO: I think selim checked something related to this
+    # from django.conf import settings
+    # settings.BLOCK_SOURCE = "markdown"
 
     #############
     # METATESTING

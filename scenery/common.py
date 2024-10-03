@@ -2,6 +2,7 @@
 
 import os
 import dataclasses
+import importlib
 import importlib.util
 import re
 import typing
@@ -17,35 +18,20 @@ import yaml
 ########################
 
 
-def scenery_setup(settings_location=None):
+def scenery_setup(settings_location):
+    """Read the settings module and set the corresponding environment variables"""
 
-    if settings_location is not None:
+    # Load from module
+    # spec = importlib.util.spec_from_file_location("scenery_settings", settings_location)
+    # settings = importlib.util.module_from_spec(spec)
+    # spec.loader.exec_module(settings)
+    settings = importlib.import_module(settings_location)
 
-        # Load from module
-        spec = importlib.util.spec_from_file_location(
-            "scenery_settings", settings_location
-        )
-        settings = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(settings)
-
-        # Env variables
-        os.environ["SCENERY_COMMON_ITEMS"] = settings.SCENERY_COMMON_ITEMS
-        os.environ["SCENERY_SET_UP_INSTRUCTIONS"] = settings.SCENERY_SET_UP_INSTRUCTIONS
-        os.environ["SCENERY_TESTED_APP_NAME"] = settings.SCENERY_TESTED_APP_NAME
-        os.environ["SCENERY_MANIFESTS_FOLDER"] = settings.SCENERY_MANIFESTS_FOLDER
-
-    else:
-        # TODO: this should actually be run as a test
-        scenery_dir = os.path.abspath(os.path.join(__file__, os.pardir))
-
-        # Scenery
-        os.environ["SCENERY_COMMON_ITEMS"] = f"{scenery_dir}/rehearsal/common_items.yml"
-        os.environ["SCENERY_SET_UP_INSTRUCTIONS"] = (
-            "scenery.rehearsal.set_up_instructions"
-        )
-        os.environ["SCENERY_TESTED_APP_NAME"] = "some_app"
-
-        os.environ["SCENERY_MANIFESTS_FOLDER"] = f"{scenery_dir}/rehearsal/manifests"
+    # Env variables
+    os.environ["SCENERY_COMMON_ITEMS"] = settings.SCENERY_COMMON_ITEMS
+    os.environ["SCENERY_SET_UP_INSTRUCTIONS"] = settings.SCENERY_SET_UP_INSTRUCTIONS
+    os.environ["SCENERY_TESTED_APP_NAME"] = settings.SCENERY_TESTED_APP_NAME
+    os.environ["SCENERY_MANIFESTS_FOLDER"] = settings.SCENERY_MANIFESTS_FOLDER
 
 
 ########################
@@ -67,7 +53,7 @@ class SingleKeyDict(typing.Generic[SingleKeyDictKey, SingleKeyDictKeyValue]):
     value: SingleKeyDictKeyValue = dataclasses.field(init=False)
 
     # TODO: it should also be feasible to init with a tuple
-    # TODO: and return as a dict
+    # and return as a dict
 
     def __post_init__(self):
         self.validate()
@@ -111,10 +97,9 @@ def snake_to_camel_case(s: str) -> str:
     return camel_case
 
 
-##############################################
-# Ceil and Floor but not external dependencies
-##############################################
-# NOTE: used below
+##################
+# TERMINAL OUTPUT
+##################
 
 
 def floor(n):
@@ -129,11 +114,6 @@ def ceil(n):
         return n
     else:
         return int(n // 1) + 1
-
-
-##################
-# TERMINAL OUTPUT
-##################
 
 
 class colorize:
@@ -234,17 +214,14 @@ def pretty_test_name(test: unittest.TestCase):
 
 def django_setup(settings_module=None):
 
-    if settings_module is None:
+    if settings_module is not None:
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_module)
+    else:
         os.environ.setdefault(
             "DJANGO_SETTINGS_MODULE",
             "scenery.rehearsal.project_django.project_django.settings",
         )
-    else:
-        os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_module)
-
     django.setup()
-
-    # print("Django set up done")
 
 
 ###################

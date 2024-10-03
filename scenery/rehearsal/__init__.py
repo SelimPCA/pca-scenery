@@ -187,7 +187,6 @@ class RehearsalDiscoverer:
 
         for testsuite in testsuites:
             for test in testsuite:
-                # print("!!!!!!!!!!", type(test), test)
 
                 test_name = scenery.common.pretty_test_name(test)
 
