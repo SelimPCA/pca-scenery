@@ -3,5 +3,3 @@ source env/bin/activate
 pip install -r requirements.txt
 pip install -e .
 deactivate
-
-# TODO: django app for rehearsal

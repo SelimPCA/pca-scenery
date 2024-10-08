@@ -132,8 +132,6 @@ def main():
     # NOTE: the imports will fail if loaded before SCENERY_ENV configuration
     from scenery.metatest import MetaTestRunner, MetaTestDiscoverer
 
-    # import scenery.rehearsal
-
     discoverer = MetaTestDiscoverer()
     tests_discovered = discoverer.discover(verbosity=2)
     runner = MetaTestRunner()
@@ -143,7 +141,7 @@ def main():
     # OUTPUT RESULT
     ###############
 
-    # TODO : reconsider the correct Way for fucking Git
+    # TODO
 
     # with open("app/tests/views/scenery.json", "w") as f:
     #     json.dump(result, f)
@@ -155,4 +153,4 @@ if __name__ == "__main__":
 
     main()
     sys.exit(0)
-    # TODO: depends on output actually ?
+    # TODO: depends on output actually
