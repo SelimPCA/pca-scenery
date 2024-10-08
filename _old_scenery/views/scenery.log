@@ -1,7 +1,0 @@
-[2024-10-02 16:35:15.988] [app.tests.views] [DEBUG] `stdlib` found at /home/me/.pyenv/versions/3.12.3/lib/python3.12
-[2024-10-02 16:35:15.988] [app.tests.views] [DEBUG] `purelib` found at /home/me/repos/pca/env/lib/python3.12/site-packages
-[2024-10-02 16:35:15.988] [app.tests.views] [DEBUG] `src` found at /home/me/repos/pca/src
-[2024-10-02 16:35:15.988] [app.tests.views] [DEBUG] `this_folder` found at app/tests/views
-[2024-10-02 16:35:15.989] [app.tests.views] [INFO] Skipped rehearsal.
-[2024-10-02 16:35:15.989] [app.tests.views] [INFO] Skipped rehearsal coverage.
-[2024-10-02 16:35:15.989] [app.tests.views] [DEBUG] Discovered manifest 'login/user_inactive_wrong_password.yml'

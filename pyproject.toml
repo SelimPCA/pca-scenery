@@ -5,13 +5,21 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "scenery"
 version = "0.1.0"
-description = "A Python package for PCA scenery management."
-# authors = []
+description = "A versatile integration testing framework for django apps"
+authors = [
+  {name = "Selim Mellouk-Halgand", email = "selim.mellouk.halgand@proton.me"},
+  {name = "Etienne Madinier", email = "etienne.madinier@proton.me"},
+]
+maintainers = [
+  {name = "Etienne Madinier", email = "etienne.madinier@proton.me"}
+]
 dependencies = [
     "bs4>=0.0.1",
     "django>=4.2.7",
-    "python-dotenv>=1.0.1",
     "pyyaml>=6.0.1"
 ]
 readme = "README.md"
-# license = { text = "MIT" }
+# license = 
+# keywords
+# classifiers
+# entry points
