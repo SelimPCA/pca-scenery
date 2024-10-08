@@ -11,8 +11,4 @@
 
 ## Usage
 
-### CLI
-
-- `python -m scenery.rehearsal`
-- 
 

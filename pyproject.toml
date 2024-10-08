@@ -5,7 +5,29 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "scenery"
 version = "0.1.0"
-description = "A versatile integration testing framework for django apps"
+
+requires-python = ">= 3.12.3"
+dependencies = [
+    "bs4>=0.0.1",
+    "django>=4.2.7",
+    "pyyaml>=6.0.1"
+]
+
+readme = "README.md"
+
+description = "Versatile integration tests for django app views"
+keywords = ["test", "integration", "django", "view", "app"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Testing",
+    "Programming Language :: Python :: 3.12",
+    "Framework :: Django :: 4.2",
+    # TODO
+    # "License :: OSI Approved :: MIT License",
+    "Private :: Do Not Upload",
+]
+
 authors = [
   {name = "Selim Mellouk-Halgand", email = "selim.mellouk.halgand@proton.me"},
   {name = "Etienne Madinier", email = "etienne.madinier@proton.me"},
@@ -13,13 +35,12 @@ authors = [
 maintainers = [
   {name = "Etienne Madinier", email = "etienne.madinier@proton.me"}
 ]
-dependencies = [
-    "bs4>=0.0.1",
-    "django>=4.2.7",
-    "pyyaml>=6.0.1"
-]
-readme = "README.md"
-# license = 
-# keywords
-# classifiers
-# entry points
+
+[project.scripts]
+
+[project.urls]
+Homepage = "https://pointcarre.app"
+# Documentation = "https://readthedocs.org"
+Repository = "https://github.com/SelimPCA/pca-scenery.git"
+"Bug Tracker" = "https://github.com/SelimPCA/pca-scenery/issues"
+# Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
