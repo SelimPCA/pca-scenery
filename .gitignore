@@ -1,5 +1,6 @@
 env/
 env_test/
 build/
+dist/
 **/__pycache__/
 scenery.egg-info
