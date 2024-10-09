@@ -180,7 +180,7 @@ def graph_bar(d: dict, scale=20):
     return bars
 
 
-###################
+##################
 # UNITTEST
 ##################
 

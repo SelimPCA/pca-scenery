@@ -8,8 +8,8 @@ from scenery.http_checker import HttpChecker
 import scenery.manifest
 from scenery.manifest_parser import ManifestParser
 from scenery.method_builder import MethodBuilder
-import scenery.rehearsal
-from scenery.rehearsal.project_django.some_app.models import SomeModel
+import rehearsal
+from rehearsal.project_django.some_app.models import SomeModel
 from scenery.set_up_handler import SetUpHandler
 
 import django.http
@@ -626,7 +626,7 @@ class TestManifestParser(unittest.TestCase):
 #################
 
 
-class TestHttpChecker(scenery.rehearsal.TestCaseOfDjangoTestCase):
+class TestHttpChecker(rehearsal.TestCaseOfDjangoTestCase):
 
     def test_check_status_code(self):
 
@@ -835,7 +835,7 @@ class TestHttpChecker(scenery.rehearsal.TestCaseOfDjangoTestCase):
 ################
 
 
-class TestMethodBuilder(scenery.rehearsal.TestCaseOfDjangoTestCase):
+class TestMethodBuilder(rehearsal.TestCaseOfDjangoTestCase):
 
     exec_order = []
 

@@ -19,7 +19,7 @@ from django.contrib import admin
 from django.urls import path
 
 try:
-    from scenery.rehearsal.project_django.some_app import views
+    from rehearsal.project_django.some_app import views
 except:
     from some_app import views
 

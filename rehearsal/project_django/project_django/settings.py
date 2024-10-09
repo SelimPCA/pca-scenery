@@ -162,24 +162,26 @@ if main_script == "manage.py":
 
 
 # run rehearsal
-elif main_script.endswith("scenery/rehearsal/__main__.py"):
+elif main_script.endswith("rehearsal/__main__.py"):
 
     ALLOWED_HOSTS = ["testserver"]
 
-    ROOT_URLCONF = "scenery.rehearsal.project_django.project_django.urls"
+    ROOT_URLCONF = "rehearsal.project_django.project_django.urls"
 
-    INSTALLED_APPS.append("scenery.rehearsal.project_django")
-    INSTALLED_APPS.append("scenery.rehearsal.project_django.some_app")
+    INSTALLED_APPS.append("rehearsal.project_django")
+    INSTALLED_APPS.append("rehearsal.project_django.some_app")
 
 # run rehearsal
-elif main_script.endswith("scenery/__main__.py"):
+# elif main_script.endswith("scenery/__main__.py"):
 
-    ALLOWED_HOSTS = ["testserver"]
+# TODO ?
 
-    ROOT_URLCONF = "scenery.rehearsal.project_django.project_django.urls"
+#     ALLOWED_HOSTS = ["testserver"]
 
-    INSTALLED_APPS.append("scenery.rehearsal.project_django")
-    INSTALLED_APPS.append("scenery.rehearsal.project_django.some_app")
+#     ROOT_URLCONF = "scenery.rehearsal.project_django.project_django.urls"
+
+#     INSTALLED_APPS.append("scenery.rehearsal.project_django")
+#     INSTALLED_APPS.append("scenery.rehearsal.project_django.some_app")
 
 # Fail
 else:

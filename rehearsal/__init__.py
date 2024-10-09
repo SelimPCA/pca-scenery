@@ -179,11 +179,11 @@ class RehearsalDiscoverer:
     def discover(self, verbosity):
         """Returns a list of pair (test_name, suite), each suite contains a single test"""
 
-        import scenery.rehearsal.tests
+        import rehearsal.tests
 
         tests_discovered = []
 
-        testsuites = self.loader.loadTestsFromModule(scenery.rehearsal.tests)
+        testsuites = self.loader.loadTestsFromModule(rehearsal.tests)
 
         for testsuite in testsuites:
             for test in testsuite:

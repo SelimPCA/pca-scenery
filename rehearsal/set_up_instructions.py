@@ -4,7 +4,7 @@ from django.apps import apps as django_apps
 from django.db.models.deletion import ProtectedError
 from django.test import Client
 
-from scenery.rehearsal.project_django.some_app.models import SomeModel
+from rehearsal.project_django.some_app.models import SomeModel
 
 
 def reset_db(django_testcase):
