@@ -67,9 +67,6 @@ class MetaTestDiscoverer:
 
         for filename in os.listdir(folder):
 
-            if filename != "9-05.md":
-                continue
-
             self.logger.debug(f"Discovered manifest '{folder}/{filename}'")
 
             manifest = ManifestParser.parse_yaml(os.path.join(folder, filename))
