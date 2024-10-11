@@ -23,8 +23,7 @@ classifiers = [
     "Topic :: Software Development :: Testing",
     "Programming Language :: Python :: 3.12",
     "Framework :: Django :: 4.2",
-    # TODO
-    # "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: MIT License",
     "Private :: Do Not Upload",
 ]
 
@@ -39,7 +38,7 @@ maintainers = [
 [project.scripts]
 
 [project.urls]
-Homepage = "https://pointcarre.app"
+# Homepage = "https://pointcarre.app"
 # Documentation = "https://readthedocs.org"
 Repository = "https://github.com/SelimPCA/pca-scenery.git"
 "Bug Tracker" = "https://github.com/SelimPCA/pca-scenery/issues"
