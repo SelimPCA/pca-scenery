@@ -3,4 +3,4 @@ env_test/
 build/
 dist/
 **/__pycache__/
-**/pca_scenery.egg-info/
+pca_scenery.egg-info/
