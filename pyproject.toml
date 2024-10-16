@@ -3,8 +3,8 @@ requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "scenery"
-version = "0.1.0"
+name = "pca-scenery"
+version = "0.1.1"
 
 requires-python = ">= 3.12.3"
 dependencies = [
@@ -24,15 +24,13 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Framework :: Django :: 4.2",
     "License :: OSI Approved :: MIT License",
-    "Private :: Do Not Upload",
 ]
 
 authors = [
-  {name = "Selim Mellouk-Halgand", email = "selim.mellouk.halgand@proton.me"},
-  {name = "Etienne Madinier", email = "etienne.madinier@proton.me"},
+  {name = "Etienne Madinier"},
 ]
 maintainers = [
-  {name = "Etienne Madinier", email = "etienne.madinier@proton.me"}
+  {name = "Etienne Madinier"}
 ]
 
 [project.scripts]
@@ -43,3 +41,10 @@ maintainers = [
 Repository = "https://github.com/SelimPCA/pca-scenery.git"
 "Bug Tracker" = "https://github.com/SelimPCA/pca-scenery/issues"
 # Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
+
+[tool.setuptools]
+package-dir = {"" = "src"}  # Using src layout
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["scenery*"]  # Import as 'scenery'
