@@ -1,12 +1,12 @@
 set -e
 
-# if venv is active
-if [[ "$VIRTUAL_ENV" != "" ]]; then
+# # if venv is active
+# if [[ "$VIRTUAL_ENV" != "" ]]; then
 
-    # deactivate
-    source env/bin/activate
-    deactivate
-fi
+#     # deactivate
+#     source env/bin/activate
+#     deactivate
+# fi
 
 # delete existing env and build
 rm -rf ./env_test
@@ -19,9 +19,9 @@ rm -rf ./build
 source env_test/bin/activate
 
 # install dependencies
-
-
 pip install --upgrade pip
 pip install .
 
 python -m rehearsal
+
+deactivate

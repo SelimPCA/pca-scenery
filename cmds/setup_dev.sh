@@ -1,13 +1,5 @@
 set -e
 
-# if venv is active
-if [[ "$VIRTUAL_ENV" != "" ]]; then
-
-    # deactivate
-    source env/bin/activate
-    deactivate
-fi
-
 rm -rf ./env
 
 # install python
@@ -18,7 +10,6 @@ source env/bin/activate
 
 # install dependencies
 pip install --upgrade pip
-pip install -r requirements.txt
 pip install -e .
 
 
