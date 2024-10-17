@@ -15,6 +15,10 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
+        "manifest", nargs="?", default=None, help="Optional manifest name"
+    )
+
+    parser.add_argument(
         "-v",
         "--verbose",
         dest="verbosity",
@@ -133,7 +137,7 @@ def main():
     from scenery.metatest import MetaTestRunner, MetaTestDiscoverer
 
     discoverer = MetaTestDiscoverer()
-    tests_discovered = discoverer.discover(verbosity=2)
+    tests_discovered = discoverer.discover(verbosity=2, restrict=args.manifest)
     runner = MetaTestRunner()
     result["metatesting"] = runner.run(tests_discovered, args.verbosity)
 

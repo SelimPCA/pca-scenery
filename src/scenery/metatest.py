@@ -22,7 +22,16 @@ from django.conf import settings
 
 class MetaTest(type):
 
-    def __new__(cls, clsname, bases, manifest: Manifest):
+    def __new__(cls, clsname, bases, manifest: Manifest, restrict: None | str = None):
+
+        if restrict is not None:
+            restrict = restrict.split(".")
+            if len(restrict) == 1:
+                restrict_case_id, restrict_scene_pos = restrict[0], None
+            elif len(restrict) == 2:
+                restrict_case_id, restrict_scene_pos = restrict[0], restrict[1]
+            else:
+                raise ValueError(f"Wrong restrict argmuent {restrict}")
 
         # Build setUpTestData and SetUp
         setUpTestData = MethodBuilder.build_setUpTestData(manifest.set_up_test_data)
@@ -37,6 +46,12 @@ class MetaTest(type):
         for (case_id, case), (scene_pos, scene) in itertools.product(
             manifest.cases.items(), enumerate(manifest.scenes)
         ):
+
+            if restrict is not None:
+                if restrict_scene_pos is None and case_id != restrict_case_id:
+                    continue
+                elif case_id != restrict_case_id and scene_pos != restrict_scene_pos:
+                    continue
             # take = TakeBuilder.shoot(scene, case)
             take = scene.shoot(case)
             test = MethodBuilder.build_test_from_take(take)
@@ -56,8 +71,23 @@ class MetaTestDiscoverer:
         )()
         self.loader = self.runner.test_loader
 
-    def discover(self, verbosity):
+    def discover(self, restrict: None | str = None, verbosity=2):
         """Returns a list of pair (test_name, suite), each suite contains a single test"""
+
+        if restrict is not None:
+            restrict = restrict.split(".")
+            if len(restrict) == 1:
+                restrict_manifest, restrict_test = (
+                    restrict[0],
+                    None,
+                )
+            elif len(restrict) == 2:
+                restrict_manifest, restrict_test = (restrict[0], restrict[1])
+            elif len(restrict) == 3:
+                restrict_manifest, restrict_test = (
+                    restrict[0],
+                    restrict[1] + "." + restrict[2],
+                )
 
         out = []
 
@@ -66,15 +96,20 @@ class MetaTestDiscoverer:
         folder = os.getenv("SCENERY_MANIFESTS_FOLDER")
 
         for filename in os.listdir(folder):
+            manifest_name = filename.replace(".yml", "")
+
+            if restrict is not None and restrict_manifest != manifest_name:
+                continue
 
             self.logger.debug(f"Discovered manifest '{folder}/{filename}'")
 
             manifest = ManifestParser.parse_yaml(os.path.join(folder, filename))
 
             # Create class
-            filename = filename.replace(".yml", "")
-            testcase_name = f"Test{scenery.common.snake_to_camel_case(folder)}{scenery.common.snake_to_camel_case(filename)}"
-            cls = MetaTest(testcase_name, (django.test.TestCase,), manifest)
+            testcase_name = f"Test{scenery.common.snake_to_camel_case(manifest_name)}"
+            cls = MetaTest(
+                testcase_name, (django.test.TestCase,), manifest, restrict=restrict_test
+            )
 
             # Log / verbosity
             msg = f"Discovered {cls.__module__}.{cls.__qualname__}"
