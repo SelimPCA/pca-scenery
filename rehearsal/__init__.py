@@ -183,6 +183,9 @@ class RehearsalDiscoverer:
 
         tests_discovered = []
 
+        if verbosity >= 1:
+            print(f"Tests discovered:")
+
         testsuites = self.loader.loadTestsFromModule(rehearsal.tests)
 
         for testsuite in testsuites:
@@ -194,10 +197,14 @@ class RehearsalDiscoverer:
                 msg = f"Discovered {test_name}"
                 self.logger.debug(msg)
                 if verbosity >= 2:
-                    print(msg)
+                    print(f"> {test_name}")
 
                 suite = unittest.TestSuite(tests=(test,))
                 tests_discovered.append((test_name, suite))
+
+        msg = f"{len(tests_discovered)} tests."
+        if verbosity >= 1:
+            print(f"{msg}\n")
 
         return tests_discovered
 

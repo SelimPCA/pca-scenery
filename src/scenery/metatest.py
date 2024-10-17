@@ -98,6 +98,9 @@ class MetaTestDiscoverer:
 
         folder = os.getenv("SCENERY_MANIFESTS_FOLDER")
 
+        if verbosity >= 1:
+            print(f"Manifests discovered:")
+
         for filename in os.listdir(folder):
             manifest_name = filename.replace(".yml", "")
 
@@ -116,10 +119,8 @@ class MetaTestDiscoverer:
             )
 
             # Log / verbosity
-            msg = f"Discovered {cls.__module__}.{cls.__qualname__}"
-            self.logger.debug(msg)
             if verbosity >= 2:
-                print(msg)
+                print(f"> {cls.__qualname__}")
 
             # Load
             tests = self.loader.loadTestsFromTestCase(cls)
@@ -130,6 +131,9 @@ class MetaTestDiscoverer:
                 suite.addTest(test)
                 out.append((test_name, suite))
 
+        msg = f"Resulting in {len(out)} tests."
+        if verbosity >= 1:
+            print(f"{msg}\n")
         return out
 
 
@@ -166,12 +170,19 @@ class MetaTestRunner:
 
     def run(self, tests_discovered, verbosity):
 
+        if verbosity > 0:
+            print("Tests runs:")
+
         results = {}
         for test_name, suite in tests_discovered:
 
             result = self.runner.run_suite(suite)
 
             result_serialized = scenery.common.serialize_unittest_result(result)
+
+            test_name = test_name.replace("test_case_", "")
+            test_name = test_name.replace("_scene_", ".")
+
             results[test_name] = result_serialized
 
             if result.errors or result.failures:
@@ -183,7 +194,7 @@ class MetaTestRunner:
             )
             if verbosity > 0:
                 print(
-                    f"{scenery.common.colorize(color, test_name)}\n{scenery.common.tabulate({key: val for key, val in result_serialized.items() if val > 0})}"
+                    f">> {scenery.common.colorize(color, test_name)}\n{scenery.common.tabulate({key: val for key, val in result_serialized.items() if val > 0})}"
                 )
 
             # Log / verbosity
