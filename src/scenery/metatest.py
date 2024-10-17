@@ -48,11 +48,14 @@ class MetaTest(type):
         ):
 
             if restrict is not None:
-                if restrict_scene_pos is None and case_id != restrict_case_id:
+                if case_id != restrict_case_id:
                     continue
-                elif case_id != restrict_case_id and scene_pos != restrict_scene_pos:
+                elif (
+                    restrict_scene_pos is not None
+                    and str(scene_pos) != restrict_scene_pos
+                ):
                     continue
-            # take = TakeBuilder.shoot(scene, case)
+
             take = scene.shoot(case)
             test = MethodBuilder.build_test_from_take(take)
             cls_attrs.update({f"test_case_{case_id}_scene_{scene_pos}": test})

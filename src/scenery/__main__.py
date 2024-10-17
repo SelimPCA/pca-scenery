@@ -14,8 +14,12 @@ def main():
 
     parser = argparse.ArgumentParser()
 
+    # TODO: I should be able to take <manifest>.*.<scene>
     parser.add_argument(
-        "manifest", nargs="?", default=None, help="Optional manifest name"
+        "restrict",
+        nargs="?",
+        default=None,
+        help="Optional test restriction <manifest>.<case>.<scene>",
     )
 
     parser.add_argument(
@@ -137,7 +141,7 @@ def main():
     from scenery.metatest import MetaTestRunner, MetaTestDiscoverer
 
     discoverer = MetaTestDiscoverer()
-    tests_discovered = discoverer.discover(verbosity=2, restrict=args.manifest)
+    tests_discovered = discoverer.discover(verbosity=2, restrict=args.restrict)
     runner = MetaTestRunner()
     result["metatesting"] = runner.run(tests_discovered, args.verbosity)
 
