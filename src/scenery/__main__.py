@@ -49,14 +49,6 @@ def main():
         help="Location of django settings module",
     )
 
-    # parser.add_argument(
-    #     "--view",
-    #     dest="restrict_view_name",
-    #     action="store",
-    #     default=None,
-    #     help="Restrict to a specific view",
-    # )
-
     parser.add_argument(
         "--output",
         default=None,
