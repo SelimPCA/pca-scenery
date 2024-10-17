@@ -74,6 +74,7 @@ class MetaTestDiscoverer:
     def discover(self, restrict: None | str = None, verbosity=2):
         """Returns a list of pair (test_name, suite), each suite contains a single test"""
 
+        # handle manifest/test restriction
         if restrict is not None:
             restrict = restrict.split(".")
             if len(restrict) == 1:
@@ -88,6 +89,8 @@ class MetaTestDiscoverer:
                     restrict[0],
                     restrict[1] + "." + restrict[2],
                 )
+        else:
+            restrict_manifest, restrict_test = None, None
 
         out = []
 
@@ -106,7 +109,8 @@ class MetaTestDiscoverer:
             manifest = ManifestParser.parse_yaml(os.path.join(folder, filename))
 
             # Create class
-            testcase_name = f"Test{scenery.common.snake_to_camel_case(manifest_name)}"
+            # testcase_name = f"Test{scenery.common.snake_to_camel_case(manifest_name)}"
+            testcase_name = manifest_name
             cls = MetaTest(
                 testcase_name, (django.test.TestCase,), manifest, restrict=restrict_test
             )
