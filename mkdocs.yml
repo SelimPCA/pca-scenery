@@ -1,0 +1,15 @@
+site_name: Scenery
+theme:
+  name: material
+nav:
+  - Home: index.md
+  - Glossary: glossary.md
+  - Usage: usage.md
+  - Settings: settings.md
+  - Manifest specification: manifest_specification.md
+  - Examples: todo
+  - API Reference: api.md
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python

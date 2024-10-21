@@ -151,19 +151,19 @@ set_up_test_data:
 2. access the item and add/overwrite a given (key, value) pair of the item
 ```yaml
 set_up_test_data:
-	- reset_db
-	- create_testuser: !common-item 
-		ID: TESTUSER # this is the ID as it appears in the common items YAML file
-		foo: 42 # overwrites the foo attribute
+  - reset_db
+  - create_testuser: !common-item 
+    ID: TESTUSER # this is the ID as it appears in the common items YAML file
+    foo: 42 # overwrites the foo attribute
 ```
-### YAML Variables
+### YAML aliases
 
->[!danger] `variables`  does not work as expected so don't use it. It's because YAML aliases are resolved before tags which are not "transported" in the alias.
+>[!danger] Aliases do not work as expected, especially when interacting with `!case` and `!common-items` tages, so don't use them. It's because YAML aliases are resolved before tags which are not "transported" in the alias.
 
 
 ## Last thoughts
 
-The manifest specification provide different ways to avoid the repetition of information. As a consequence, there is not a unique manifest resulting in a given set of tests. Below are still some guidelines to choose how to write a manifest.
+The manifest specification provide different ways to avoid the repetition of information. As a consequence, there is not a unique manifest resulting in a given set of tests. Below are still some guidelines to choose how to write a manifest:
 
 - Scene vs. Case: 
 	- Information describing the state/behavior of the app should be hard-coded in the scene. 

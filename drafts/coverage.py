@@ -592,8 +592,7 @@ class MetatestCoverageRunner(CoverageRunner):
     @cached_property
     def tested_modules(self):
         resolver = get_resolver("app.urls")
-        # TODO: this is for testing
-        view_names = ["login", "register", "interaction_v1", "highschool"]
+        view_names = []
         url_patterns = filter(lambda x: x.name in view_names, resolver.url_patterns)
         tested_modules = [
             inspect.getmodule(url_pattern.callback) for url_pattern in url_patterns

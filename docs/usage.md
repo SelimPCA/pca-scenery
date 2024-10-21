@@ -1,28 +1,5 @@
+# Usage
 
-
-# scenery
-
-`scenery` simplifies writing extensive and maintainable integration tests for your Django application while keeping your testing codebase as DRY as possible.
-
-![Scenery Demo](https://path/to/your/demo.gif)
-
-## Features
-
-- Human-readable YAML configuration files for test scenarios
-- Launch your entire test suite with a single command
-- Full control over set-up and tear-down actions
-- Easily share data across multiple tests
-- Flexible and extensible directive system for response validation
-
-## Installation
-
-Install `scenery` using pip:
-
-```bash
-pip install pca-scenery
-```
-
-## Usage
 
 ### Test Manifests
 
@@ -70,11 +47,11 @@ The full syntax of `scenery` allows you to:
 
 - Test a given scene with different data sets
 - Shared data for use across multiple tests
-- Have full control over set-up and tear-down methods
+- Have full control over set-up <!-- and tear-down methods -->
 - Use variables and templating in your YAML files
 <!-- - Define custom directives for specialized checks -->
 
-
+See the full [manifest specification](./manifest_specification.md) for more details.
 
 ### Settings
 
@@ -101,33 +78,3 @@ python -m scenery --django_settings=your_project.settings.test
 ```
 
 You can also add additional command-line arguments to filter tests, set verbosity, etc. Run `python -m scenery --help` for more information.
-
-For more detailed information, please refer to our [documentation]().
-
-## Contributing
-
-<!-- We welcome contributions to `scenery`! Here are some ways you can contribute:
-
-1. Report bugs or request features by opening an issue
-2. Improve documentation
-3. Submit pull requests with bug fixes or new features
-
-Please read our [Contributing Guide](CONTRIBUTING.md) for more details. -->
-
-## License
-
-`scenery` is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## Credits
-
-`scenery` was created by Etienne Madinier.
-
-It relies on other great open-source projects:
-- [Beautifulsoup4](https://pypi.org/project/beautifulsoup4/)
-- [Django](https://www.djangoproject.com/)
-- [pyyaml](https://pypi.org/project/PyYAML/)
-
-
----
-
-For more information, examples, and advanced usage, please visit our [official documentation](https://link-to-your-docs).
