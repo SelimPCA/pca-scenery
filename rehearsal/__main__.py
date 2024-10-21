@@ -10,26 +10,13 @@ def main():
     # PARSE ARGUMENTS
     #################
 
-    # TODO:
+    # TODO
 
     ####################
     # LOGGERS
     ####################
 
-    # TODO:
-    # Rehearsal
-    # logger_rehearsal = logging.getLogger(__package__ + ".rehearsal")
-    # logger_rehearsal.addHandler(handler_full)
-    # logger_rehearsal.setLevel(level)
-    # logger_rehearsal.propagate = False
-
-    # # Rehearsal django
-    # logger_rehearsal_django = logging.getLogger(__package__ + ".rehearsal.django")
-    # logger_rehearsal_django.addHandler(handler_full)
-    # logger_rehearsal_django.setLevel(level)
-    # # This is a bit brutal/rough/ugly
-    # logger_rehearsal_django.manager.disable = logging.NOTSET
-    # logger_rehearsal_django.propagate = False
+    # TODO
 
     ###################
     # CONFIG SCENERY

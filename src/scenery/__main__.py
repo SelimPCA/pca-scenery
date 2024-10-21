@@ -91,25 +91,11 @@ def main():
     logger.addHandler(handler_full)
     logger.setLevel(level)
 
-    # logger_app = logging.getLogger("logger_app")  # TODO: change? should be in env ?
+    # TODO: change? should be in env ?
+    # logger_app = logging.getLogger("logger_app")
     # logger_app.handlers = []
     # logger_app.addHandler(handler_full)
     # logger_app.setLevel(level)
-
-    ##############
-    # CONFIG ENV
-    ##############
-
-    # TODO
-    # result["config"] = {
-    #     "stdlib": None,  # SysConfig.stdlib,
-    #     "purelib": None,  # SysConfig.purelib,
-    #     "src": None,  # SysConfig.src,
-    #     "this_folder": None,  # SysConfig.this_folder,
-    # }
-
-    # for key, val in result["config"].items():
-    #     logger.debug(f"`{key}` found at {val}")
 
     ##################
     # CONFIG SCENERY
@@ -150,8 +136,4 @@ def main():
 
 if __name__ == "__main__":
 
-    import sys
-
     main()
-    # TODO: depends on output actually
-    # sys.exit(0)

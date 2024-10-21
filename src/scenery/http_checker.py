@@ -97,7 +97,11 @@ class HttpChecker:
             response (django.http.HttpResponse): The HTTP response to check.
             args (int): The expected status code.
         """
-        django_testcase.assertEqual(response.status_code, args)
+        django_testcase.assertEqual(
+            response.status_code,
+            args,
+            f"Expected status code {args}, but got {response.status_code}",
+        )
 
     @staticmethod
     def check_redirect_url(
@@ -113,7 +117,11 @@ class HttpChecker:
             response (django.http.HttpResponseRedirect): The HTTP redirect response to check.
             args (str): The expected redirect URL.
         """
-        django_testcase.assertEqual(response.url, args)
+        django_testcase.assertEqual(
+            response.url,
+            args,
+            f"Expected redirect URL '{args}', but got '{response.url}'",
+        )
 
     @staticmethod
     def check_count_instances(
@@ -130,7 +138,11 @@ class HttpChecker:
             args (dict): A dictionary containing 'model' (the model class) and 'n' (expected count).
         """
         instances = list(args["model"].objects.all())
-        django_testcase.assertEqual(len(instances), args["n"])
+        django_testcase.assertEqual(
+            len(instances),
+            args["n"],
+            f"Expected {args['n']} instances of {args['model'].__name__}, but found {len(instances)}",
+        )
 
     @staticmethod
     def check_dom_element(
@@ -169,21 +181,36 @@ class HttpChecker:
         # If find is provided we enforce the result to be la list
         if args.get(scenery.manifest.DomArgument.FIND_ALL):
             dom_elements = soup.find_all(**args[scenery.manifest.DomArgument.FIND_ALL])
-            django_testcase.assertGreaterEqual(len(dom_elements), 1)
+            django_testcase.assertGreaterEqual(
+                len(dom_elements),
+                1,
+                f"Expected to find at least one element matching {args[scenery.manifest.DomArgument.FIND_ALL]}, but found none",
+            )
         elif args.get(scenery.manifest.DomArgument.FIND):
             dom_element = soup.find(**args[scenery.manifest.DomArgument.FIND])
-            django_testcase.assertIsNotNone(dom_element)
+            django_testcase.assertIsNotNone(
+                dom_element,
+                f"Expected to find an element matching {args[scenery.manifest.DomArgument.FIND]}, but found none",
+            )
             dom_elements = [dom_element]
         else:
             raise ValueError("Neither find of find_all argument provided")
 
         # Perform the additional checks
         if count := args.get(scenery.manifest.DomArgument.COUNT):
-            django_testcase.assertEqual(len(dom_elements), count)
+            django_testcase.assertEqual(
+                len(dom_elements),
+                count,
+                f"Expected to find {count} elements, but found {len(dom_elements)}",
+            )
         for dom_element in dom_elements:
             if text := args.get(scenery.manifest.DomArgument.TEXT):
                 # TODO: this should/could disappear as text is too likely to change
-                django_testcase.assertEqual(dom_element.text, text)
+                django_testcase.assertEqual(
+                    dom_element.text,
+                    text,
+                    f"Expected element text to be '{text}', but got '{dom_element.text}'",
+                )
             if attribute := args.get(scenery.manifest.DomArgument.ATTRIBUTE):
                 # TODO: this should move to manifest parser
                 match attribute["value"]:
@@ -195,7 +222,8 @@ class HttpChecker:
                         raise ValueError(
                             f"attribute value can only by `str` or `list[str]` not '{type(x)}'"
                         )
-
                 django_testcase.assertEqual(
-                    dom_element[attribute["name"]], attribute["value"]
+                    dom_element[attribute["name"]],
+                    attribute["value"],
+                    f"Expected attribute '{attribute['name']}' to have value '{attribute['value']}', but got '{dom_element[attribute['name']]}'",
                 )
