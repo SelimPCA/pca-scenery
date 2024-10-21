@@ -394,7 +394,7 @@ class CoverageRunner(ABC):
                 raise TypeError(
                     f"Unexpected type {type(obj)} when checking the function coverage for {obj}"
                 )
-            
+
             # break
 
         return report
@@ -515,7 +515,9 @@ class CoverageRunner(ABC):
                 for module_name, result_module in result["statement"].items()
             }
             result["statement"]["STATS"] = stats
-            self.logger.info(f"Statement coverage: \n{tabulate(result['statement']["STATS"])}")
+            self.logger.info(
+                f"Statement coverage: \n{tabulate(result['statement']["STATS"])}"
+            )
 
         # Check if possible branches are being executed
         if branch:

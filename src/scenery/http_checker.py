@@ -8,18 +8,32 @@ import scenery.manifest
 import django.test
 import django.http
 
-# from django.test import TestCase
-# from django.http import HttpResponse, HttpResponseRedirect
-from django.apps import apps as django_apps
-from django.db.models.deletion import ProtectedError
-
 from bs4 import BeautifulSoup
 
 
 class HttpChecker:
+    """
+    A utility class for performing HTTP requests and assertions on responses.
+
+    This class provides static methods to execute HTTP requests and perform
+    various checks on the responses, as specified in the test manifests.
+    """
 
     @staticmethod
     def get_http_client_response(client, take: scenery.manifest.HttpTake):
+        """
+        Execute an HTTP request based on the given HttpTake object.
+
+        Args:
+            client: The Django test client to use for the request.
+            take (scenery.manifest.HttpTake): The HttpTake object specifying the request details.
+
+        Returns:
+            django.http.HttpResponse: The response from the HTTP request.
+
+        Raises:
+            NotImplementedError: If the HTTP method specified in the take is not implemented.
+        """
 
         match take.method:
             case http.HTTPMethod.GET:
@@ -43,21 +57,20 @@ class HttpChecker:
         response: django.http.HttpResponse,
         check: scenery.manifest.HttpCheck,
     ):
+        """
+        Execute a specific check on an HTTP response.
 
-        ## SANITY CHECK SELIM
-        ## TO CHECK IN THE DATABASE ON TEST ENVIRONMENT THAT SOMETHING HAS BEEN STORED
-        ## PROBABLY WE SHOULD AT IT AT THE LEVEL OF THE SCENERY
-        # app_config = django_apps.get_app_config(os.getenv("SCENERY_TESTED_APP_NAME"))
-        # NOTE: bug if kept as a iterator, UserCustom cannot be deleted
-        # models = list(app_config.get_models())
-        # for model in models:
-        #     record_count = model.objects.count()
-        #     # print("#" * 10)
-        #     # print("SELIM SANITY CHECK DB SCALINGO CORRECTLY CONNECTED")
-        #     # print(model)
-        #     # print(record_count, "objects")
-        #     # print("\n")
+        This method delegates to the appropriate check method based on the instruction
+        specified in the HttpCheck object.
 
+        Args:
+            django_testcase (django.test.TestCase): The Django test case instance.
+            response (django.http.HttpResponse): The HTTP response to check.
+            check (scenery.manifest.HttpCheck): The check to perform on the response.
+
+        Raises:
+            NotImplementedError: If the check instruction is not implemented.
+        """
         match check.instruction:
             case scenery.manifest.DirectiveCommand.STATUS_CODE:
                 HttpChecker.check_status_code(django_testcase, response, check.args)
@@ -76,15 +89,31 @@ class HttpChecker:
         response: django.http.HttpResponse,
         args: int,
     ):
+        """
+        Check if the response status code matches the expected code.
+
+        Args:
+            django_testcase (django.test.TestCase): The Django test case instance.
+            response (django.http.HttpResponse): The HTTP response to check.
+            args (int): The expected status code.
+        """
         django_testcase.assertEqual(response.status_code, args)
 
     @staticmethod
     def check_redirect_url(
-        self: django.test.TestCase,
+        django_testcase: django.test.TestCase,
         response: django.http.HttpResponseRedirect,
         args: str,
     ):
-        self.assertEqual(response.url, args)
+        """
+        Check if the response redirect URL matches the expected URL.
+
+        Args:
+            django_testcase (django.test.TestCase): The Django test case instance.
+            response (django.http.HttpResponseRedirect): The HTTP redirect response to check.
+            args (str): The expected redirect URL.
+        """
+        django_testcase.assertEqual(response.url, args)
 
     @staticmethod
     def check_count_instances(
@@ -92,8 +121,14 @@ class HttpChecker:
         response: django.http.HttpResponse,
         args: dict,
     ):
-        # cls = apps.get_model("app", args["model"])
-        # instances = list(cls.objects.all())
+        """
+        Check if the count of model instances matches the expected count.
+
+        Args:
+            django_testcase (django.test.TestCase): The Django test case instance.
+            response (django.http.HttpResponse): The HTTP response (not used in this check).
+            args (dict): A dictionary containing 'model' (the model class) and 'n' (expected count).
+        """
         instances = list(args["model"].objects.all())
         django_testcase.assertEqual(len(instances), args["n"])
 
@@ -103,6 +138,22 @@ class HttpChecker:
         response: django.http.HttpResponse,
         args: dict[scenery.manifest.DomArgument, Any],
     ):
+        """
+        Check for the presence and properties of DOM elements in the response content.
+
+        This method uses BeautifulSoup to parse the response content and perform various
+        checks on DOM elements as specified in the args dictionary.
+
+        Args:
+            django_testcase (django.test.TestCase): The Django test case instance.
+            response (django.http.HttpResponse): The HTTP response to check.
+            args (dict): A dictionary of DomArgument keys and their corresponding values,
+                         specifying the checks to perform.
+
+        Raises:
+            ValueError: If neither 'find' nor 'find_all' arguments are provided in args.
+        """
+
         # NOTE: we do not support xpath as it is not supported by BeautifulSoup
         # this would require to use lxml
         # TODO: count number of elements from find_all
@@ -145,8 +196,6 @@ class HttpChecker:
                             f"attribute value can only by `str` or `list[str]` not '{type(x)}'"
                         )
 
-                # print("HERE", dom_element[attribute["name"]], attribute["value"])
-                # print(dom_element)
                 django_testcase.assertEqual(
                     dom_element[attribute["name"]], attribute["value"]
                 )

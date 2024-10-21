@@ -7,14 +7,65 @@ import http
 from typing import Any
 from urllib.parse import urlparse
 import re
-
-from scenery.common import read_yaml, SingleKeyDict
+import typing
 
 from django.apps import apps as django_apps
 from django.urls import reverse
 from django.utils.http import urlencode
 from django.urls.exceptions import NoReverseMatch
 from django.db.models.base import ModelBase
+
+
+########################
+# SINGLE KEY DICTIONNARY
+########################
+
+
+SingleKeyDictKey = typing.TypeVar("SingleKeyDictKey", bound=str)
+SingleKeyDictKeyValue = typing.TypeVar("SingleKeyDictKeyValue")
+
+
+@dataclass
+class SingleKeyDict(typing.Generic[SingleKeyDictKey, SingleKeyDictKeyValue]):
+    """
+    A dataclass representing a dictionary with a single key-value pair.
+
+    This class is useful for having a quick as_tuple representation of a dict {key:value}
+    returned as (key, value).
+
+    Attributes:
+        _dict (Dict[SingleKeyDictKey, SingleKeyDictKeyValue]): The underlying dictionary.
+        key (SingleKeyDictKey): The single key in the dictionary.
+        value (SingleKeyDictKeyValue): The value associated with the single key.
+
+    Methods:
+        validate(): Ensures the dictionary has exactly one key-value pair.
+        as_tuple(): Returns the key-value pair as a tuple.
+
+    Raises:
+        ValueError: If the dictionary does not contain exactly one key-value pair.
+    """
+
+    _dict: typing.Dict[SingleKeyDictKey, SingleKeyDictKeyValue] = field()
+    key: SingleKeyDictKey = field(init=False)
+    value: SingleKeyDictKeyValue = field(init=False)
+
+    # TODO: it should also be feasible to init with a tuple
+    # and return as a dict
+
+    def __post_init__(self):
+        self.validate()
+        self.key, self.value = next(iter(self._dict.items()))
+
+    def validate(self):
+        if len(self._dict) != 1:
+            raise ValueError(
+                f"SingleKeyDict should have length 1 not '{len(self._dict)}'\n{self._dict}"
+            )
+
+    def as_tuple(self):
+        """THIS SHOULD NOT BE CONFUSED WITH BUILT-IN METHOD datclasses.astuple"""
+        return self.key, self.value
 
 
 ####################################
@@ -65,17 +116,6 @@ class ManifestYAMLKeys(enum.Enum):
     VARIABLES = "variables"
 
 
-##############
-# SUBSTITUTION
-##############
-
-
-# class HttpTarget(Enum):
-#     DATA = "data"
-#     CHECKS = "checks"
-#     URL_PARAMETERS = "url_parameters"
-
-
 ########
 # CHECKS
 ########
@@ -110,7 +150,6 @@ class DomArgument(enum.Enum):
 class SetUpInstruction:
     """Store the command and potential arguments for setUpTestData and setUp"""
 
-    # command: SetUpCommand
     command: str
     args: dict[str, Any] = field(default_factory=dict)
 
@@ -140,64 +179,41 @@ class SetUpInstruction:
 ########################
 
 
-# @dataclass(frozen=True)
-# class HttpItem:
-#     """Store potential information that will be used to build the HttpRequest"""
-
-#     _id: str
-#     data: dict[str, int | str] = field(default_factory=dict)
-#     checks: dict[str, int | str] = field(default_factory=dict)
-#     url_parameters: dict[str, int | str] = field(default_factory=dict)
-
-#     def __getitem__(self, key: HttpTarget):
-#         # TODO: do I really need this ?
-#         return getattr(self, key.value)
-
-#     @classmethod
-#     def from_id_and_dict(cls, item_id, item: dict):
-#         item.update({"_id": item_id})
-#         return cls(**item)
-
-
 @dataclass(frozen=True)
 class Item:
     """Store potential information that will be used to build the HttpRequest"""
 
     _id: str
     _dict: dict
-    # data: dict[str, int | str] = field(default_factory=dict)
-    # checks: dict[str, int | str] = field(default_factory=dict)
-    # url_parameters: dict[str, int | str] = field(default_factory=dict)
 
     def __getitem__(self, key):
         # TODO: do I really need this ?
         return self._dict[key]
 
-    # @classmethod
-    # def from_id_and_dict(cls, item_id, item: dict):
-    #     item.update({"_id": item_id})
-    #     return cls(**item)
-
 
 @dataclass(frozen=True)
 class Case:
-    """Store a collection of items"""
+    """
+    Store a collection of items representing a test case.
+
+    Attributes:
+        _id (str): The identifier for this case.
+        items (dict[str, Item]): A dictionary of items in this case, indexed by item ID.
+
+    Methods:
+        __getitem__(item_id): Retrieve an item from the case by its ID.
+
+    Class Methods:
+        from_id_and_dict(case_id: str, items: dict[str, dict]) -> Case:
+            Create a Case instance from a case ID and a dictionary of items.
+    """
 
     _id: str
     items: dict[str, Item]
 
     def __getitem__(self, item_id):
-        # print(f"Required case[{item_id}] on {self.items}")
         # TODO: do I really need this ?
         return self.items[item_id]
-
-    # @classmethod
-    # def from_id_and_dict(cls, case_id: str, items: dict[str, dict]):
-    #     items = {
-    #         item_id: Item.from_id_and_dict(item_id, item_dict)
-    #         for item_id, item_dict in items.items()
-    #     }
-    #     return cls(case_id, items)
 
     @classmethod
     def from_id_and_dict(cls, case_id: str, items: dict[str, dict]):
@@ -214,9 +230,8 @@ class Case:
 
 @dataclass
 class Substituable:
-    field_repr: re.Match
-    # target: HttpTarget
 
+    field_repr: re.Match
     regex_field = re.compile(r"^(?P<item_id>[a-z_]+):?(?P<field_name>[a-z_]+)?$")
 
     def __post_init__(self):
@@ -244,7 +259,20 @@ class Substituable:
 
 @dataclass
 class HttpDirective:
-    """Store a given check to perform, before the substitution (this is part of a Scene, not a Take)"""
+    """
+    Store a given check to perform, before the substitution (this is part of a Scene, not a Take).
+
+    This class represents a directive (check) to be performed on an HTTP response,
+    before case-specific substitutions have been made.
+
+    Attributes:
+        instruction (DirectiveCommand): The type of check to perform.
+        args (Any): The arguments for the check.
+
+    Class Methods:
+        from_dict(directive_dict: dict) -> HttpDirective:
+            Create an HttpDirective instance from a dictionary.
+    """
 
     instruction: DirectiveCommand
     args: Any
@@ -309,7 +337,28 @@ class HttpDirective:
 @dataclass
 class HttpScene:
     """
-    Store all actions to perform, before the  of information form the `Cases`.
+    Store all actions to perform, before the substitution of information from the `Cases`.
+
+    This class represents an HTTP scene, which includes the method, URL, and various
+    parameters and checks to be performed.
+
+    Attributes:
+        method (http.HTTPMethod): The HTTP method for this scene.
+        url (str): The URL or URL pattern for this scene.
+        directives (list[HttpDirective]): The list of directives (checks) to perform.
+        data (dict[str, Any]): The data to be sent with the request.
+        query_parameters (dict): Query parameters for the URL.
+        url_parameters (dict): URL parameters for reverse URL lookup.
+
+    Methods:
+        shoot(case: Case) -> HttpTake:
+            Create an HttpTake instance by substituting case values into the scene.
+
+    Class Methods:
+        from_dict(d: dict) -> HttpScene:
+            Create an HttpScene instance from a dictionary.
+        substitute_recursively(x, case: Case):
+            Recursively substitute values from a case into a data structure.
     """
 
     method: http.HTTPMethod
@@ -413,7 +462,23 @@ class HttpScene:
 
 @dataclass(frozen=True)
 class Manifest:
-    """Store all the information to build/shoot all different `Takes`"""
+    """
+    Store all the information to build/shoot all different `Takes`.
+
+    This class represents a complete test manifest, including setup instructions,
+    test cases, and scenes to be executed.
+
+    Attributes:
+        set_up_test_data (list[SetUpInstruction]): Instructions for setting up test data.
+        set_up (list[SetUpInstruction]): Instructions for general test setup.
+        scenes (list[HttpScene]): The HTTP scenes to be executed.
+        cases (dict[str, Case]): The test cases, indexed by case ID.
+        manifest_origin (str): The origin of the manifest file.
+
+    Class Methods:
+        from_formatted_dict(d: dict) -> Manifest:
+            Create a Manifest instance from a formatted dictionary.
+    """
 
     set_up_test_data: list[SetUpInstruction]
     set_up: list[SetUpInstruction]
@@ -498,8 +563,22 @@ class HttpCheck(HttpDirective):
 @dataclass
 class HttpTake:
     """
-    Store all the information, after the subsitution from the `Cases` has been performed
-    `url` is expected to be either a valid url or a registered viewname.
+    Store all the information after the substitution from the `Cases` has been performed.
+
+    This class represents a fully resolved HTTP request to be executed, including
+    the method, URL, data, and checks to be performed.
+
+    Attributes:
+        method (http.HTTPMethod): The HTTP method for this take.
+        url (str): The fully resolved URL for this take.
+        checks (list[HttpCheck]): The list of checks to perform on the response.
+        data (dict): The data to be sent with the request.
+        query_parameters (dict): Query parameters for the URL.
+        url_parameters (dict): URL parameters used in URL resolution.
+
+    Notes:
+        The `url` is expected to be either a valid URL or a registered viewname.
+        If it's a viewname, it will be resolved using Django's `reverse` function.
     """
 
     method: http.HTTPMethod

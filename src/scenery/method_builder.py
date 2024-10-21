@@ -10,9 +10,27 @@ from scenery.set_up_handler import SetUpHandler
 
 
 class MethodBuilder:
+    """
+    A utility class for building test methods dynamically based on manifest data.
+
+    This class provides static methods to create setup and test methods
+    that can be added to Django test cases.
+    """
 
     @staticmethod
     def build_setUpTestData(instructions: list[str]):
+        """
+        Build a setUpTestData class method for a Django test case.
+
+        This method creates a class method that executes a series of setup
+        instructions before any test methods are run.
+
+        Args:
+            instructions (list[str]): A list of setup instructions to be executed.
+
+        Returns:
+            classmethod: A class method that can be added to a Django test case.
+        """
 
         def setUpTestData(django_testcase: django.test.TestCase):
 
@@ -23,6 +41,18 @@ class MethodBuilder:
 
     @staticmethod
     def build_setUp(instructions: list[str]):
+        """
+        Build a setUp instance method for a Django test case.
+
+        This method creates an instance method that executes a series of setup
+        instructions before each test method is run.
+
+        Args:
+            instructions (list[str]): A list of setup instructions to be executed.
+
+        Returns:
+            function: An instance method that can be added to a Django test case.
+        """
 
         def setUp(django_testcase: django.test.TestCase):
             for instruction in instructions:
@@ -32,6 +62,20 @@ class MethodBuilder:
 
     @staticmethod
     def build_test_from_take(take: scenery.manifest.HttpTake):
+        """
+        Build a test method from an HttpTake object.
+
+        This method creates a test function that sends an HTTP request
+        based on the take's specifications and executes a series of checks
+        on the response.
+
+        Args:
+            take (scenery.manifest.HttpTake): An HttpTake object specifying
+                the request to be made and the checks to be performed.
+
+        Returns:
+            function: A test method that can be added to a Django test case.
+        """
 
         def test(django_testcase: django.test.TestCase):
             response = HttpChecker.get_http_client_response(

@@ -21,6 +21,24 @@ from django.conf import settings
 
 
 class MetaTest(type):
+    """
+    A metaclass for creating test classes dynamically based on a Manifest.
+
+    This metaclass creates test methods for each combination of case and scene in the manifest,
+    and adds setup methods to the test class.
+
+    Args:
+        clsname (str): The name of the class being created.
+        bases (tuple): The base classes of the class being created.
+        manifest (Manifest): The manifest containing test cases and scenes.
+        restrict (str, optional): A string to restrict which tests are created, in the format "case_id.scene_pos".
+
+    Returns:
+        type: A new test class with dynamically created test methods.
+
+    Raises:
+        ValueError: If the restrict argument is not in the correct format.
+    """
 
     def __new__(cls, clsname, bases, manifest: Manifest, restrict: None | str = None):
 
@@ -64,18 +82,40 @@ class MetaTest(type):
 
 
 class MetaTestDiscoverer:
+    """
+    A class for discovering and loading test cases from manifest files.
+
+    This class scans a directory for manifest files, creates test classes from these manifests,
+    and loads the tests into test suites.
+
+    Attributes:
+        logger (Logger): A logger instance for this class.
+        runner (DiscoverRunner): A Django test runner instance.
+        loader (TestLoader): A test loader instance from the runner.
+    """
 
     def __init__(self):
         self.logger = logging.getLogger(__package__)
-        # This is done to allow the cohabitation of scenery
-        # And python manage.py test ..., the latest using settings.TEST_RUNNER
         self.runner = get_runner(
             settings, test_runner_class="django.test.runner.DiscoverRunner"
         )()
         self.loader = self.runner.test_loader
 
     def discover(self, restrict: None | str = None, verbosity=2):
-        """Returns a list of pair (test_name, suite), each suite contains a single test"""
+        """
+        Discover and load tests from manifest files.
+
+        Args:
+            restrict (str, optional): A string to restrict which manifests and tests are loaded,
+                                      in the format "manifest.case_id.scene_pos".
+            verbosity (int, optional): The verbosity level for output. Defaults to 2.
+
+        Returns:
+            list: A list of tuples, each containing a test name and a TestSuite with a single test.
+
+        Raises:
+            ValueError: If the restrict argument is not in the correct format.
+        """
 
         # handle manifest/test restriction
         if restrict is not None:
@@ -115,10 +155,8 @@ class MetaTestDiscoverer:
             manifest = ManifestParser.parse_yaml(os.path.join(folder, filename))
 
             # Create class
-            # testcase_name = f"Test{scenery.common.snake_to_camel_case(manifest_name)}"
-            testcase_name = manifest_name
             cls = MetaTest(
-                testcase_name, (django.test.TestCase,), manifest, restrict=restrict_test
+                manifest_name, (django.test.TestCase,), manifest, restrict=restrict_test
             )
 
             # Log / verbosity
@@ -140,22 +178,33 @@ class MetaTestDiscoverer:
         return out
 
 
-# from django.test.runner import DiscoverRunner
-
-
 class MetaTestRunner:
+    """
+    A class for running discovered tests and collecting results.
+
+    This class takes discovered tests, runs them using a Django test runner,
+    and collects and formats the results.
+
+    Attributes:
+        runner (DiscoverRunner): A Django test runner instance.
+        logger (Logger): A logger instance for this class.
+        discoverer (MetaTestDiscoverer): An instance of MetaTestDiscoverer for discovering tests.
+        stream (StringIO): A string buffer for capturing test output.
+    """
 
     # TODO: this is VERY similar to rehearsalrunner.run
-    # TODO: should probably take the discovered suite as argument
-    # TODO: it should be a single TestsRunner
+    # should probably take the discovered suite as argument
+    # it should be a single TestsRunner
 
     def __init__(self):
-        # TODO: get the discoverer out
+        """Initialize the MetaTestRunner with a runner, logger, discoverer, and output stream."""
+
         self.runner = get_runner(
             settings, test_runner_class="django.test.runner.DiscoverRunner"
         )()
         self.logger = logging.getLogger(__package__)
-        self.discoverer = MetaTestDiscoverer()
+
+        # self.discoverer = MetaTestDiscoverer()
         self.stream = io.StringIO()
 
         def overwrite(runner):
@@ -166,13 +215,26 @@ class MetaTestRunner:
         app_logger.propagate = False
 
     def __del__(self):
+        """Clean up resources when the MetaTestRunner is deleted."""
         # TODO: this is not totally reliable, a context manager would be ideal
         self.stream.close()
         app_logger = logging.getLogger("app.close_watch")
         app_logger.propagate = True
 
     def run(self, tests_discovered, verbosity):
+        """
+        Run the discovered tests and collect results.
 
+        Args:
+            tests_discovered (list): A list of tuples, each containing a test name and a TestSuite.
+            verbosity (int): The verbosity level for output.
+
+        Returns:
+            dict: A dictionary mapping test names to their serialized results.
+
+        Note:
+            This method logs test results and prints them to the console based on the verbosity level.
+        """
         if verbosity > 0:
             print("Tests runs:")
 

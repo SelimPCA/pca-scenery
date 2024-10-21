@@ -13,6 +13,7 @@ dependencies = [
     "pyyaml>=6.0.1"
 ]
 
+license = {file = "LICENSE"}
 readme = "README.md"
 
 description = "Versatile integration tests for django app views"
@@ -21,8 +22,9 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Topic :: Software Development :: Testing",
-    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3",
     "Framework :: Django :: 4.2",
+    "Operating System :: OS Independent",
     "License :: OSI Approved :: MIT License",
 ]
 
@@ -38,12 +40,16 @@ maintainers = [
 [project.urls]
 # Homepage = "https://pointcarre.app"
 # Documentation = "https://readthedocs.org"
-Repository = "https://github.com/SelimPCA/pca-scenery.git"
-"Bug Tracker" = "https://github.com/SelimPCA/pca-scenery/issues"
+# Repository = "https://github.com/SelimPCA/pca-scenery.git"
+# "Bug Tracker" = "https://github.com/SelimPCA/pca-scenery/issues"
 # Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
 
 [tool.setuptools]
-package-dir = {"" = "src"}  # Using src layout
+package-dir = {"" = "src"}  # Using src layout$
+include-package-data = true
+
+[tool.setuptools.package-data]
+scenery = ["LICENSE"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

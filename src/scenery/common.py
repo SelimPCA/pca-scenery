@@ -1,7 +1,6 @@
 """General functions and classes used by other modules"""
 
 import os
-import dataclasses
 import importlib
 import importlib.util
 import re
@@ -19,12 +18,23 @@ import yaml
 
 
 def scenery_setup(settings_location):
-    """Read the settings module and set the corresponding environment variables"""
+    """
+    Read the settings module and set the corresponding environment variables.
+    This function imports the specified settings module and sets environment variables
+    based on its contents. The following environment variables are set:
+
+    SCENERY_COMMON_ITEMS
+    SCENERY_SET_UP_INSTRUCTIONS
+    SCENERY_TESTED_APP_NAME
+    SCENERY_MANIFESTS_FOLDER
+
+    Args:
+        settings_location (str): The location (import path) of the settings module.
+    Raises:
+        ImportError: If the settings module cannot be imported.
+    """
 
     # Load from module
-    # spec = importlib.util.spec_from_file_location("scenery_settings", settings_location)
-    # settings = importlib.util.module_from_spec(spec)
-    # spec.loader.exec_module(settings)
     settings = importlib.import_module(settings_location)
 
     # Env variables
@@ -34,49 +44,25 @@ def scenery_setup(settings_location):
     os.environ["SCENERY_MANIFESTS_FOLDER"] = settings.SCENERY_MANIFESTS_FOLDER
 
 
-########################
-# SINGLE KEY DICTIONNARY
-########################
-
-# TODO: should this move to manifest ?
-
-SingleKeyDictKey = typing.TypeVar("SingleKeyDictKey", bound=str)
-SingleKeyDictKeyValue = typing.TypeVar("SingleKeyDictKeyValue")
-
-
-@dataclasses.dataclass
-class SingleKeyDict(typing.Generic[SingleKeyDictKey, SingleKeyDictKeyValue]):
-    """This is mostly useful to have a quick as_tuple representation of a dict {key:value} returned as (key, val)"""
-
-    _dict: typing.Dict[SingleKeyDictKey, SingleKeyDictKeyValue] = dataclasses.field()
-    key: SingleKeyDictKey = dataclasses.field(init=False)
-    value: SingleKeyDictKeyValue = dataclasses.field(init=False)
-
-    # TODO: it should also be feasible to init with a tuple
-    # and return as a dict
-
-    def __post_init__(self):
-        self.validate()
-        self.key, self.value = next(iter(self._dict.items()))
-
-    def validate(self):
-        if len(self._dict) != 1:
-            raise ValueError(
-                f"SingleKeyDict should have length 1 not '{len(self._dict)}'\n{self._dict}"
-            )
-
-    def as_tuple(self):
-        """THIS SHOULD NOT BE CONFUSED WITH BUILT-IN METHOD datclasses.astuple"""
-        return self.key, self.value
-
-
 ########
 # YAML #
 ########
 
 
 def read_yaml(filename: str) -> typing.Any:
-    """A function to read a YAML file"""
+    """
+    Read and parse a YAML file.
+
+    Args:
+        filename (str): The path to the YAML file to be read.
+
+    Returns:
+        Any: The parsed content of the YAML file.
+
+    Raises:
+        yaml.YAMLError: If there's an error parsing the YAML file.
+        IOError: If there's an error reading the file.
+    """
     with open(filename, "r") as f:
         return yaml.safe_load(f)
 
@@ -87,7 +73,21 @@ def read_yaml(filename: str) -> typing.Any:
 
 
 def snake_to_camel_case(s: str) -> str:
-    """Transforms a string assumed to be in snake_case into CamelCase"""
+    """
+    Transform a string from snake_case to CamelCase.
+
+    This function assumes the input string is in snake_case format and converts it to CamelCase.
+    It also handles strings containing '/' and '-' characters.
+
+    Args:
+        s (str): The input string in snake_case format.
+
+    Returns:
+        str: The input string converted to CamelCase.
+
+    Raises:
+        ValueError: If the input string is not in valid snake_case format.
+    """
     s = s.replace("/", "_")
     s = s.replace("-", "")
     if not re.fullmatch(r"[a-z0-9_]+", s):
@@ -103,6 +103,19 @@ def snake_to_camel_case(s: str) -> str:
 
 
 def floor(n):
+    """
+    Return the floor of a number.
+
+    If the input is an integer, it returns the input unchanged.
+    For floating-point numbers, it returns the largest integer less than or equal to the input.
+
+    Args:
+        n (int or float): The number to floor.
+
+    Returns:
+        int: The floor of the input number.
+    """
+    # NOTE: this was just to avoid another dependency
     if isinstance(n, int):
         return n
     else:
@@ -110,6 +123,19 @@ def floor(n):
 
 
 def ceil(n):
+    """
+    Return the ceiling of a number.
+
+    If the input is an integer, it returns the input unchanged.
+    For floating-point numbers, it returns the smallest integer greater than or equal to the input.
+
+    Args:
+        n (int or float): The number to ceil.
+
+    Returns:
+        int: The ceiling of the input number.
+    """
+    # NOTE: this was just to avoid another dependency
     if isinstance(n, int):
         return n
     else:
@@ -117,7 +143,27 @@ def ceil(n):
 
 
 class colorize:
-    """A context manager for colorizing text in the console"""
+    """
+    A context manager for colorizing text in the console.
+
+    This class can be used either as a context manager or called directly to wrap text in color codes.
+
+    Attributes:
+        colors (dict): A dictionary mapping color names to ANSI color codes.
+
+    Methods:
+        __init__(self, color, text=None): Initialize the colorize object.
+        __enter__(self): Set the color when entering the context.
+        __exit__(self, exc_type, exc_val, exc_tb): Reset the color when exiting the context.
+        __str__(self): Return the colorized text if text was provided.
+
+    Args:
+        color (str or callable): The color to use, either as a string or a function that returns a color.
+        text (str, optional): The text to colorize. If provided, the object can be used directly as a string.
+
+    Raises:
+        Exception: If a color mapping function is provided without text.
+    """
 
     colors = {
         "red": "\033[31m",
@@ -155,7 +201,17 @@ class colorize:
 
 
 def tabulate(d: dict, color=None, delim=":"):
-    """Return an ascii table for a dict with columns [key, value]"""
+    """
+    Return an ASCII table for a dictionary with columns [key, value].
+
+    Args:
+        d (dict): The dictionary to tabulate.
+        color (str or callable, optional): The color to use for the values.
+        delim (str, optional): The delimiter to use between keys and values. Defaults to ':'.
+
+    Returns:
+        str: A string representation of the tabulated dictionary.
+    """
     width = max(len(key) for key in d.keys())
     table = [(key, val) for key, val in d.items()]
     if color:
@@ -166,26 +222,21 @@ def tabulate(d: dict, color=None, delim=":"):
     return table
 
 
-def graph_bar(d: dict, scale=20):
-    """Returns an ascii graph bar (all values between 0 and 1)"""
-    # bars = {key: (val, 1 - val) for key, val in d.items()}
-    bars = {key: (floor(scale * x), scale - floor(scale * x)) for key, x in d.items()}
-    bars = {
-        key: str(colorize("green", "=" * x)) + str(colorize("red", "=" * y))
-        for key, (x, y) in bars.items()
-    }
-
-    bars = {key: bar + f"|{int(100 * d[key])} %" for key, bar in bars.items()}
-    # bars = {key: bar.ljust(20) + f"|{round(d[key], 2)}" for key, bar in bars.items()}
-    return bars
-
-
 ##################
 # UNITTEST
 ##################
 
 
 def serialize_unittest_result(result: unittest.TestResult) -> dict:
+    """
+    Serialize a unittest.TestResult object into a dictionary.
+
+    Args:
+        result (unittest.TestResult): The TestResult object to serialize.
+
+    Returns:
+        dict: A dictionary containing the serialized TestResult data.
+    """
     result: dict = {
         attr: getattr(result, attr)
         for attr in [
@@ -204,6 +255,15 @@ def serialize_unittest_result(result: unittest.TestResult) -> dict:
 
 
 def pretty_test_name(test: unittest.TestCase):
+    """
+    Generate a pretty string representation of a unittest.TestCase.
+
+    Args:
+        test (unittest.TestCase): The test case to generate a name for.
+
+    Returns:
+        str: A string in the format "module.class.method" representing the test case.
+    """
     return f"{test.__module__}.{test.__class__.__qualname__}.{test._testMethodName}"
 
 
@@ -213,7 +273,14 @@ def pretty_test_name(test: unittest.TestCase):
 
 
 def django_setup(settings_module):
+    """
+    Set up the Django environment.
 
+    This function sets the DJANGO_SETTINGS_MODULE environment variable and calls django.setup().
+
+    Args:
+        settings_module (str): The import path to the Django settings module.
+    """
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_module)
     django.setup()
 
@@ -225,8 +292,19 @@ def django_setup(settings_module):
 
 def overwrite_get_runner_kwargs(django_runner: DiscoverRunner, stream):
     """
-    see django.test.runner.DiscoverRunner.get_runner_kwargs
-    this is done to avoid to print the django tests output
+    Overwrite the get_runner_kwargs method of Django's DiscoverRunner.
+
+    This function is used to avoid printing Django test output by redirecting the stream.
+
+    Args:
+        django_runner (DiscoverRunner): The Django test runner instance.
+        stream: The stream to redirect output to.
+
+    Returns:
+        dict: A dictionary of keyword arguments for the test runner.
+
+    Notes:
+        see django.test.runner.DiscoverRunner.get_runner_kwargs
     """
     kwargs = {
         "failfast": django_runner.failfast,
@@ -236,11 +314,3 @@ def overwrite_get_runner_kwargs(django_runner: DiscoverRunner, stream):
     }
     kwargs.update({"stream": stream})
     return kwargs
-
-
-# Print all URL patterns Django is aware of
-# from django.urls import get_resolver
-
-# resolver = get_resolver()
-# for pattern in resolver.url_patterns:
-#     print("*********************", pattern)

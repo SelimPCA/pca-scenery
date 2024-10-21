@@ -3,6 +3,12 @@ import logging
 
 
 def main():
+    """
+    Executes the main functionality of the scenery test runner.
+
+    Returns:
+        dict: A dictionary containing the results of the test run and other metadata.
+    """
 
     result = {}
 
@@ -10,11 +16,9 @@ def main():
     # PARSE ARGUMENTS
     #################
 
-    # TODO: do I really want defaults for settings module ?
-
     parser = argparse.ArgumentParser()
 
-    # TODO: I should be able to take <manifest>.*.<scene>
+    # TODO: <manifest>.*.<scene>
     parser.add_argument(
         "restrict",
         nargs="?",
@@ -121,10 +125,6 @@ def main():
 
     scenery.common.django_setup(settings_module=args.django_settings_module)
 
-    # TODO: I think selim checked something related to this
-    # from django.conf import settings
-    # settings.BLOCK_SOURCE = "markdown"
-
     #############
     # METATESTING
     #############
@@ -142,9 +142,10 @@ def main():
     ###############
 
     # TODO
-
     # with open("app/tests/views/scenery.json", "w") as f:
     #     json.dump(result, f)
+
+    return result
 
 
 if __name__ == "__main__":
@@ -152,5 +153,5 @@ if __name__ == "__main__":
     import sys
 
     main()
-    sys.exit(0)
     # TODO: depends on output actually
+    # sys.exit(0)

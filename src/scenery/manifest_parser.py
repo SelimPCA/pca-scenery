@@ -8,8 +8,16 @@ from yaml.constructor import ConstructorError
 
 
 class ManifestParser:
+    """
+    A class responsible for parsing test manifest files in YAML format.
 
-    # common_items = common.read_yaml("app/tests/views/common_items.yml")
+    This class provides methods to validate, format, and parse manifest files
+    into Python objects that can be used by the testing framework.
+
+    Attributes:
+        common_items (dict): Common items loaded from a YAML file specified by the SCENERY_COMMON_ITEMS environment variable.
+    """
+
     common_items = scenery.common.read_yaml(os.getenv("SCENERY_COMMON_ITEMS"))
 
     ################
@@ -19,12 +27,18 @@ class ManifestParser:
     @staticmethod
     def parse_formatted_dict(d: dict):
         """
-        Parse a dict with all expected keys:
-        - set_up_test_data
-        - set_up
-        - cases
-        - scenes
-        - manifest_origin
+        Parse a dictionary with all expected keys into a Manifest object.
+
+        Args:
+            d (dict): A dictionary containing the manifest data with all expected keys.
+                - set_up_test_data
+                - set_up
+                - cases
+                - scenes
+                - manifest_origin
+
+        Returns:
+            scenery.manifest.Manifest: A Manifest object created from the input dictionary.
         """
 
         d = {key: d[key.value] for key in scenery.manifest.ManifestFormattedDictKeys}
@@ -37,12 +51,21 @@ class ManifestParser:
     @staticmethod
     def validate_dict(d: dict):
         """
-        Check only valid keys at top level
-        Check either plural or singular is provided for case(s)/ scene(s)
+        Validate the top-level keys of a manifest dictionary.
+
+        This method checks if only valid keys are present at the top level and ensures
+        that either singular or plural forms of 'case' and 'scene' are provided, but not both.
+
+        Args:
+            d (dict): The manifest dictionary to validate.
+
+        Raises:
+            ValueError: If invalid keys are present or if the case/scene keys are not correctly specified.
         """
 
         if not all(
-            key in [x.value for x in scenery.manifest.ManifestDictKeys] for key in d.keys()
+            key in [x.value for x in scenery.manifest.ManifestDictKeys]
+            for key in d.keys()
         ):
             raise ValueError(
                 f"Invalid key(s) in {d.keys()} ({d.get('manifest_origin', 'No origin found.')})."
@@ -65,7 +88,15 @@ class ManifestParser:
 
     @staticmethod
     def format_dict(manifest: dict) -> dict:
-        """Reformat as dict with expected keys and provide default values if needed"""
+        """
+        Reformat the manifest dictionary to ensure it has all expected keys and provide default values if needed.
+
+        Args:
+            manifest (dict): The original manifest dictionary.
+
+        Returns:
+            dict: A formatted dictionary with all expected keys.
+        """
         return {
             "set_up_test_data": manifest.get("set_up_test_data", []),
             "set_up": manifest.get("set_up", []),
@@ -94,6 +125,17 @@ class ManifestParser:
 
     @staticmethod
     def parse_dict(d: dict):
+        """
+        Parse a manifest dictionary into a Manifest object.
+
+        This method validates the dictionary, formats it, and then parses it into a Manifest object.
+
+        Args:
+            d (dict): The manifest dictionary to parse.
+
+        Returns:
+            scenery.manifest.Manifest: A Manifest object created from the input dictionary.
+        """
         ManifestParser.validate_dict(d)
         d = ManifestParser.format_dict(d)
         return ManifestParser.parse_formatted_dict(d)
@@ -108,27 +150,28 @@ class ManifestParser:
     @staticmethod
     def validate_yaml(yaml):
         """
-        Check manifest is a dict and keys are expected
+        Validate the structure of a YAML-loaded manifest.
+
+        This method checks if the YAML content is a dictionary and if it contains only expected keys.
+
+        Args:
+            yaml: The YAML content to validate.
+
+        Raises:
+            TypeError: If the YAML content is not a dictionary.
+            ValueError: If the YAML content contains unexpected keys.
         """
 
         if type(yaml) is not dict:
             raise TypeError(f"Manifest need to be a dict not a '{type(yaml)}'")
 
         if not all(
-            key in [x.value for x in scenery.manifest.ManifestYAMLKeys] for key in yaml.keys()
+            key in [x.value for x in scenery.manifest.ManifestYAMLKeys]
+            for key in yaml.keys()
         ):
             raise ValueError(
                 f"Invalid key(s) in {yaml.keys()} ({yaml.get('origin', 'No origin found.')})"
             )
-
-    # @staticmethod
-    # def parse_yaml(filename):
-    #     d = read_yaml(filename)
-    #     ManifestParser.validate_yaml(d)
-    #     d["manifest_origin"] = d.get("manifest_origin", filename)
-    #     if "variables" in d:
-    #         del d["variables"]
-    #     return ManifestParser.parse_dict(d)
 
     @staticmethod
     def _yaml_constructor_case(loader: yaml.SafeLoader, node: yaml.nodes.Node):
@@ -153,13 +196,22 @@ class ManifestParser:
 
     @staticmethod
     def read_manifest_yaml(fn):
-        """A function to read YAML file with custom tags"""
+        """
+        Read a YAML manifest file with custom tags.
+
+        This method uses a custom YAML loader to handle special tags like !case and !common-item.
+
+        Args:
+            fn (str): The filename of the YAML manifest to read.
+
+        Returns:
+            dict: The parsed content of the YAML file.
+        """
 
         # NOTE: inspired by https://matthewpburruss.com/post/yaml/
         # TODO: loader should be a class attribute
 
         # Add constructor
-        # Loader = yaml.SafeLoader
         Loader = yaml.FullLoader
         Loader.add_constructor("!case", ManifestParser._yaml_constructor_case)
         Loader.add_constructor(
@@ -169,47 +221,24 @@ class ManifestParser:
         with open(fn) as f:
             content = yaml.load(f, Loader)
 
-
         return content
 
     @staticmethod
     def parse_yaml(filename):
+        """
+        Parse a YAML manifest file into a Manifest object.
+
+        This method reads the YAML file, validates its content, and then parses it into a Manifest object.
+
+        Args:
+            filename (str): The filename of the YAML manifest to parse.
+
+        Returns:
+            scenery.manifest.Manifest: A Manifest object created from the YAML file.
+        """
         d = ManifestParser.read_manifest_yaml(filename)
         ManifestParser.validate_yaml(d)
         d["manifest_origin"] = d.get("manifest_origin", filename)
         if "variables" in d:
             del d["variables"]
         return ManifestParser.parse_dict(d)
-
-    # @staticmethod
-    # def remind_origin(func):
-    #     """This will be useful when we will dynamically generate manifests"""
-
-    #     def wrapper(d):
-    #         try:
-    #             return func(d)
-    #         except Exception as e:
-    #             if isinstance(d, dict):
-    #                 e.add_note(
-    #                     f"\nManifest origin:{d.get('origin', 'No origin found.')}"
-    #                 )
-    #             raise
-
-    #     return wrapper
-
-
-# def factory_yaml_constructor(cls: type):
-#     """Build the yaml constructor for a given class"""
-
-#     def constructor(loader: yaml.SafeLoader, node: yaml.nodes.Node):
-#         """Construct the required class"""
-#         # print("!!!!!!!!!!!", node)
-#         if isinstance(node, yaml.nodes.MappingNode):
-#             # return cls(**loader.construct_mapping(node))
-#             return cls(**loader.construct_mapping(node, deep=True))
-#         elif isinstance(node, yaml.nodes.ScalarNode):
-#             return cls(loader.construct_scalar(node))
-#         else:
-#             raise NotImplementedError(f"Yaml custom tag for node of type {type(node)}.")
-
-#     return constructor
