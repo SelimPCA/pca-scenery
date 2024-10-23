@@ -22,14 +22,14 @@ import django.http
 class TestSingleKeyDict(unittest.TestCase):
 
     def test(self):
-        d = scenery.common.SingleKeyDict({"key": "value"})
+        d = scenery.manifest.SingleKeyDict({"key": "value"})
         self.assertEqual(d.key, "key")
         self.assertEqual(d.value, "value")
         self.assertEqual(d.as_tuple(), ("key", "value"))
         with self.assertRaisesRegex(
             ValueError, r"^SingleKeyDict should have length 1 not '2'"
         ):
-            d = scenery.common.SingleKeyDict({"1": None, "2": None})
+            d = scenery.manifest.SingleKeyDict({"1": None, "2": None})
 
 
 #####################

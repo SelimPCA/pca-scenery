@@ -1,4 +1,15 @@
 
+<!-- [![TestPyPI version](https://img.shields.io/testpypi/v/pca-scenery.svg)](https://test.pypi.org/project/pca-scenery/)
+[![TestPyPI downloads](https://img.shields.io/testpypi/dm/YOUR-PACKAGE-NAME)](https://test.pypi.org/project/YOUR-PACKAGE-NAME/)
+[![Python versions](https://img.shields.io/pypi/pyversions/YOUR-PACKAGE-NAME.svg)](https://test.pypi.org/project/YOUR-PACKAGE-NAME/)
+[![Tests](https://github.com/USERNAME/REPO-NAME/workflows/Tests/badge.svg)](https://github.com/USERNAME/REPO-NAME/actions?workflow=Tests)
+[![codecov](https://codecov.io/gh/USERNAME/REPO-NAME/branch/main/graph/badge.svg)](https://codecov.io/gh/USERNAME/REPO-NAME)
+[![Documentation Status](https://readthedocs.org/projects/YOUR-PACKAGE-NAME/badge/?version=latest)](https://YOUR-PACKAGE-NAME.readthedocs.io/en/latest/?badge=latest)
+[![MyPy](https://github.com/USERNAME/REPO-NAME/workflows/MyPy/badge.svg)](https://github.com/USERNAME/REPO-NAME/actions?workflow=MyPy) -->
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![License](https://img.shields.io/pypi/l/YOUR-PACKAGE-NAME.svg)](https://github.com/USERNAME/REPO-NAME/blob/main/LICENSE)
+
+
 
 # scenery
 

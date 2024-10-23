@@ -1,27 +1,37 @@
+#!/bin/bash
 set -e
 
-# # if venv is active
-# if [[ "$VIRTUAL_ENV" != "" ]]; then
+# NOTE: to install all versions execute the following
+# for version in 3.11.8 3.12.3; do
+#     pyenv install $version
+# done
+# TODO: add django versions in the matrix (see also github actions)
 
-#     # deactivate
-#     source env/bin/activate
-#     deactivate
-# fi
+# Array of Python versions to test
+PYTHON_VERSIONS=("3.11.8" "3.12.3") # 
 
-# delete existing env and build
-rm -rf ./env_test
-rm -rf ./build
+for version in "${PYTHON_VERSIONS[@]}"; do
+    echo "Testing with Python $version"
+    
+    # Clean up previous environment and build
+    rm -rf "./env_test_$version"
+    rm -rf ./build
+    
+    # Create and activate new environment
+    ~/.pyenv/versions/$version/bin/python -m venv "env_test_$version"
+    source "env_test_$version/bin/activate"
+    
+    # Install and test
+    pip install --upgrade pip
+    pip install .
+    python -m rehearsal
+    
+    # Cleanup
+    deactivate
+    rm -rf "./env_test_$version"
+    rm -rf ./build
+    
+    echo "Completed testing with Python $version"
+    echo "----------------------------------------"
+done
 
-# install python
-~/.pyenv/versions/3.12.3/bin/python -m venv env_test
-
-# active environment
-source env_test/bin/activate
-
-# install dependencies
-pip install --upgrade pip
-pip install .
-
-python -m rehearsal
-
-deactivate
