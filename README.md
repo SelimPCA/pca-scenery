@@ -10,6 +10,7 @@
 <!-- Badges -->
 [![License](https://img.shields.io/pypi/l/YOUR-PACKAGE-NAME.svg)](https://github.com/selimPCA/pca-scenery/blob/master/LICENSE)
 [![Test](https://github.com/selimPCA/pca-scenery/actions/workflows/test.yml/badge.svg)](https://github.com/selimPCA/pca-scenery/actions/workflows/test.yml)
+[![Python Versions](https://img.shields.io/testpypi/pyversions/pca-scenery)](https://img.shields.io/testpypi/pyversions/pca-scenery)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 # scenery
