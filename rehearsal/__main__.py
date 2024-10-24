@@ -56,8 +56,6 @@ def main():
     # OUTPUT
     ########
 
-    from pprint import pprint
-
     for key, val in summary.items():
         if key != "testsRun" and val > 0:
             fail = True
@@ -69,8 +67,7 @@ def main():
     else:
         msg, color, exit = "OK", "green", 0
 
-    print("\nSummary:")
-    pprint(summary)
+    print(f"\n\nSummary:\n{scenery.common.tabulate(summary)}")
     print(f"{scenery.common.colorize(color, msg)}\n\n")
     return exit
 
