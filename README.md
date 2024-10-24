@@ -8,8 +8,8 @@
 [![MyPy](https://github.com/USERNAME/REPO-NAME/workflows/MyPy/badge.svg)](https://github.com/USERNAME/REPO-NAME/actions?workflow=MyPy) -->
 
 <!-- Badges -->
-[![License](https://img.shields.io/pypi/l/YOUR-PACKAGE-NAME.svg)](https://github.com/selimPCA/pca-scenery/blob/main/LICENSE)
-[![Test Package](https://github.com/selimPCA/pca-scenery/actions/workflows/test-package.yml/badge.svg)](https://github.com/selimPCA/pca-scenery/actions/workflows/test-package.yml)
+[![License](https://img.shields.io/pypi/l/YOUR-PACKAGE-NAME.svg)](https://github.com/selimPCA/pca-scenery/blob/master/LICENSE)
+[![Test](https://github.com/selimPCA/pca-scenery/actions/workflows/test.yml/badge.svg)](https://github.com/selimPCA/pca-scenery/actions/workflows/test.yml)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 # scenery
@@ -92,7 +92,6 @@ The full syntax of `scenery` allows you to:
 
 `scenery` relies on 4 environment variables, which can be easily provided by a `scenery_settings.py` file at the root of your project (or any location you prefer).
 
-You also need to provide the Django settings you want to use. Here's an example `scenery_settings.py`:
 
 ```python
 # scenery_settings.py
@@ -106,7 +105,7 @@ SCENERY_TESTED_APP_NAME = "your_app_name"
 
 ### Running Tests
 
-To run your tests, use the following command:
+You also need to provide the Django settings you want to use. To run your tests, use the following command:
 
 ```bash
 python -m scenery --django_settings=your_project.settings.test
