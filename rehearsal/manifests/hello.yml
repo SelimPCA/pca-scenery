@@ -1,8 +1,8 @@
 set_up:
   - reset_db
 
-case:
-  field: value
+# case:
+#   field: value
 
 scene: 
   method: GET

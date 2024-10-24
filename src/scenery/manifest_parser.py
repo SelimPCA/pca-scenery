@@ -63,16 +63,12 @@ class ManifestParser:
             ValueError: If invalid keys are present or if the case/scene keys are not correctly specified.
         """
 
-        if not all(
-            key in [x.value for x in scenery.manifest.ManifestDictKeys]
-            for key in d.keys()
-        ):
+        if not all(key in [x.value for x in scenery.manifest.ManifestDictKeys] for key in d.keys()):
             raise ValueError(
                 f"Invalid key(s) in {d.keys()} ({d.get('manifest_origin', 'No origin found.')})."
             )
 
         for key in ["case", "scene"]:
-
             has_one = key in d
             has_many = f"{key}s" in d
 
@@ -81,7 +77,7 @@ class ManifestParser:
                     f"Both `{key}` and `{key}s` keys are present at top level.",
                 )
 
-            if not (has_one or has_many):
+            if key == "scene" and not (has_one or has_many):
                 raise ValueError(
                     f"Neither `{key}` and `{key}s` keys are present at top level.",
                 )
@@ -110,9 +106,11 @@ class ManifestParser:
         has_one = "case" in d
         has_many = "cases" in d
         if has_one:
-            return {"UNIQUE_CASE": d["case"]}
+            return {"CASE": d["case"]}
         elif has_many:
             return d["cases"]
+        else:
+            return {"NO_CASE": {}}
 
     @staticmethod
     def _format_dict_scenes(d: dict) -> list[dict]:
@@ -166,8 +164,7 @@ class ManifestParser:
             raise TypeError(f"Manifest need to be a dict not a '{type(yaml)}'")
 
         if not all(
-            key in [x.value for x in scenery.manifest.ManifestYAMLKeys]
-            for key in yaml.keys()
+            key in [x.value for x in scenery.manifest.ManifestYAMLKeys] for key in yaml.keys()
         ):
             raise ValueError(
                 f"Invalid key(s) in {yaml.keys()} ({yaml.get('origin', 'No origin found.')})"
@@ -182,7 +179,6 @@ class ManifestParser:
 
     @staticmethod
     def _yaml_constructor_common_item(loader: yaml.SafeLoader, node: yaml.nodes.Node):
-
         if isinstance(node, yaml.nodes.ScalarNode):
             return ManifestParser.common_items[loader.construct_scalar(node)]
         if isinstance(node, yaml.nodes.MappingNode):
@@ -214,9 +210,7 @@ class ManifestParser:
         # Add constructor
         Loader = yaml.FullLoader
         Loader.add_constructor("!case", ManifestParser._yaml_constructor_case)
-        Loader.add_constructor(
-            "!common-item", ManifestParser._yaml_constructor_common_item
-        )
+        Loader.add_constructor("!common-item", ManifestParser._yaml_constructor_common_item)
 
         with open(fn) as f:
             content = yaml.load(f, Loader)

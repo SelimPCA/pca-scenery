@@ -8,17 +8,12 @@ rm -rf ./env
 # active environment
 source env/bin/activate
 
-# install dependencies
-
 # packaging
 pip install --upgrade pip
-python3 -m pip install --upgrade build
-python3 -m pip install --upgrade twine
 
-# doc building
-python3 -m pip install --upgrade mkdocs
-python3 -m pip install --upgrade mkdocs-material
-python3 -m pip install --upgrade mkdocstrings[python]
+# install dependencies
+pip install -r requirements.txt
+pip install -r dev-requirements.txt
 
 # editable install of scenery
 pip install -e .
