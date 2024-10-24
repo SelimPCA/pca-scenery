@@ -6,7 +6,7 @@ def main():
         dict: A dictionary containing the results of the test run and other metadata.
     """
 
-    result = {}
+    out = {}
 
     #################
     # PARSE ARGUMENTS
@@ -60,7 +60,7 @@ def main():
 
     args = parser.parse_args()
 
-    result["metadata"] = {"args": args.__dict__}
+    out["metadata"] = {"args": args.__dict__}
 
     ####################
     # LOGGERS
@@ -98,7 +98,7 @@ def main():
 
     import sysconfig
 
-    result["metadata"].update(
+    out["metadata"].update(
         {
             "stdlib": sysconfig.get_paths()["stdlib"],
             "purelib": sysconfig.get_paths()["purelib"],
@@ -129,7 +129,7 @@ def main():
 
     import collections
 
-    out, summary = {}, collections.Counter()
+    summary = collections.Counter()
     discoverer = MetaTestDiscoverer()
     tests_discovered = discoverer.discover(verbosity=2, restrict=args.restrict)
     runner = MetaTestRunner()
@@ -143,10 +143,10 @@ def main():
     ###############
 
     if args.outupt is not None:
-        with open(args.output, "w") as f:
-            import json
+        import json
 
-            json.dump(result, f)
+        with open(args.output, "w") as f:
+            json.dump(out, f)
 
     for key, val in summary.items():
         if key != "testsRun" and val > 0:
