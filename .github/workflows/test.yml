@@ -40,6 +40,5 @@ jobs:
     - name: Clean up
       if: always()  # Run even if tests fail
       run: |
-        deactivate
         rm -rf env_test
         rm -rf build
