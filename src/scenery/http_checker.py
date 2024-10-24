@@ -166,10 +166,6 @@ class HttpChecker:
             ValueError: If neither 'find' nor 'find_all' arguments are provided in args.
         """
 
-        # NOTE: we do not support xpath as it is not supported by BeautifulSoup
-        # this would require to use lxml
-        # TODO: count number of elements from find_all
-
         soup = BeautifulSoup(response.content, "html.parser")
 
         # Apply the scope
@@ -205,14 +201,13 @@ class HttpChecker:
             )
         for dom_element in dom_elements:
             if text := args.get(scenery.manifest.DomArgument.TEXT):
-                # TODO: this should/could disappear as text is too likely to change
                 django_testcase.assertEqual(
                     dom_element.text,
                     text,
                     f"Expected element text to be '{text}', but got '{dom_element.text}'",
                 )
             if attribute := args.get(scenery.manifest.DomArgument.ATTRIBUTE):
-                # TODO: this should move to manifest parser
+                # TODO: should this move to manifest parser?
                 match attribute["value"]:
                     case str(v) | list(v):
                         pass

@@ -50,9 +50,6 @@ class SingleKeyDict(typing.Generic[SingleKeyDictKey, SingleKeyDictKeyValue]):
     key: SingleKeyDictKey = field(init=False)
     value: SingleKeyDictKeyValue = field(init=False)
 
-    # TODO: it should also be feasible to init with a tuple
-    # and return as a dict
-
     def __post_init__(self):
         self.validate()
         self.key, self.value = next(iter(self._dict.items()))
@@ -155,7 +152,6 @@ class SetUpInstruction:
 
     @classmethod
     def from_object(cls, x):
-
         match x:
             case str(s):
                 cmd_name, args = s, {}
@@ -166,9 +162,7 @@ class SetUpInstruction:
                     f"`SetUpInstruction` cannot be instantiated from dictionnary of length {len(x)}\n{x}"
                 )
             case _:
-                raise TypeError(
-                    f"`SetUpInstruction` cannot be instantiated from {type(x)}"
-                )
+                raise TypeError(f"`SetUpInstruction` cannot be instantiated from {type(x)}")
 
         # return cls(SetUpCommand(cmd_name), args)
         return cls(cmd_name, args)
@@ -187,7 +181,6 @@ class Item:
     _dict: dict
 
     def __getitem__(self, key):
-        # TODO: do I really need this ?
         return self._dict[key]
 
 
@@ -212,14 +205,11 @@ class Case:
     items: dict[str, Item]
 
     def __getitem__(self, item_id):
-        # TODO: do I really need this ?
         return self.items[item_id]
 
     @classmethod
     def from_id_and_dict(cls, case_id: str, items: dict[str, dict]):
-        items = {
-            item_id: Item(item_id, item_dict) for item_id, item_dict in items.items()
-        }
+        items = {item_id: Item(item_id, item_dict) for item_id, item_dict in items.items()}
         return cls(case_id, items)
 
 
@@ -230,19 +220,16 @@ class Case:
 
 @dataclass
 class Substituable:
-
     field_repr: re.Match
     regex_field = re.compile(r"^(?P<item_id>[a-z_]+):?(?P<field_name>[a-z_]+)?$")
 
     def __post_init__(self):
-
         if not (re_match := re.match(self.regex_field, self.field_repr)):
             raise ValueError(f"Invalid field representation '{self.field_repr}'")
         else:
             self.field_repr = re_match
 
     def shoot(self, case: Case):
-
         match self.field_repr.groups():
             case item_id, None:
                 # There is only a reference to the item
@@ -283,44 +270,34 @@ class HttpDirective:
         match self.instruction, self.args:
             case DirectiveCommand.STATUS_CODE, int(n):
                 self.args = http.HTTPStatus(n)
-                # Workaround if we want the class to be frozen
+                # NOTE: Workaround if we want the class to be frozen
                 # object.__setattr__(self, "args", HTTPStatus(n))
                 pass
             case DirectiveCommand.STATUS_CODE, Substituable(_):
-                # TODO: check single field
                 pass
             case DirectiveCommand.DOM_ELEMENT, dict(d):
                 self.args = {DomArgument(key): value for key, value in d.items()}
                 # Check if there is and only one locator
                 locators = [
-                    self.args.get(key, None)
-                    for key in (DomArgument.FIND_ALL, DomArgument.FIND)
+                    self.args.get(key, None) for key in (DomArgument.FIND_ALL, DomArgument.FIND)
                 ]
                 if not any(locators):
-                    raise ValueError(
-                        "Neither `find_all` or `find` provided to check DOM element"
-                    )
+                    raise ValueError("Neither `find_all` or `find` provided to check DOM element")
                 else:
                     locators = list(filter(None, locators))
                     if len(locators) > 1:
                         raise ValueError("More than one locator provided")
 
             case DirectiveCommand.DOM_ELEMENT, Substituable(field_repr, target):
-                # TODO
                 pass
             case DirectiveCommand.REDIRECT_URL, str(s):
                 pass
-                # TODO
             case DirectiveCommand.REDIRECT_URL, Substituable(field_repr, target):
-                # TODO
                 pass
             case DirectiveCommand.COUNT_INSTANCES, {"model": str(s), "n": int(n)}:
-                app_config = django_apps.get_app_config(
-                    os.getenv("SCENERY_TESTED_APP_NAME")
-                )
+                app_config = django_apps.get_app_config(os.getenv("SCENERY_TESTED_APP_NAME"))
                 self.args["model"] = app_config.get_model(s)
             case DirectiveCommand.COUNT_INSTANCES, Substituable(field_repr, target):
-                # TODO
                 pass
             case _:
                 raise ValueError(
@@ -329,7 +306,6 @@ class HttpDirective:
 
     @classmethod
     def from_dict(cls, directive_dict: dict):
-        # print("############", directive_dict)
         instruction, args = SingleKeyDict(directive_dict).as_tuple()
         return cls(DirectiveCommand(instruction), args)
 
@@ -375,39 +351,8 @@ class HttpScene:
 
     @classmethod
     def from_dict(cls, d: dict):
-        d["directives"] = [
-            HttpDirective.from_dict(directive) for directive in d["directives"]
-        ]
+        d["directives"] = [HttpDirective.from_dict(directive) for directive in d["directives"]]
         return cls(**d)
-
-    # @classmethod
-    # def substitute_recursively(cls, x, target: HttpTarget, case: Case):
-    #     """Perform the substitution for a whole target"""
-
-    #     match x:
-    #         case int(n):
-    #             return n
-    #         case str(s):
-    #             return s
-    #         case ModelBase():
-    #             return x
-    #         case HttpDirective(instruction, args):
-    #             return HttpCheck(
-    #                 instruction, cls.substitute_recursively(args, target, case)
-    #             )
-    #         case Substituable(f):
-    #             return x.shoot(case)
-    #         case dict(d):
-    #             return {
-    #                 key: cls.substitute_recursively(value, target, case)
-    #                 for key, value in d.items()
-    #             }
-    #         case list(l):
-    #             return [cls.substitute_recursively(value, target, case) for value in l]
-    #         case _:
-    #             raise NotImplementedError(
-    #                 f"Cannot substitute recursively '{x}' ('{type(x)}')"
-    #             )
 
     @classmethod
     def substitute_recursively(cls, x, case: Case):
@@ -423,28 +368,13 @@ class HttpScene:
             case HttpDirective(instruction, args):
                 return HttpCheck(instruction, cls.substitute_recursively(args, case))
             case dict(_):
-                return {
-                    key: cls.substitute_recursively(value, case)
-                    for key, value in x.items()
-                }
+                return {key: cls.substitute_recursively(value, case) for key, value in x.items()}
             case list(_):
                 return [cls.substitute_recursively(value, case) for value in x]
             case _:
-                raise NotImplementedError(
-                    f"Cannot substitute recursively '{x}' ('{type(x)}')"
-                )
+                raise NotImplementedError(f"Cannot substitute recursively '{x}' ('{type(x)}')")
 
     def shoot(self, case):
-
-        # TODO: queryparameters substituable?
-        # TODO: add headers
-        # print("case")
-        # print(case)
-        # print("data")
-        # print(self.data)
-        # print("sr data")
-        # print(self.substitute_recursively(self.data, case))
-
         return HttpTake(
             method=self.method,
             url=self.url,
@@ -497,10 +427,7 @@ class Manifest:
                 SetUpInstruction.from_object(instruction)
                 for instruction in d[ManifestFormattedDictKeys.SET_UP]
             ],
-            [
-                HttpScene.from_dict(scene)
-                for scene in d[ManifestFormattedDictKeys.SCENES]
-            ],
+            [HttpScene.from_dict(scene) for scene in d[ManifestFormattedDictKeys.SCENES]],
             {
                 case_id: Case.from_id_and_dict(case_id, case_dict)
                 for case_id, case_dict in d[ManifestFormattedDictKeys.CASES].items()
@@ -530,15 +457,11 @@ class HttpCheck(HttpDirective):
                     self.args[DomArgument.ATTRIBUTE]["value"] = (
                         self._format_dom_element_attribute_value(attribute["value"])
                     )
-                # TODO: validate value for other cases
             case DirectiveCommand.REDIRECT_URL, str(s):
                 pass
-                # TODO
             case DirectiveCommand.COUNT_INSTANCES, {"model": ModelBase(), "n": int(n)}:
                 # Validate model is registered
-                app_config = django_apps.get_app_config(
-                    os.getenv("SCENERY_TESTED_APP_NAME")
-                )
+                app_config = django_apps.get_app_config(os.getenv("SCENERY_TESTED_APP_NAME"))
                 app_config.get_model(self.args["model"].__name__)
             case _:
                 raise ValueError(
@@ -598,9 +521,7 @@ class HttpTake:
             # Otherwise we check it is a valid url
             parsed = urlparse(self.url)
             if not (parsed.scheme and parsed.netloc):
-                raise ValueError(
-                    f"'{self.url}' could not be reversed and is not a valid url"
-                )
+                raise ValueError(f"'{self.url}' could not be reversed and is not a valid url")
 
         if self.query_parameters:
             # We use http.urlencode instead for compatibility

@@ -16,7 +16,6 @@ def main():
 
     parser = argparse.ArgumentParser()
 
-    # TODO: <manifest>.*.<scene>
     parser.add_argument(
         "restrict",
         nargs="?",
@@ -66,8 +65,6 @@ def main():
     ####################
     # LOGGERS
     ####################
-
-    # TODO
 
     # level = logging.DEBUG
 

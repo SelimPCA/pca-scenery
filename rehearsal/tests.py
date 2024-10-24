@@ -64,8 +64,9 @@ class TestItem(unittest.TestCase):
         self.assertEqual(item["a"], d["a"])
 
 
-class TestCase(unittest.TestCase):
-    # TODO: wahou this is an incredibly bad name
+class TestManifestCase(unittest.TestCase):
+    # NOTE: the logical name should have been TestCase
+    # but this is an incredibly bad name
 
     def test(self):
         with self.subTest("__init__"):
@@ -595,16 +596,21 @@ class TestHttpChecker(rehearsal.TestCaseOfDjangoTestCase):
                 django_testcase, response, {"model": SomeModel, "n": 1}
             )
 
-        # TODO
-        # def test_error(django_testcase):
-        #     class UndefinedModel:
-        #         pass
+        def test_error(django_testcase):
+            class UndefinedModel:
+                pass
+
+            HttpChecker.check_count_instances(
+                django_testcase, response, {"model": UndefinedModel, "n": 1}
+            )
 
         self.django_testcase.test_pass = test_pass
         self.django_testcase.test_fail = test_fail
+        self.django_testcase.test_error = test_error
 
         self.assertTestPasses(self.django_testcase("test_pass"))
         self.assertTestFails(self.django_testcase("test_fail"))
+        self.assertTestRaises(self.django_testcase("test_error"), Exception)
 
     def test_check_dom_element(self):
         def test_pass_find_by_id(django_testcase):

@@ -142,9 +142,6 @@ class ManifestParser:
     # YAML
     ##########
 
-    # TODO: manifest parser should parse yaml as string,
-    # and have a wrapper to read file
-
     @staticmethod
     def validate_yaml(yaml):
         """
@@ -205,7 +202,6 @@ class ManifestParser:
         """
 
         # NOTE: inspired by https://matthewpburruss.com/post/yaml/
-        # TODO: loader should be a class attribute
 
         # Add constructor
         Loader = yaml.FullLoader

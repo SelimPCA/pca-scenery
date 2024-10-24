@@ -1,9 +1,6 @@
 #!/bin/bash
 set -e
 
-
-# TODO: add django versions in the matrix (see also github actions)
-
 # OPTIONAL ARGUMENT: Python version
 PYTHON_VERSION=${1:-"3.12.3"} 
 

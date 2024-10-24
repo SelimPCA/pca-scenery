@@ -41,7 +41,6 @@ class MetaTest(type):
     """
 
     def __new__(cls, clsname, bases, manifest: Manifest, restrict: None | str = None):
-
         if restrict is not None:
             restrict = restrict.split(".")
             if len(restrict) == 1:
@@ -64,14 +63,10 @@ class MetaTest(type):
         for (case_id, case), (scene_pos, scene) in itertools.product(
             manifest.cases.items(), enumerate(manifest.scenes)
         ):
-
             if restrict is not None:
                 if case_id != restrict_case_id:
                     continue
-                elif (
-                    restrict_scene_pos is not None
-                    and str(scene_pos) != restrict_scene_pos
-                ):
+                elif restrict_scene_pos is not None and str(scene_pos) != restrict_scene_pos:
                     continue
 
             take = scene.shoot(case)
@@ -96,9 +91,7 @@ class MetaTestDiscoverer:
 
     def __init__(self):
         self.logger = logging.getLogger(__package__)
-        self.runner = get_runner(
-            settings, test_runner_class="django.test.runner.DiscoverRunner"
-        )()
+        self.runner = get_runner(settings, test_runner_class="django.test.runner.DiscoverRunner")()
         self.loader = self.runner.test_loader
 
     def discover(self, restrict: None | str = None, verbosity=2):
@@ -142,7 +135,7 @@ class MetaTestDiscoverer:
         folder = os.getenv("SCENERY_MANIFESTS_FOLDER")
 
         if verbosity >= 1:
-            print(f"Manifests discovered:")
+            print("Manifests discovered:")
 
         for filename in os.listdir(folder):
             manifest_name = filename.replace(".yml", "")
@@ -155,9 +148,7 @@ class MetaTestDiscoverer:
             manifest = ManifestParser.parse_yaml(os.path.join(folder, filename))
 
             # Create class
-            cls = MetaTest(
-                manifest_name, (django.test.TestCase,), manifest, restrict=restrict_test
-            )
+            cls = MetaTest(manifest_name, (django.test.TestCase,), manifest, restrict=restrict_test)
 
             # Log / verbosity
             if verbosity >= 2:
@@ -166,7 +157,6 @@ class MetaTestDiscoverer:
             # Load
             tests = self.loader.loadTestsFromTestCase(cls)
             for test in tests:
-
                 test_name = scenery.common.pretty_test_name(test)
                 suite = suite_cls()
                 suite.addTest(test)
@@ -192,19 +182,12 @@ class MetaTestRunner:
         stream (StringIO): A string buffer for capturing test output.
     """
 
-    # TODO: this is VERY similar to rehearsalrunner.run
-    # should probably take the discovered suite as argument
-    # it should be a single TestsRunner
-
     def __init__(self):
         """Initialize the MetaTestRunner with a runner, logger, discoverer, and output stream."""
 
-        self.runner = get_runner(
-            settings, test_runner_class="django.test.runner.DiscoverRunner"
-        )()
+        self.runner = get_runner(settings, test_runner_class="django.test.runner.DiscoverRunner")()
         self.logger = logging.getLogger(__package__)
 
-        # self.discoverer = MetaTestDiscoverer()
         self.stream = io.StringIO()
 
         def overwrite(runner):
@@ -216,7 +199,7 @@ class MetaTestRunner:
 
     def __del__(self):
         """Clean up resources when the MetaTestRunner is deleted."""
-        # TODO: this is not totally reliable, a context manager would be ideal
+        # TODO: a context manager would be ideal
         self.stream.close()
         app_logger = logging.getLogger("app.close_watch")
         app_logger.propagate = True
@@ -240,7 +223,6 @@ class MetaTestRunner:
 
         results = {}
         for test_name, suite in tests_discovered:
-
             result = self.runner.run_suite(suite)
 
             result_serialized = scenery.common.serialize_unittest_result(result)
@@ -254,9 +236,7 @@ class MetaTestRunner:
                 log_lvl, color = logging.ERROR, "red"
             else:
                 log_lvl, color = logging.INFO, "green"
-            self.logger.log(
-                log_lvl, f"{test_name}\n{scenery.common.tabulate(result_serialized)}"
-            )
+            self.logger.log(log_lvl, f"{test_name}\n{scenery.common.tabulate(result_serialized)}")
             if verbosity > 0:
                 print(
                     f">> {scenery.common.colorize(color, test_name)}\n{scenery.common.tabulate({key: val for key, val in result_serialized.items() if val > 0})}"

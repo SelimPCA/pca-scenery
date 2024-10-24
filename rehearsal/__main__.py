@@ -56,11 +56,11 @@ def main():
     # OUTPUT
     ########
 
+    fail = False
     for key, val in summary.items():
         if key != "testsRun" and val > 0:
             fail = True
-        else:
-            fail = False
+            break
 
     if fail:
         msg, color, exit = "FAIL", "red", 1
