@@ -273,7 +273,7 @@ class HttpDirective:
                 # NOTE: Workaround if we want the class to be frozen
                 # object.__setattr__(self, "args", HTTPStatus(n))
                 pass
-            case DirectiveCommand.STATUS_CODE, Substituable(_):
+            case DirectiveCommand.STATUS_CODE, Substituable():
                 pass
             case DirectiveCommand.DOM_ELEMENT, dict(d):
                 self.args = {DomArgument(key): value for key, value in d.items()}
@@ -288,16 +288,16 @@ class HttpDirective:
                     if len(locators) > 1:
                         raise ValueError("More than one locator provided")
 
-            case DirectiveCommand.DOM_ELEMENT, Substituable(field_repr, target):
+            case DirectiveCommand.DOM_ELEMENT, Substituable():
                 pass
             case DirectiveCommand.REDIRECT_URL, str(s):
                 pass
-            case DirectiveCommand.REDIRECT_URL, Substituable(field_repr, target):
+            case DirectiveCommand.REDIRECT_URL, Substituable():
                 pass
             case DirectiveCommand.COUNT_INSTANCES, {"model": str(s), "n": int(n)}:
                 app_config = django_apps.get_app_config(os.getenv("SCENERY_TESTED_APP_NAME"))
                 self.args["model"] = app_config.get_model(s)
-            case DirectiveCommand.COUNT_INSTANCES, Substituable(field_repr, target):
+            case DirectiveCommand.COUNT_INSTANCES, Substituable():
                 pass
             case _:
                 raise ValueError(
@@ -355,7 +355,7 @@ class HttpScene:
         return cls(**d)
 
     @classmethod
-    def substitute_recursively(cls, x, case: Case):
+    def substitute_recursively(cls, x: typing.Any, case: Case) -> typing.Any:
         """Perform the substitution"""
 
         match x:
@@ -374,7 +374,7 @@ class HttpScene:
             case _:
                 raise NotImplementedError(f"Cannot substitute recursively '{x}' ('{type(x)}')")
 
-    def shoot(self, case) -> "HttpTake":
+    def shoot(self, case: Case) -> "HttpTake":
         return HttpTake(
             method=self.method,
             url=self.url,
@@ -469,7 +469,7 @@ class HttpCheck(HttpDirective):
                 )
 
     @staticmethod
-    def _format_dom_element_attribute_value(value) -> list | str:
+    def _format_dom_element_attribute_value(value: str | int | list[str]) -> list[str] | str:
         match value:
             case str(s):
                 return value

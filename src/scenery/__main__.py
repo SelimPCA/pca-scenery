@@ -1,4 +1,5 @@
 import sys
+import typing
 
 
 def main() -> sys._ExitCode:
@@ -9,7 +10,7 @@ def main() -> sys._ExitCode:
         dict: A dictionary containing the results of the test run and other metadata.
     """
 
-    out = {}
+    out: dict[str, dict[str, typing.Any]] = {}
 
     #################
     # PARSE ARGUMENTS
@@ -132,7 +133,7 @@ def main() -> sys._ExitCode:
 
     import collections
 
-    summary = collections.Counter()
+    summary: collections.Counter[str] = collections.Counter()
     discoverer = MetaTestDiscoverer()
     tests_discovered = discoverer.discover(verbosity=2, restrict=args.restrict)
     runner = MetaTestRunner()
@@ -165,7 +166,7 @@ def main() -> sys._ExitCode:
     print(f"Summary:\n{scenery.common.tabulate(summary)}")
     print(f"{scenery.common.colorize(color, msg)}\n\n")
 
-    return sys._ExitCode(exit)
+    return exit
 
 
 if __name__ == "__main__":

@@ -4,6 +4,7 @@ import os
 import importlib
 import importlib.util
 import re
+import types
 import typing
 import unittest
 import numbers
@@ -177,10 +178,10 @@ class colorize:
         "reset": "\033[0m",
     }
 
-    def __init__(self, color: typing.Callable | str, text=None) -> None:
+    def __init__(self, color: str | typing.Callable, text: typing.Optional[str] = None) -> None:
         if callable(color):
             if text is None:
-                raise Exception("Cannot provide a color mapping without text")
+                raise ValueError("Cannot provide a color mapping without text")
             self.color = color(text)
 
         else:
@@ -195,7 +196,7 @@ class colorize:
         self,
         exc_type: typing.Optional[typing.Type[BaseException]],
         exc_val: typing.Optional[BaseException],
-        exc_tb: typing.Optional[typing.TracebackType],
+        exc_tb: typing.Optional[types.TracebackType],
     ) -> None:
         print(self.colors["reset"], end="")  # Reset the color
 
@@ -219,13 +220,12 @@ def tabulate(d: dict, color: typing.Callable | str | None = None, delim: str = "
         str: A string representation of the tabulated dictionary.
     """
     width = max(len(key) for key in d.keys())
-    table = [(key, val) for key, val in d.items()]
+    table: list = [(key, val) for key, val in d.items()]
     if color:
         table = [(key, colorize(color, val)) for key, val in table]
     table = [("\t", key.ljust(width), delim, str(val)) for key, val in table]
     table = ["".join(line) for line in table]
-    table = "\n".join(table)
-    return table
+    return "\n".join(table)
 
 
 ##################
@@ -243,7 +243,7 @@ def serialize_unittest_result(result: unittest.TestResult) -> dict:
     Returns:
         dict: A dictionary containing the serialized TestResult data.
     """
-    result: dict = {
+    d: dict = {
         attr: getattr(result, attr)
         for attr in [
             "failures",
@@ -254,8 +254,8 @@ def serialize_unittest_result(result: unittest.TestResult) -> dict:
             "unexpectedSuccesses",
         ]
     }
-    result = {key: len(val) if isinstance(val, list) else val for key, val in result.items()}
-    return result
+    d = {key: len(val) if isinstance(val, list) else val for key, val in d.items()}
+    return d
 
 
 def pretty_test_name(test: unittest.TestCase) -> str:

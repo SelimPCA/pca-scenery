@@ -21,7 +21,7 @@ class MethodBuilder:
     """
 
     @staticmethod
-    def build_setUpTestData(instructions: list[str]) -> classmethod:
+    def build_setUpTestData(instructions: list[scenery.manifest.SetUpInstruction]) -> classmethod:
         """
         Build a setUpTestData class method for a Django test case.
 
@@ -37,14 +37,14 @@ class MethodBuilder:
 
         def setUpTestData(django_testcase: django.test.TestCase) -> None:
             for instruction in instructions:
-                SetUpHandler.exec_set_up_instruction(
-                    django_testcase, scenery.manifest.SetUpInstruction(instruction)
-                )
+                SetUpHandler.exec_set_up_instruction(django_testcase, instruction)
 
         return classmethod(setUpTestData)
 
     @staticmethod
-    def build_setUp(instructions: list[str]) -> Callable[[django.test.TestCase], None]:
+    def build_setUp(
+        instructions: list[scenery.manifest.SetUpInstruction],
+    ) -> Callable[[django.test.TestCase], None]:
         """
         Build a setUp instance method for a Django test case.
 
@@ -60,9 +60,7 @@ class MethodBuilder:
 
         def setUp(django_testcase: django.test.TestCase) -> None:
             for instruction in instructions:
-                SetUpHandler.exec_set_up_instruction(
-                    django_testcase, scenery.manifest.SetUpInstruction(instruction)
-                )
+                SetUpHandler.exec_set_up_instruction(django_testcase, instruction)
 
         return setUp
 

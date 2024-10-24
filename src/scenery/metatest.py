@@ -2,7 +2,8 @@ import os
 import io
 import logging
 import itertools
-
+import unittest
+import typing
 
 from scenery.manifest import Manifest
 from scenery.method_builder import MethodBuilder
@@ -40,13 +41,19 @@ class MetaTest(type):
         ValueError: If the restrict argument is not in the correct format.
     """
 
-    def __new__(cls, clsname, bases, manifest: Manifest, restrict: None | str = None):
+    def __new__(
+        cls,
+        clsname: str,
+        bases: tuple[type],
+        manifest: Manifest,
+        restrict: typing.Optional[str] = None,
+    ) -> "MetaTest":
         if restrict is not None:
-            restrict = restrict.split(".")
-            if len(restrict) == 1:
-                restrict_case_id, restrict_scene_pos = restrict[0], None
-            elif len(restrict) == 2:
-                restrict_case_id, restrict_scene_pos = restrict[0], restrict[1]
+            restrict_args = restrict.split(".")
+            if len(restrict_args) == 1:
+                restrict_case_id, restrict_scene_pos = restrict_args[0], None
+            elif len(restrict_args) == 2:
+                restrict_case_id, restrict_scene_pos = restrict_args[0], restrict_args[1]
             else:
                 raise ValueError(f"Wrong restrict argmuent {restrict}")
 
@@ -89,12 +96,14 @@ class MetaTestDiscoverer:
         loader (TestLoader): A test loader instance from the runner.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.logger = logging.getLogger(__package__)
         self.runner = get_runner(settings, test_runner_class="django.test.runner.DiscoverRunner")()
         self.loader = self.runner.test_loader
 
-    def discover(self, restrict: None | str = None, verbosity=2):
+    def discover(
+        self, restrict: typing.Optional[str] = None, verbosity: int = 2
+    ) -> list[tuple[str, unittest.TestSuite]]:
         """
         Discover and load tests from manifest files.
 
@@ -112,18 +121,18 @@ class MetaTestDiscoverer:
 
         # handle manifest/test restriction
         if restrict is not None:
-            restrict = restrict.split(".")
-            if len(restrict) == 1:
+            restrict_args = restrict.split(".")
+            if len(restrict_args) == 1:
                 restrict_manifest, restrict_test = (
-                    restrict[0],
+                    restrict_args[0],
                     None,
                 )
-            elif len(restrict) == 2:
-                restrict_manifest, restrict_test = (restrict[0], restrict[1])
-            elif len(restrict) == 3:
+            elif len(restrict_args) == 2:
+                restrict_manifest, restrict_test = (restrict_args[0], restrict_args[1])
+            elif len(restrict_args) == 3:
                 restrict_manifest, restrict_test = (
-                    restrict[0],
-                    restrict[1] + "." + restrict[2],
+                    restrict_args[0],
+                    restrict_args[1] + "." + restrict_args[2],
                 )
         else:
             restrict_manifest, restrict_test = None, None
@@ -182,7 +191,7 @@ class MetaTestRunner:
         stream (StringIO): A string buffer for capturing test output.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the MetaTestRunner with a runner, logger, discoverer, and output stream."""
 
         self.runner = get_runner(settings, test_runner_class="django.test.runner.DiscoverRunner")()
@@ -197,14 +206,14 @@ class MetaTestRunner:
         app_logger = logging.getLogger("app.close_watch")
         app_logger.propagate = False
 
-    def __del__(self):
+    def __del__(self) -> None:
         """Clean up resources when the MetaTestRunner is deleted."""
-        # TODO: a context manager would be ideal
+        # TODO: a context manager would be ideal, let's wait v2
         self.stream.close()
         app_logger = logging.getLogger("app.close_watch")
         app_logger.propagate = True
 
-    def run(self, tests_discovered, verbosity):
+    def run(self, tests_discovered, verbosity) -> dict[str, dict[str, typing.Any]]:
         """
         Run the discovered tests and collect results.
 
