@@ -6,14 +6,15 @@
 [![codecov](https://codecov.io/gh/USERNAME/REPO-NAME/branch/main/graph/badge.svg)](https://codecov.io/gh/USERNAME/REPO-NAME)
 [![Documentation Status](https://readthedocs.org/projects/YOUR-PACKAGE-NAME/badge/?version=latest)](https://YOUR-PACKAGE-NAME.readthedocs.io/en/latest/?badge=latest)
 [![MyPy](https://github.com/USERNAME/REPO-NAME/workflows/MyPy/badge.svg)](https://github.com/USERNAME/REPO-NAME/actions?workflow=MyPy) -->
+
+<!-- Badges -->
+[![License](https://img.shields.io/pypi/l/YOUR-PACKAGE-NAME.svg)](https://github.com/selimPCA/pca-scenery/blob/main/LICENSE)
+[![Test Package](https://github.com/selimPCA/pca-scenery/actions/workflows/test-package.yml/badge.svg)](https://github.com/selimPCA/pca-scenery/actions/workflows/test-package.yml)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![License](https://img.shields.io/pypi/l/YOUR-PACKAGE-NAME.svg)](https://github.com/USERNAME/REPO-NAME/blob/main/LICENSE)
-
-
 
 # scenery
 
-`scenery` simplifies writing extensive and maintainable integration tests for your Django application while keeping your testing codebase as DRY as possible.
+`scenery` simplifies writing extensive and maintainable integration tests for your Django application while keeping your testing codebase DRY.
 
 ![Scenery Demo](https://path/to/your/demo.gif)
 
