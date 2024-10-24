@@ -1,4 +1,7 @@
-def main():
+import sys
+
+
+def main() -> sys._ExitCode:
     """
     Executes the main functionality of the scenery test runner.
 
@@ -162,11 +165,9 @@ def main():
     print(f"Summary:\n{scenery.common.tabulate(summary)}")
     print(f"{scenery.common.colorize(color, msg)}\n\n")
 
-    return exit
+    return sys._ExitCode(exit)
 
 
 if __name__ == "__main__":
-    import sys
-
     exit = main()
     sys.exit(exit)

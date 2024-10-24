@@ -50,17 +50,17 @@ class SingleKeyDict(typing.Generic[SingleKeyDictKey, SingleKeyDictKeyValue]):
     key: SingleKeyDictKey = field(init=False)
     value: SingleKeyDictKeyValue = field(init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.validate()
         self.key, self.value = next(iter(self._dict.items()))
 
-    def validate(self):
+    def validate(self) -> None:
         if len(self._dict) != 1:
             raise ValueError(
                 f"SingleKeyDict should have length 1 not '{len(self._dict)}'\n{self._dict}"
             )
 
-    def as_tuple(self):
+    def as_tuple(self) -> tuple:
         """🔴 This should not be confused with built-in method datclasses.astuple"""
         return self.key, self.value
 
@@ -151,7 +151,7 @@ class SetUpInstruction:
     args: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
-    def from_object(cls, x):
+    def from_object(cls, x: str | dict) -> "SetUpInstruction":
         match x:
             case str(s):
                 cmd_name, args = s, {}
@@ -178,9 +178,9 @@ class Item:
     """Store potential information that will be used to build the HttpRequest"""
 
     _id: str
-    _dict: dict
+    _dict: dict[str, Any]
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> Any:
         return self._dict[key]
 
 
@@ -204,11 +204,11 @@ class Case:
     _id: str
     items: dict[str, Item]
 
-    def __getitem__(self, item_id):
+    def __getitem__(self, item_id: str) -> Item:
         return self.items[item_id]
 
     @classmethod
-    def from_id_and_dict(cls, case_id: str, items: dict[str, dict]):
+    def from_id_and_dict(cls, case_id: str, items: dict[str, dict[str, Any]]) -> "Case":
         items = {item_id: Item(item_id, item_dict) for item_id, item_dict in items.items()}
         return cls(case_id, items)
 
@@ -223,13 +223,13 @@ class Substituable:
     field_repr: re.Match
     regex_field = re.compile(r"^(?P<item_id>[a-z_]+):?(?P<field_name>[a-z_]+)?$")
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not (re_match := re.match(self.regex_field, self.field_repr)):
             raise ValueError(f"Invalid field representation '{self.field_repr}'")
         else:
             self.field_repr = re_match
 
-    def shoot(self, case: Case):
+    def shoot(self, case: Case) -> Any:
         match self.field_repr.groups():
             case item_id, None:
                 # There is only a reference to the item
@@ -264,7 +264,7 @@ class HttpDirective:
     instruction: DirectiveCommand
     args: Any
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Format self.args"""
 
         match self.instruction, self.args:
@@ -305,7 +305,7 @@ class HttpDirective:
                 )
 
     @classmethod
-    def from_dict(cls, directive_dict: dict):
+    def from_dict(cls, directive_dict: dict) -> "HttpDirective":
         instruction, args = SingleKeyDict(directive_dict).as_tuple()
         return cls(DirectiveCommand(instruction), args)
 
@@ -344,13 +344,13 @@ class HttpScene:
     query_parameters: dict = field(default_factory=dict)
     url_parameters: dict = field(default_factory=dict)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.method = http.HTTPMethod(self.method)
         # At this point we don't check url as we wait for subsitution
         # potentially occuring through data/query_parameters/url_parameters
 
     @classmethod
-    def from_dict(cls, d: dict):
+    def from_dict(cls, d: dict) -> "HttpScene":
         d["directives"] = [HttpDirective.from_dict(directive) for directive in d["directives"]]
         return cls(**d)
 
@@ -374,7 +374,7 @@ class HttpScene:
             case _:
                 raise NotImplementedError(f"Cannot substitute recursively '{x}' ('{type(x)}')")
 
-    def shoot(self, case):
+    def shoot(self, case) -> "HttpTake":
         return HttpTake(
             method=self.method,
             url=self.url,
@@ -417,7 +417,7 @@ class Manifest:
     manifest_origin: str
 
     @classmethod
-    def from_formatted_dict(cls, d: dict):
+    def from_formatted_dict(cls, d: dict) -> "Manifest":
         return cls(
             [
                 SetUpInstruction.from_object(instruction)
@@ -445,7 +445,7 @@ class Manifest:
 class HttpCheck(HttpDirective):
     """Store a given check to perform (after the subsitution)"""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Format self.args"""
 
         match self.instruction, self.args:
@@ -469,7 +469,7 @@ class HttpCheck(HttpDirective):
                 )
 
     @staticmethod
-    def _format_dom_element_attribute_value(value):
+    def _format_dom_element_attribute_value(value) -> list | str:
         match value:
             case str(s):
                 return value
@@ -511,7 +511,7 @@ class HttpTake:
     query_parameters: dict
     url_parameters: dict
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.method = http.HTTPMethod(self.method)
 
         try:
@@ -524,7 +524,7 @@ class HttpTake:
                 raise ValueError(f"'{self.url}' could not be reversed and is not a valid url")
 
         if self.query_parameters:
-            # We use http.urlencode instead for compatibility
+            # NOTE: We use http.urlencode instead for compatibility
             # https://stackoverflow.com/questions/4995279/including-a-querystring-in-a-django-core-urlresolvers-reverse-call
             # https://gist.github.com/benbacardi/227f924ec1d9bedd242b
             self.url += "?" + urlencode(self.query_parameters)

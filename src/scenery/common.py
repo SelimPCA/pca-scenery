@@ -6,6 +6,7 @@ import importlib.util
 import re
 import typing
 import unittest
+import numbers
 
 import django
 from django.test.runner import DiscoverRunner
@@ -17,7 +18,7 @@ import yaml
 ########################
 
 
-def scenery_setup(settings_location):
+def scenery_setup(settings_location: str) -> None:
     """
     Read the settings module and set the corresponding environment variables.
     This function imports the specified settings module and sets environment variables
@@ -102,7 +103,7 @@ def snake_to_camel_case(s: str) -> str:
 ##################
 
 
-def floor(n):
+def floor(n: numbers.Real) -> int:
     """
     Return the floor of a number.
 
@@ -122,7 +123,7 @@ def floor(n):
         return int(n // 1)
 
 
-def ceil(n):
+def ceil(n: numbers.Real) -> int:
     """
     Return the ceiling of a number.
 
@@ -176,7 +177,7 @@ class colorize:
         "reset": "\033[0m",
     }
 
-    def __init__(self, color, text=None):
+    def __init__(self, color: typing.Callable | str, text=None) -> None:
         if callable(color):
             if text is None:
                 raise Exception("Cannot provide a color mapping without text")
@@ -186,21 +187,26 @@ class colorize:
             self.color = color
         self.text = text
 
-    def __enter__(self):
+    def __enter__(self) -> "colorize":
         print(self.colors[self.color], end="")  # Set the color
         return self  # Return context manager itself if needed
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(
+        self,
+        exc_type: typing.Optional[typing.Type[BaseException]],
+        exc_val: typing.Optional[BaseException],
+        exc_tb: typing.Optional[typing.TracebackType],
+    ) -> None:
         print(self.colors["reset"], end="")  # Reset the color
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.text is not None:
             return f"{self.colors[self.color]}{self.text}{self.colors['reset']}"
         else:
             return ""
 
 
-def tabulate(d: dict, color=None, delim=":"):
+def tabulate(d: dict, color: typing.Callable | str | None = None, delim: str = ":") -> str:
     """
     Return an ASCII table for a dictionary with columns [key, value].
 
@@ -248,13 +254,11 @@ def serialize_unittest_result(result: unittest.TestResult) -> dict:
             "unexpectedSuccesses",
         ]
     }
-    result = {
-        key: len(val) if isinstance(val, list) else val for key, val in result.items()
-    }
+    result = {key: len(val) if isinstance(val, list) else val for key, val in result.items()}
     return result
 
 
-def pretty_test_name(test: unittest.TestCase):
+def pretty_test_name(test: unittest.TestCase) -> str:
     """
     Generate a pretty string representation of a unittest.TestCase.
 
@@ -272,7 +276,7 @@ def pretty_test_name(test: unittest.TestCase):
 ###################
 
 
-def django_setup(settings_module):
+def django_setup(settings_module: str) -> None:
     """
     Set up the Django environment.
 
@@ -290,7 +294,7 @@ def django_setup(settings_module):
 ###################
 
 
-def overwrite_get_runner_kwargs(django_runner: DiscoverRunner, stream):
+def overwrite_get_runner_kwargs(django_runner: DiscoverRunner, stream: typing.IO) -> dict:
     """
     Overwrite the get_runner_kwargs method of Django's DiscoverRunner.
 

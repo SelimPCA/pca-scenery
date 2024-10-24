@@ -1,8 +1,11 @@
+from typing import Callable
+
 import django.test
 
 import scenery.manifest
 from scenery.http_checker import HttpChecker
 from scenery.set_up_handler import SetUpHandler
+
 
 ################
 # METHOD BUILDER
@@ -18,7 +21,7 @@ class MethodBuilder:
     """
 
     @staticmethod
-    def build_setUpTestData(instructions: list[str]):
+    def build_setUpTestData(instructions: list[str]) -> classmethod:
         """
         Build a setUpTestData class method for a Django test case.
 
@@ -32,15 +35,16 @@ class MethodBuilder:
             classmethod: A class method that can be added to a Django test case.
         """
 
-        def setUpTestData(django_testcase: django.test.TestCase):
-
+        def setUpTestData(django_testcase: django.test.TestCase) -> None:
             for instruction in instructions:
-                SetUpHandler.exec_set_up_instruction(django_testcase, instruction)
+                SetUpHandler.exec_set_up_instruction(
+                    django_testcase, scenery.manifest.SetUpInstruction(instruction)
+                )
 
         return classmethod(setUpTestData)
 
     @staticmethod
-    def build_setUp(instructions: list[str]):
+    def build_setUp(instructions: list[str]) -> Callable[[django.test.TestCase], None]:
         """
         Build a setUp instance method for a Django test case.
 
@@ -54,14 +58,16 @@ class MethodBuilder:
             function: An instance method that can be added to a Django test case.
         """
 
-        def setUp(django_testcase: django.test.TestCase):
+        def setUp(django_testcase: django.test.TestCase) -> None:
             for instruction in instructions:
-                SetUpHandler.exec_set_up_instruction(django_testcase, instruction)
+                SetUpHandler.exec_set_up_instruction(
+                    django_testcase, scenery.manifest.SetUpInstruction(instruction)
+                )
 
         return setUp
 
     @staticmethod
-    def build_test_from_take(take: scenery.manifest.HttpTake):
+    def build_test_from_take(take: scenery.manifest.HttpTake) -> Callable:
         """
         Build a test method from an HttpTake object.
 
@@ -77,10 +83,8 @@ class MethodBuilder:
             function: A test method that can be added to a Django test case.
         """
 
-        def test(django_testcase: django.test.TestCase):
-            response = HttpChecker.get_http_client_response(
-                django_testcase.client, take
-            )
+        def test(django_testcase: django.test.TestCase) -> None:
+            response = HttpChecker.get_http_client_response(django_testcase.client, take)
             for i, check in enumerate(take.checks):
                 with django_testcase.subTest(i=i):
                     HttpChecker.exec_check(django_testcase, response, check)
