@@ -207,7 +207,7 @@ class HttpChecker:
                     f"Expected element text to be '{text}', but got '{dom_element.text}'",
                 )
             if attribute := args.get(scenery.manifest.DomArgument.ATTRIBUTE):
-                # TODO: should this move to manifest parser?
+                # TODO: should this move to manifest parser? we will decide in v2
                 match attribute["value"]:
                     case str(v) | list(v):
                         pass

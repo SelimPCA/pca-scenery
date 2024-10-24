@@ -3,10 +3,10 @@ name: Documentation
 on:
   push:
     branches:
-      - test # master # Set this to your default branch
+      - master 
   pull_request:
     branches:
-      - test # master
+      - master
 
 jobs:
   build-docs:
