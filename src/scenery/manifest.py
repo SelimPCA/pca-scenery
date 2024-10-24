@@ -61,7 +61,7 @@ class SingleKeyDict(typing.Generic[SingleKeyDictKey, SingleKeyDictKeyValue]):
             )
 
     def as_tuple(self):
-        """THIS SHOULD NOT BE CONFUSED WITH BUILT-IN METHOD datclasses.astuple"""
+        """🔴 This should not be confused with built-in method datclasses.astuple"""
         return self.key, self.value
 
 

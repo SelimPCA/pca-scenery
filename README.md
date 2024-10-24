@@ -4,6 +4,7 @@
 <!-- [![Python](https://img.shields.io/testpypi/pyversions/pca-scenery)](https://img.shields.io/testpypi/pyversions/pca-scenery) -->
 <!-- [![Python Versions](https://img.shields.io/badge/python-3.11%20|%203.12%20|%203.13--dev-blue?logo=python&logoColor=white)](https://test.pypi.org/project/pca-scenery/) -->
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://selimpca.github.io/pca-scenery)
 
 # scenery
 

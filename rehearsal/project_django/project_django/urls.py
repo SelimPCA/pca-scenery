@@ -20,7 +20,7 @@ from django.urls import path
 
 try:
     from rehearsal.project_django.some_app import views
-except:
+except ModuleNotFoundError:
     from some_app import views
 
 # app_name = "some_app"
