@@ -60,7 +60,7 @@ def main():
 
     args = parser.parse_args()
 
-    result["args"] = args.__dict__
+    result["metadata"] = {"args": args.__dict__}
 
     ####################
     # LOGGERS
@@ -91,6 +91,20 @@ def main():
     # logger_app.handlers = []
     # logger_app.addHandler(handler_full)
     # logger_app.setLevel(level)
+
+    ####################
+    # SYSTEM CONFIG
+    ####################
+
+    import sysconfig
+
+    result["metadata"].update(
+        {
+            "stdlib": sysconfig.get_paths()["stdlib"],
+            "purelib": sysconfig.get_paths()["purelib"],
+            "scenery": __package__,
+        }
+    )
 
     ##################
     # CONFIG SCENERY
