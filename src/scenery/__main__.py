@@ -1,7 +1,3 @@
-import argparse
-import logging
-
-
 def main():
     """
     Executes the main functionality of the scenery test runner.
@@ -15,6 +11,8 @@ def main():
     #################
     # PARSE ARGUMENTS
     #################
+
+    import argparse
 
     parser = argparse.ArgumentParser()
 
@@ -69,29 +67,29 @@ def main():
     # LOGGERS
     ####################
 
-    # TODO: ajuster avec les micro secondes
+    # TODO
 
-    level = logging.DEBUG
+    # level = logging.DEBUG
 
-    # Format
-    format_log = "[%(asctime)s.%(msecs)03d] [%(name)s] [%(levelname)s] %(message)s"
-    datefmt_ = "%Y-%m-%d %H:%M:%S"
-    formatter = logging.Formatter(fmt=format_log, datefmt=datefmt_)
+    # # Format
+    # format_log = "[%(asctime)s.%(msecs)03d] [%(name)s] [%(levelname)s] %(message)s"
+    # datefmt_ = "%Y-%m-%d %H:%M:%S"
+    # formatter = logging.Formatter(fmt=format_log, datefmt=datefmt_)
 
-    # Handlers
-    if args.output:
-        handler_full = logging.FileHandler(args.output, mode="w")
-        handler_full.setFormatter(formatter)
-        handler_full.setLevel(level)
-    else:
-        handler_full = logging.NullHandler()
+    # # Handlers
+    # if args.output:
+    #     handler_full = logging.FileHandler(args.output, mode="w")
+    #     handler_full.setFormatter(formatter)
+    #     handler_full.setLevel(level)
+    # else:
+    #     handler_full = logging.NullHandler()
 
-    # Scenery
-    logger = logging.getLogger(__package__)
-    logger.addHandler(handler_full)
-    logger.setLevel(level)
+    # # Scenery
+    # logger = logging.getLogger(__package__)
+    # logger.addHandler(handler_full)
+    # logger.setLevel(level)
 
-    # TODO: change? should be in env ?
+    # NOTE: should be in settings
     # logger_app = logging.getLogger("logger_app")
     # logger_app.handlers = []
     # logger_app.addHandler(handler_full)
@@ -118,22 +116,49 @@ def main():
     # NOTE: the imports will fail if loaded before SCENERY_ENV configuration
     from scenery.metatest import MetaTestRunner, MetaTestDiscoverer
 
+    import collections
+
+    out, summary = {}, collections.Counter()
     discoverer = MetaTestDiscoverer()
     tests_discovered = discoverer.discover(verbosity=2, restrict=args.restrict)
     runner = MetaTestRunner()
-    result["metatesting"] = runner.run(tests_discovered, args.verbosity)
+    result = runner.run(tests_discovered, args.verbosity)
+    out.update(result)
+    for val in result.values():
+        summary.update(val)
 
     ###############
     # OUTPUT RESULT
     ###############
 
-    # TODO
-    # with open("app/tests/views/scenery.json", "w") as f:
-    #     json.dump(result, f)
+    if args.outupt is not None:
+        with open(args.output, "w") as f:
+            import json
 
-    return result
+            json.dump(result, f)
+
+    from pprint import pprint
+
+    for key, val in summary.items():
+        if key != "testsRun" and val > 0:
+            fail = True
+        else:
+            fail = False
+
+    if fail:
+        msg, color, exit = "FAIL", "red", 1
+    else:
+        msg, color, exit = "OK", "green", 0
+
+    print("\nSummary:")
+    pprint(summary)
+    print(f"{scenery.common.colorize(color, msg)}\n\n")
+
+    return exit
 
 
 if __name__ == "__main__":
+    import sys
 
-    main()
+    exit = main()
+    sys.exit(exit)

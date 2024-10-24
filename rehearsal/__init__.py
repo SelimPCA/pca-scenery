@@ -29,12 +29,8 @@ class CustomTestResult(unittest.TestResult):
     def addError(
         self,
         test: unittest.TestCase,
-        err: (
-            tuple[type[BaseException], BaseException, TracebackType]
-            | tuple[None, None, None]
-        ),
+        err: (tuple[type[BaseException], BaseException, TracebackType] | tuple[None, None, None]),
     ) -> None:
-
         super().addError(test, err)
         self.caught_exception = err
 
@@ -44,7 +40,7 @@ class CustomTestCase(unittest.TestCase):
 
     @classmethod
     def log_db(cls):
-        # TODO: this depends on django
+        # NOTE: this depends on Django
         app_config = django_apps.get_app_config(os.getenv("SCENERY_TESTED_APP_NAME"))
         for model in app_config.get_models():
             cls.logger.debug(f"{model.__name__}: {model.objects.count()} instances.")
@@ -101,7 +97,6 @@ class TestCaseOfDjangoTestCase(CustomTestCase):
         cls.django_runner.get_test_runner_kwargs = overwrite.__get__(cls.django_runner)
 
         cls.logger_django = logging.getLogger(__package__ + ".rehearsal.django")
-        # TODO use unittest.TestCase(logger)
 
     @classmethod
     def tearDownClass(cls):
@@ -121,9 +116,6 @@ class TestCaseOfDjangoTestCase(CustomTestCase):
         self.django_stream.truncate()
 
     def run_django_testcase(self):
-
-        # TODO: log_db should be injected here with a much more detailed function
-
         suite = unittest.TestSuite()
         tests = self.django_loader.loadTestsFromTestCase(self.django_testcase)
 
@@ -147,18 +139,12 @@ class TestCaseOfDjangoTestCase(CustomTestCase):
     def assertTestFails(self, django_test):
         result = self.run_django_test(django_test)
         self.assertFalse(result.wasSuccessful(), f"{django_test} was not succesfull")
-        self.assertEqual(
-            len(result.errors), 0, f"{django_test} did not raise any error"
-        )
+        self.assertEqual(len(result.errors), 0, f"{django_test} did not raise any error")
 
     def assertTestRaises(self, django_test, expected: BaseException):
         result = self.run_django_test(django_test)
-        self.assertGreater(
-            len(result.errors), 0, f"{django_test} did not raise any error"
-        )
-        self.assertIsNotNone(
-            result.caught_exception, f"{django_test} did not caught any exception"
-        )
+        self.assertGreater(len(result.errors), 0, f"{django_test} did not raise any error")
+        self.assertIsNotNone(result.caught_exception, f"{django_test} did not caught any exception")
         with self.assertRaises(
             expected, msg=f"{django_test} did not raise expected exception {expected}"
         ):
@@ -171,7 +157,6 @@ class TestCaseOfDjangoTestCase(CustomTestCase):
 
 
 class RehearsalDiscoverer:
-
     def __init__(self) -> None:
         self.logger = logging.getLogger("rehearsal")
         self.loader = unittest.TestLoader()
@@ -184,13 +169,12 @@ class RehearsalDiscoverer:
         tests_discovered = []
 
         if verbosity >= 1:
-            print(f"Tests discovered:")
+            print("Tests discovered:")
 
         testsuites = self.loader.loadTestsFromModule(rehearsal.tests)
 
         for testsuite in testsuites:
             for test in testsuite:
-
                 test_name = scenery.common.pretty_test_name(test)
 
                 # Log / verbosity
@@ -210,16 +194,13 @@ class RehearsalDiscoverer:
 
 
 class RehearsalRunner:
-
     def __init__(self):
         self.runner = unittest.TextTestRunner(stream=io.StringIO())
         self.logger = logging.getLogger(__package__ + ".rehearsal")
 
     def run(self, tests_discovered, verbosity):
-
         results = {}
         for test_name, suite in tests_discovered:
-
             # with redirect_stdout():
             result = self.runner.run(suite)
 
@@ -230,9 +211,7 @@ class RehearsalRunner:
                 log_lvl, color = logging.ERROR, "red"
             else:
                 log_lvl, color = logging.INFO, "green"
-            self.logger.log(
-                log_lvl, f"{test_name}\n{scenery.common.tabulate(result_serialized)}"
-            )
+            self.logger.log(log_lvl, f"{test_name}\n{scenery.common.tabulate(result_serialized)}")
             if verbosity > 0:
                 print(
                     f"{scenery.common.colorize(color, test_name)}\n{scenery.common.tabulate({key: val for key, val in result_serialized.items() if val > 0})}"

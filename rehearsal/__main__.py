@@ -1,26 +1,11 @@
-import os
-
-
 def main():
     """Test the package `scenery` itself."""
-
-    result = {}
-
-    #################
-    # PARSE ARGUMENTS
-    #################
-
-    # TODO
-
-    ####################
-    # LOGGERS
-    ####################
-
-    # TODO
 
     ###################
     # CONFIG SCENERY
     ###################
+
+    import os
 
     rehearsal_dir = os.path.abspath(os.path.join(__file__, os.pardir))
 
@@ -46,28 +31,52 @@ def main():
     #############
 
     import rehearsal
+    import collections
 
+    out, summary = {}, collections.Counter()
     discoverer = rehearsal.RehearsalDiscoverer()
     runner = rehearsal.RehearsalRunner()
     tests_discovered = discoverer.discover(verbosity=2)
-    result["testing"] = runner.run(tests_discovered, verbosity=2)
+    result = runner.run(tests_discovered, verbosity=2)
+    out.update(result)
+    for val in result.values():
+        summary.update(val)
 
     from scenery.metatest import MetaTestRunner, MetaTestDiscoverer
 
     discoverer = MetaTestDiscoverer()
     tests_discovered = discoverer.discover(verbosity=2)
     runner = MetaTestRunner()
-    result["metatesting"] = runner.run(tests_discovered, verbosity=2)
+    result = runner.run(tests_discovered, verbosity=2)
+    out.update(result)
+    for val in result.values():
+        summary.update(val)
 
-    ###############
-    # OUTPUT RESULT
-    ###############
+    ########
+    # OUTPUT
+    ########
 
-    # TODO
+    from pprint import pprint
+
+    for key, val in summary.items():
+        if key != "testsRun" and val > 0:
+            fail = True
+        else:
+            fail = False
+
+    if fail:
+        msg, color, exit = "FAIL", "red", 1
+    else:
+        msg, color, exit = "OK", "green", 0
+
+    print("\nSummary:")
+    pprint(summary)
+    print(f"{scenery.common.colorize(color, msg)}\n\n")
+    return exit
 
 
 if __name__ == "__main__":
     import sys
 
-    main()
-    sys.exit(0)
+    exit = main()
+    sys.exit(exit)
